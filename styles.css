@@ -1,0 +1,37 @@
+/* Project-wide custom CSS for Mathe3 Quarto Website */
+
+/* 1. Maximize central content real estate & reduce left/right margin waste on desktop viewports */
+@media (min-width: 992px) {
+  /* Set slim 20px left edge margin, responsive central body, and streamlined 200px right TOC margin */
+  .page-columns #quarto-content {
+    grid-template-columns: [screen-start] 20px [page-start body-start-full] 0px [body-start] minmax(0, 1fr) [body-end] minmax(0, 200px) [page-end body-end-full] 20px [screen-end] !important;
+  }
+  
+  /* Ensure main content container utilizes available left space cleanly */
+  #quarto-content > main.content {
+    padding-left: 0px !important;
+    margin-left: 0px !important;
+    max-width: 100% !important;
+  }
+
+  /* Streamline right TOC margin container */
+  #quarto-margin-sidebar {
+    width: 200px !important;
+  }
+}
+
+/* 2. Force Python printed text output (stdout) to wrap cleanly instead of horizontal scrolling */
+.cell-output pre, 
+.cell-output-stdout pre, 
+.cell-output-display pre,
+div.cell-output pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  overflow-x: auto !important;
+}
+
+/* 3. Ensure images and figure outputs fill 100% of central body width without horizontal scrolling */
+.cell-output-display img, figure img {
+  max-width: 100% !important;
+  height: auto !important;
+}

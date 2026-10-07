@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Mathe3 / Applied Data Science">
+<meta name="dcterms.date" content="2026-09-14">
+
+<title>Data Descriptions: Lessons from Mars – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#celestial-mechanics-data-from-nasa" id="toc-celestial-mechanics-data-from-nasa" class="nav-link active" data-scroll-target="#celestial-mechanics-data-from-nasa">1. Celestial Mechanics: Data from NASA</a></li>
+  <li><a href="#planetary-models-and-simulation" id="toc-planetary-models-and-simulation" class="nav-link" data-scroll-target="#planetary-models-and-simulation">2. Planetary Models and Simulation</a></li>
+  <li><a href="#data-summaries" id="toc-data-summaries" class="nav-link" data-scroll-target="#data-summaries">3. Data Summaries</a>
+  <ul class="collapse">
+  <li><a href="#visual-summaries" id="toc-visual-summaries" class="nav-link" data-scroll-target="#visual-summaries">3.1 Visual Summaries</a></li>
+  <li><a href="#numerical-summaries" id="toc-numerical-summaries" class="nav-link" data-scroll-target="#numerical-summaries">3.2 Numerical Summaries</a></li>
+  </ul></li>
+  <li><a href="#interpretations" id="toc-interpretations" class="nav-link" data-scroll-target="#interpretations">4. Interpretations</a>
+  <ul class="collapse">
+  <li><a href="#right-ascension-ra" id="toc-right-ascension-ra" class="nav-link" data-scroll-target="#right-ascension-ra">4.1 Right Ascension (<code>RA</code>)</a></li>
+  <li><a href="#declination-dec" id="toc-declination-dec" class="nav-link" data-scroll-target="#declination-dec">4.2 Declination (<code>Dec</code>)</a></li>
+  <li><a href="#apparent-magnitude-magnitude" id="toc-apparent-magnitude-magnitude" class="nav-link" data-scroll-target="#apparent-magnitude-magnitude">4.3 Apparent Magnitude (<code>Magnitude</code>)</a></li>
+  </ul></li>
+  <li><a href="#takeaways-and-skepticism" id="toc-takeaways-and-skepticism" class="nav-link" data-scroll-target="#takeaways-and-skepticism">5. Takeaways and Skepticism</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Data Descriptions: Lessons from Mars</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Why Means May Not Be Meaningful</p>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Mathe3 / Applied Data Science </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 14, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> urllib.request</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> json</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">import</span> matplotlib.dates <span class="im">as</span> mdates</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co"># Helper function to render DataFrame head as a clean Markdown table</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="kw">def</span> df_to_markdown(dataframe):</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    cols <span class="op">=</span> <span class="bu">list</span>(dataframe.columns)</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    header <span class="op">=</span> <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cols) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">| "</span> <span class="op">+</span> <span class="st">" | "</span>.join([<span class="st">":---:"</span>] <span class="op">*</span> <span class="bu">len</span>(cols)) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>    rows <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="ss">f"</span><span class="sc">{</span>val<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">if</span> <span class="bu">isinstance</span>(val, <span class="bu">float</span>) <span class="cf">else</span> <span class="bu">str</span>(val) <span class="cf">for</span> val <span class="kw">in</span> row) <span class="op">+</span> <span class="st">" |"</span> <span class="cf">for</span> row <span class="kw">in</span> dataframe.values)</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="cf">return</span> header <span class="op">+</span> rows</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="celestial-mechanics-data-from-nasa" class="level1">
+<h1>1. Celestial Mechanics: Data from NASA</h1>
+<p>To explore how data measurements behave in physical systems, we analyze real long-term observational ephemeris data of the planet <strong>Mars</strong> tracked over a 125-year timeline (1900–2025) obtained from the <a href="https://ssd-api.jpl.nasa.gov/doc/horizons.html" target="_blank" rel="noopener">NASA JPL Horizons API</a>.</p>
+<p>Astronomers track planetary motions using three primary observables:</p>
+<ul>
+<li><strong>Right Ascension (<code>RA</code>)</strong>: Celestial longitude measured in hours (<span class="math inline">\(0\)</span> to <span class="math inline">\(24\text{ h}\)</span>).</li>
+<li><strong>Declination (<code>Dec</code>)</strong>: Celestial latitude measured in degrees (<span class="math inline">\(-26.5^\circ\)</span> to <span class="math inline">\(+26.5^\circ\)</span>).</li>
+<li><strong>Apparent Magnitude (<code>Magnitude</code>)</strong>: Observed luminosity on an inverse logarithmic brightness scale.</li>
+</ul>
+<div id="sec-read-data" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Read Data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Query NASA JPL Horizons API for Mars (Body 499) observed from Earth (500@399) over 125 years (1900-2025)</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>url <span class="op">=</span> (<span class="st">"https://ssd.jpl.nasa.gov/api/horizons.api?"</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>       <span class="st">"format=json&amp;COMMAND='499'&amp;CENTER='500@399'&amp;MAKE_EPHEM='YES'"</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>       <span class="st">"&amp;EPHEM_TYPE='OBSERVER'&amp;START_TIME='1900-01-01'&amp;STOP_TIME='2025-01-01'"</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>       <span class="st">"&amp;STEP_SIZE='14d'&amp;QUANTITIES='1,9'"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a>req <span class="op">=</span> urllib.request.urlopen(url)</span>
+<span id="cb2-8"><a href="#cb2-8"></a>data <span class="op">=</span> json.loads(req.read().decode(<span class="st">'utf-8'</span>))</span>
+<span id="cb2-9"><a href="#cb2-9"></a>result_text <span class="op">=</span> data[<span class="st">'result'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="sec-process-data" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Process Data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Parse ephemeris records between $$SOE (Start of Ephemeris) and $$EOE (End of Ephemeris)</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>start_idx <span class="op">=</span> result_text.find(<span class="st">'$$SOE'</span>) <span class="op">+</span> <span class="dv">6</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>end_idx <span class="op">=</span> result_text.find(<span class="st">'$$EOE'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>lines <span class="op">=</span> result_text[start_idx:end_idx].strip().split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a>records <span class="op">=</span> []</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="cf">for</span> line <span class="kw">in</span> lines:</span>
+<span id="cb3-8"><a href="#cb3-8"></a>    parts <span class="op">=</span> line.strip().split()</span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="cf">if</span> <span class="bu">len</span>(parts) <span class="op">&gt;=</span> <span class="dv">9</span>:</span>
+<span id="cb3-10"><a href="#cb3-10"></a>        <span class="co"># Convert sexagesimal RA (hours, minutes, seconds) to decimal hours [0, 24)</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a>        ra_h <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">2</span>]) <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">3</span>])<span class="op">/</span><span class="fl">60.0</span> <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">4</span>])<span class="op">/</span><span class="fl">3600.0</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>        </span>
+<span id="cb3-13"><a href="#cb3-13"></a>        <span class="co"># Convert sexagesimal Dec (degrees, arcminutes, arcseconds) to signed decimal degrees [-90, +90]</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a>        dec_deg_val <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">5</span>])</span>
+<span id="cb3-15"><a href="#cb3-15"></a>        sign <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span> <span class="cf">if</span> parts[<span class="dv">5</span>].startswith(<span class="st">'-'</span>) <span class="cf">else</span> <span class="fl">1.0</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>        dec_deg <span class="op">=</span> dec_deg_val <span class="op">+</span> sign <span class="op">*</span> (<span class="bu">float</span>(parts[<span class="dv">6</span>])<span class="op">/</span><span class="fl">60.0</span> <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">7</span>])<span class="op">/</span><span class="fl">3600.0</span>)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>        </span>
+<span id="cb3-18"><a href="#cb3-18"></a>        <span class="cf">try</span>:</span>
+<span id="cb3-19"><a href="#cb3-19"></a>            mag <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">8</span>])</span>
+<span id="cb3-20"><a href="#cb3-20"></a>        <span class="cf">except</span> (<span class="pp">ValueError</span>, <span class="pp">IndexError</span>):</span>
+<span id="cb3-21"><a href="#cb3-21"></a>            mag <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb3-22"><a href="#cb3-22"></a>        records.append({<span class="st">'DateStr'</span>: parts[<span class="dv">0</span>], <span class="st">'Date'</span>: pd.to_datetime(parts[<span class="dv">0</span>]), <span class="st">'RA'</span>: ra_h, <span class="st">'Dec'</span>: dec_deg, <span class="st">'Magnitude'</span>: mag})</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="co"># Primary baseline dataset `df` loaded from real NASA JPL Horizons observational data</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a>df <span class="op">=</span> pd.DataFrame(records)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="sec-inspect-data" class="cell" data-fig-height="4.5" data-fig-width="11" data-execution_count="4">
+<details class="code-fold">
+<summary>Inspect Data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="bu">print</span>(<span class="ss">f"Retrieved </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">:,}</span><span class="ss"> real observations from NASA JPL Horizons database (1900–2025) into `df`.</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># Render first 5 rows of `df` formatted nicely as a Markdown table</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>display(Markdown(<span class="st">"**First 5 Observations in Primary DataFrame (`df`)**"</span>))</span>
+<span id="cb4-5"><a href="#cb4-5"></a>display(Markdown(df_to_markdown(df[[<span class="st">'DateStr'</span>, <span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]].head().rename(columns<span class="op">=</span>{<span class="st">'DateStr'</span>: <span class="st">'Date'</span>}))))</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co"># Plot time series directly in Section 1 with 20-year date stamps on x-axis</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-9"><a href="#cb4-9"></a>sns.set_theme(style<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co"># Time Series 1: RA</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>axes[<span class="dv">0</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'RA'</span>], color<span class="op">=</span><span class="st">'darkcyan'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-13"><a href="#cb4-13"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'RA (Hours)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Right Ascension (RA) over Time'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>axes[<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">24</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="co"># Time Series 2: Dec</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a>axes[<span class="dv">1</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'Dec'</span>], color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Dec (Degrees)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-20"><a href="#cb4-20"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Declination (Dec) over Time'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>axes[<span class="dv">1</span>].set_ylim(<span class="op">-</span><span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb4-22"><a href="#cb4-22"></a></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="co"># Time Series 3: Magnitude</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a>axes[<span class="dv">2</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'Magnitude'</span>], color<span class="op">=</span><span class="st">'darkorange'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-25"><a href="#cb4-25"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">'Magnitude (mag)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-26"><a href="#cb4-26"></a>axes[<span class="dv">2</span>].set_xlabel(<span class="st">'Date (Year)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>axes[<span class="dv">2</span>].set_title(<span class="st">'Apparent Magnitude over Time (Opposition Flares)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-28"><a href="#cb4-28"></a>axes[<span class="dv">2</span>].invert_yaxis()</span>
+<span id="cb4-29"><a href="#cb4-29"></a></span>
+<span id="cb4-30"><a href="#cb4-30"></a><span class="co"># Set major x-axis ticks every 20 years</span></span>
+<span id="cb4-31"><a href="#cb4-31"></a>axes[<span class="dv">2</span>].xaxis.set_major_locator(mdates.YearLocator(<span class="dv">20</span>))</span>
+<span id="cb4-32"><a href="#cb4-32"></a>axes[<span class="dv">2</span>].xaxis.set_major_formatter(mdates.DateFormatter(<span class="st">'%Y'</span>))</span>
+<span id="cb4-33"><a href="#cb4-33"></a></span>
+<span id="cb4-34"><a href="#cb4-34"></a>plt.tight_layout()</span>
+<span id="cb4-35"><a href="#cb4-35"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Retrieved 3,262 real observations from NASA JPL Horizons database (1900–2025) into `df`.
+</code></pre>
+</div>
+<div id="sec-inspect-data-1" class="cell-output cell-output-display cell-output-markdown">
+<p><strong>First 5 Observations in Primary DataFrame (<code>df</code>)</strong></p>
+</div>
+<div id="sec-inspect-data-2" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Date</th>
+<th style="text-align: center;">RA</th>
+<th style="text-align: center;">Dec</th>
+<th style="text-align: center;">Magnitude</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1900-Jan-01</td>
+<td style="text-align: center;">19.1121</td>
+<td style="text-align: center;">-23.4973</td>
+<td style="text-align: center;">1.1480</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1900-Jan-15</td>
+<td style="text-align: center;">19.8874</td>
+<td style="text-align: center;">-21.9177</td>
+<td style="text-align: center;">1.0130</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1900-Jan-29</td>
+<td style="text-align: center;">20.6484</td>
+<td style="text-align: center;">-19.5347</td>
+<td style="text-align: center;">1.1030</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1900-Feb-12</td>
+<td style="text-align: center;">21.3891</td>
+<td style="text-align: center;">-16.4554</td>
+<td style="text-align: center;">1.0900</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1900-Feb-26</td>
+<td style="text-align: center;">22.1071</td>
+<td style="text-align: center;">-12.8167</td>
+<td style="text-align: center;">1.0030</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-left">
+<figure class="figure">
+<p><img src="lecture_files/figure-html/sec-inspect-data-output-4.png" id="sec-inspect-data-3" class="quarto-figure quarto-figure-left anchored figure-img" width="1631" height="650"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="planetary-models-and-simulation" class="level1">
+<h1>2. Planetary Models and Simulation</h1>
+<p>In addition to real empirical data, we can build a mathematical model of planetary orbits. Simplified models (such as assuming a circular orbit with constant velocity) capture fundamental behaviors (parallactic retrograde loops, declination bounds, and opposition brightness flares), but miss subtle physical effects like Keplerian speed variations near aphelion.</p>
+<p>The code block below generates a 2,000-year synthetic dataset stored in DataFrame <code>df_sim</code>:</p>
+<div id="sec-simulation" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Simulate Data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># 1. Parameter setup (2,000 years * 52.1775 weeks = 104,355 data points)</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>np.random.seed(<span class="dv">1337</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>jahre <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>wochen_pro_jahr <span class="op">=</span> <span class="fl">52.1775</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>n_points <span class="op">=</span> <span class="bu">int</span>(jahre <span class="op">*</span> wochen_pro_jahr)</span>
+<span id="cb6-6"><a href="#cb6-6"></a></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co"># Time axis (in years)</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, jahre, n_points)</span>
+<span id="cb6-9"><a href="#cb6-9"></a></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co"># --- Variable 1: Right Ascension (RA) ---</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co"># Simplified circular orbit assumption (constant orbital speed)</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a>ra <span class="op">=</span> np.mod(t <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">/</span> <span class="fl">1.8808</span>) <span class="op">*</span> <span class="dv">24</span>, <span class="dv">24</span>)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>ra <span class="op">=</span> np.mod(ra <span class="op">+</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t) <span class="op">*</span> <span class="fl">0.8</span>, <span class="dv">24</span>)</span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co"># --- Variable 2: Declination (Dec) ---</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a>dec <span class="op">=</span> <span class="fl">26.5</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">+</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">/</span> <span class="fl">1.8808</span>) <span class="op">*</span> <span class="fl">0.1</span>)</span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co"># --- Variable 3: Apparent Magnitude ---</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a>synodisch <span class="op">=</span> np.mod(t, <span class="fl">2.135</span>)</span>
+<span id="cb6-20"><a href="#cb6-20"></a>distanz_effekt <span class="op">=</span> np.exp(<span class="op">-</span>((synodisch <span class="op">-</span> <span class="fl">1.07</span>) <span class="op">/</span> <span class="fl">0.12</span>)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb6-21"><a href="#cb6-21"></a>exzentrizitaet <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">/</span> <span class="fl">15.0</span>)</span>
+<span id="cb6-22"><a href="#cb6-22"></a></span>
+<span id="cb6-23"><a href="#cb6-23"></a>magnitude <span class="op">=</span> <span class="fl">1.75</span> <span class="op">-</span> (<span class="fl">3.85</span> <span class="op">*</span> distanz_effekt <span class="op">*</span> exzentrizitaet)</span>
+<span id="cb6-24"><a href="#cb6-24"></a>magnitude <span class="op">=</span> np.clip(magnitude, <span class="op">-</span><span class="fl">2.94</span>, <span class="fl">1.86</span>)</span>
+<span id="cb6-25"><a href="#cb6-25"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="co"># Construct synthetic DataFrame `df_sim`</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a>df_sim <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb6-28"><a href="#cb6-28"></a>    <span class="st">'RA'</span>: ra,</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    <span class="st">'Dec'</span>: dec,</span>
+<span id="cb6-30"><a href="#cb6-30"></a>    <span class="st">'Magnitude'</span>: magnitude</span>
+<span id="cb6-31"><a href="#cb6-31"></a>})</span>
+<span id="cb6-32"><a href="#cb6-32"></a></span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="bu">print</span>(<span class="ss">f"Synthetic simulation complete: </span><span class="sc">{</span><span class="bu">len</span>(df_sim)<span class="sc">:,}</span><span class="ss"> data points generated in DataFrame `df_sim`."</span>)</span>
+<span id="cb6-34"><a href="#cb6-34"></a></span>
+<span id="cb6-35"><a href="#cb6-35"></a><span class="co"># Uncomment the line below to overwrite real NASA data `df` with synthetic simulation data `df_sim`:</span></span>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="co"># df = df_sim[['RA', 'Dec', 'Magnitude']]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Synthetic simulation complete: 104,355 data points generated in DataFrame `df_sim`.</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="data-summaries" class="level1">
+<h1>3. Data Summaries</h1>
+<section id="visual-summaries" class="level3">
+<h3 class="anchored" data-anchor-id="visual-summaries">3.1 Visual Summaries</h3>
+<p>We examine the density distributions of each observable using Kernel Density Estimates (KDE).</p>
+<div id="cell-fig-mars-distributions" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="6">
+<details class="code-fold">
+<summary>Visual Summaries Plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
+<span id="cb8-2"><a href="#cb8-2"></a>sns.set_theme(style<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co"># Plot 1: RA Density (Unimodal / Uniform)</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>sns.kdeplot(df[<span class="st">'RA'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">1.2</span>, color<span class="op">=</span><span class="st">'darkcyan'</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb8-6"><a href="#cb8-6"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Right Ascension (RA)</span><span class="ch">\n</span><span class="st">(Unimodal)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'RA (Hours)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>axes[<span class="dv">0</span>].set_xlim(<span class="dv">0</span>, <span class="dv">24</span>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co"># Plot 2: Dec Density (Bimodal)</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>sns.kdeplot(df[<span class="st">'Dec'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">0.8</span>, color<span class="op">=</span><span class="st">'crimson'</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb8-13"><a href="#cb8-13"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Declination (Dec)</span><span class="ch">\n</span><span class="st">(Bimodal)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Dec (Degrees)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-15"><a href="#cb8-15"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-16"><a href="#cb8-16"></a>axes[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb8-17"><a href="#cb8-17"></a></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co"># Plot 3: Magnitude Density (Skewed)</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>sns.kdeplot(df[<span class="st">'Magnitude'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'darkorange'</span>, ax<span class="op">=</span>axes[<span class="dv">2</span>])</span>
+<span id="cb8-20"><a href="#cb8-20"></a>axes[<span class="dv">2</span>].set_title(<span class="st">'Apparent Magnitude</span><span class="ch">\n</span><span class="st">(Skewed)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb8-21"><a href="#cb8-21"></a>axes[<span class="dv">2</span>].set_xlabel(<span class="st">'Magnitude (mag)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-22"><a href="#cb8-22"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb8-23"><a href="#cb8-23"></a>axes[<span class="dv">2</span>].set_xlim(<span class="op">-</span><span class="fl">3.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb8-24"><a href="#cb8-24"></a>axes[<span class="dv">2</span>].invert_xaxis() <span class="co"># Astronomically correct: Brighter objects (lower/negative values) on right</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a></span>
+<span id="cb8-26"><a href="#cb8-26"></a>plt.tight_layout()</span>
+<span id="cb8-27"><a href="#cb8-27"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-mars-distributions" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mars-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-mars-distributions-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="575">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mars-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Density distribution of Mars celestial observables.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="numerical-summaries" class="level3">
+<h3 class="anchored" data-anchor-id="numerical-summaries">3.2 Numerical Summaries</h3>
+<p>Following visual inspection, we compute standard numerical summary statistics (<code>df.describe()</code> and sample variance) rendered programmatically as a structured table.</p>
+<div class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Numerical Summaries Table</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Select numeric columns for describe and variance calculations</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>df_num <span class="op">=</span> df[[<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb9-3"><a href="#cb9-3"></a>desc <span class="op">=</span> df_num.describe()</span>
+<span id="cb9-4"><a href="#cb9-4"></a>var_series <span class="op">=</span> df_num.var()</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>metrics_map <span class="op">=</span> [</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    (<span class="st">'count'</span>, <span class="st">'Observation Count ($N$)'</span>, <span class="st">'</span><span class="sc">{:,.0f}</span><span class="st">'</span>),</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    (<span class="st">'mean'</span>, <span class="st">'Mean ($</span><span class="er">\</span><span class="st">mu$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    (<span class="st">'std'</span>, <span class="st">'Standard Deviation ($</span><span class="er">\</span><span class="st">sigma$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    (<span class="st">'var'</span>, <span class="st">'Variance ($</span><span class="er">\</span><span class="st">sigma^2$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    (<span class="st">'min'</span>, <span class="st">'Minimum ($0</span><span class="er">\</span><span class="st">%$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-12"><a href="#cb9-12"></a>    (<span class="st">'25%'</span>, <span class="st">'25th Percentile ($Q_1$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-13"><a href="#cb9-13"></a>    (<span class="st">'50%'</span>, <span class="st">'50th Percentile (Median)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-14"><a href="#cb9-14"></a>    (<span class="st">'75%'</span>, <span class="st">'75th Percentile ($Q_3$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-15"><a href="#cb9-15"></a>    (<span class="st">'max'</span>, <span class="st">'Maximum ($100</span><span class="er">\</span><span class="st">%$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb9-16"><a href="#cb9-16"></a>]</span>
+<span id="cb9-17"><a href="#cb9-17"></a></span>
+<span id="cb9-18"><a href="#cb9-18"></a>md_table <span class="op">=</span> <span class="st">"| Statistic / Metric | Right Ascension (`RA`) | Declination (`Dec`) | Apparent Magnitude (`Magnitude`) |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a>md_table <span class="op">+=</span> <span class="st">"| :--- | :---: | :---: | :---: |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a></span>
+<span id="cb9-21"><a href="#cb9-21"></a><span class="cf">for</span> stat_key, stat_label, fmt <span class="kw">in</span> metrics_map:</span>
+<span id="cb9-22"><a href="#cb9-22"></a>    <span class="cf">if</span> stat_key <span class="op">==</span> <span class="st">'var'</span>:</span>
+<span id="cb9-23"><a href="#cb9-23"></a>        vals <span class="op">=</span> [fmt.<span class="bu">format</span>(var_series[col]) <span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb9-24"><a href="#cb9-24"></a>    <span class="cf">else</span>:</span>
+<span id="cb9-25"><a href="#cb9-25"></a>        vals <span class="op">=</span> [fmt.<span class="bu">format</span>(desc.loc[stat_key, col]) <span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb9-26"><a href="#cb9-26"></a>    md_table <span class="op">+=</span> <span class="ss">f"| **</span><span class="sc">{</span>stat_label<span class="sc">}</span><span class="ss">** | </span><span class="sc">{</span>vals[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">2</span>]<span class="sc">}</span><span class="ss"> |</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb9-27"><a href="#cb9-27"></a></span>
+<span id="cb9-28"><a href="#cb9-28"></a>display(Markdown(md_table))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-summary-stats" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-summary-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
+</figcaption>
+<div aria-describedby="tbl-summary-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Statistic / Metric</th>
+<th style="text-align: center;">Right Ascension (<code>RA</code>)</th>
+<th style="text-align: center;">Declination (<code>Dec</code>)</th>
+<th style="text-align: center;">Apparent Magnitude (<code>Magnitude</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Observation Count (<span class="math inline">\(N\)</span>)</strong></td>
+<td style="text-align: center;">3,262</td>
+<td style="text-align: center;">3,262</td>
+<td style="text-align: center;">3,262</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Mean (<span class="math inline">\(\mu\)</span>)</strong></td>
+<td style="text-align: center;">11.6461</td>
+<td style="text-align: center;">1.2024</td>
+<td style="text-align: center;">0.7042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Standard Deviation (<span class="math inline">\(\sigma\)</span>)</strong></td>
+<td style="text-align: center;">6.6010</td>
+<td style="text-align: center;">17.2591</td>
+<td style="text-align: center;">1.0558</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Variance (<span class="math inline">\(\sigma^2\)</span>)</strong></td>
+<td style="text-align: center;">43.5737</td>
+<td style="text-align: center;">297.8764</td>
+<td style="text-align: center;">1.1146</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Minimum (<span class="math inline">\(0\%\)</span>)</strong></td>
+<td style="text-align: center;">0.0222</td>
+<td style="text-align: center;">-28.7673</td>
+<td style="text-align: center;">-2.9510</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>25th Percentile (<span class="math inline">\(Q_1\)</span>)</strong></td>
+<td style="text-align: center;">6.2528</td>
+<td style="text-align: center;">-15.7737</td>
+<td style="text-align: center;">0.1963</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>50th Percentile (Median)</strong></td>
+<td style="text-align: center;">11.4561</td>
+<td style="text-align: center;">2.3726</td>
+<td style="text-align: center;">1.1360</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>75th Percentile (<span class="math inline">\(Q_3\)</span>)</strong></td>
+<td style="text-align: center;">16.8568</td>
+<td style="text-align: center;">18.2367</td>
+<td style="text-align: center;">1.4650</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Maximum (<span class="math inline">\(100\%\)</span>)</strong></td>
+<td style="text-align: center;">23.9704</td>
+<td style="text-align: center;">27.1881</td>
+<td style="text-align: center;">1.8530</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="interpretations" class="level1">
+<h1>4. Interpretations</h1>
+<section id="right-ascension-ra" class="level3">
+<h3 class="anchored" data-anchor-id="right-ascension-ra">4.1 Right Ascension (<code>RA</code>)</h3>
+<ul>
+<li><code>RA</code> spans <span class="math inline">\([0, 24)\)</span> hours across the celestial sphere.</li>
+<li>In real observational data (<code>df</code>), <code>RA</code> exhibits a pronounced accumulation peak around <span class="math inline">\(\sim 11.5\text{ h}\)</span>.</li>
+<li>The position of this peak corresponds to <strong>Aphelion</strong> (where Mars moves slowest in its orbit according to Kepler’s Second Law, spending more time per degree).</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Detailed Analysis of Right Ascension &amp; Real Physics vs.&nbsp;Circular Models
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Real Physics (Keplerian Aphelion Slowdown)</strong>: Real Mars has an eccentric orbit (<span class="math inline">\(e \approx 0.0934\)</span>). Its <strong>Aphelion</strong> (farthest point from the Sun) is located at ecliptic longitude <span class="math inline">\(\sim 154^\circ\)</span>, corresponding to <strong><span class="math inline">\(\text{RA} \approx 11\text{ h} - 12\text{ h}\)</span></strong> (constellation Leo/Virgo). According to Kepler’s Second Law (<em>Equal Areas in Equal Times</em>), Mars travels <strong>slowest near Aphelion</strong> (<span class="math inline">\(v \approx 21.9\text{ km/s}\)</span>) and <strong>fastest near Perihelion</strong> (<span class="math inline">\(v \approx 26.5\text{ km/s}\)</span>). Mars spends <span class="math inline">\(\sim 20\%\)</span> more time per orbit lingering near Aphelion, creating a real physical accumulation peak around <span class="math inline">\(\text{RA} \sim 11.5\text{ h}\)</span> in <code>df</code>.</li>
+<li><strong>Circular Model Assumption</strong>: A simplified circular generator uses constant velocity <span class="math inline">\(\text{ra} = \frac{24}{1.8808} t + \text{parallax}\)</span>. Because speed is held constant, the underlying distribution of a circular model is perfectly uniform across <span class="math inline">\([0, 24)\text{ h}\)</span>.</li>
+<li><strong>Circular Topology</strong>: RA represents directional angles on the celestial sphere (<span class="math inline">\(0.0\text{ h}\)</span> and <span class="math inline">\(23.99\text{ h}\)</span> are physically adjacent). Standard linear summary statistics treat them as opposite extremes, rendering linear means (<span class="math inline">\(\approx 11.65\text{ h}\)</span>) misleading without directional/circular statistics.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="declination-dec" class="level3">
+<h3 class="anchored" data-anchor-id="declination-dec">4.2 Declination (<code>Dec</code>)</h3>
+<ul>
+<li><code>Dec</code> exhibits a strongly <strong>bimodal (U-shaped)</strong> distribution, with twin peaks concentrated near the extrema of <span class="math inline">\(\pm 26.5^\circ\)</span>.</li>
+<li>The mean (<span class="math inline">\(\approx +1.20^\circ\)</span>) and median (<span class="math inline">\(\approx +2.37^\circ\)</span>) point directly to the location of <strong>minimum observed data density</strong>.</li>
+<li><strong>Origin of the <span class="math inline">\(\pm 26.5^\circ\)</span> Extrema</strong>: The declination boundaries are determined by Earth’s axial tilt (<span class="math inline">\(23.44^\circ\)</span>) plus Mars’ orbital inclination (<span class="math inline">\(1.85^\circ\)</span>) relative to the ecliptic plane, causing Mars’ celestial latitude to oscillate smoothly between <span class="math inline">\(-26.5^\circ\)</span> and <span class="math inline">\(+26.5^\circ\)</span>.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Detailed Analysis of Declination
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Harmonic Dwell Time</strong>: Because harmonic motion slows down near maximum amplitudes (<span class="math inline">\(\frac{d}{dt}\sin(\omega t) \to 0\)</span>), Mars lingers near its northern and southern turning points (<span class="math inline">\(\pm 26.5^\circ\)</span>) and rushes through the celestial equator (<span class="math inline">\(0^\circ\)</span>).</li>
+<li><strong>Failure of Unimodal Metrics</strong>: Summary statistics like mean and variance assume a single central cluster. Reporting <span class="math inline">\(\mu = 1.20^\circ\)</span> and <span class="math inline">\(\sigma = 17.26^\circ\)</span> makes the dataset sound like a bell curve centered at <span class="math inline">\(0^\circ\)</span>, completely masking the twin peaks at the boundaries.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="apparent-magnitude-magnitude" class="level3">
+<h3 class="anchored" data-anchor-id="apparent-magnitude-magnitude">4.3 Apparent Magnitude (<code>Magnitude</code>)</h3>
+<ul>
+<li>Highly asymmetric distribution with a dominant baseline peak near faint magnitudes (<span class="math inline">\(+1.1\text{ to }+1.8\)</span> mag) and a long left tail extending to bright magnitudes (down to <span class="math inline">\(-2.95\)</span> mag during opposition flares).</li>
+<li>The mean (<span class="math inline">\(0.70\)</span> mag) is distorted by rare opposition flares and is not very meaningful (giving a magnitude at which Mars is almost never observed). Baseline visual faintness dominates the quantiles (where larger numerical magnitude values denote dimmer visual brightness).</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Detailed Analysis of Apparent Magnitude
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Distortion by Rare Events</strong>: For ~90% of its synodic cycle, Mars is far from Earth and faint. During brief opposition alignments, brightness flares up. The mean (<span class="math inline">\(0.70\)</span> mag) is pulled away from the true baseline mode by these rare flares, giving an average value at which Mars is almost never observed.</li>
+<li><strong>Quantile Collapse</strong>: Because baseline faintness dominates, interquartile range (<span class="math inline">\(IQR\)</span>) collapses, hiding the extreme flare range down to <span class="math inline">\(-2.95\)</span> mag during perihelic oppositions.</li>
+</ul>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="takeaways-and-skepticism" class="level1">
+<h1>5. Takeaways and Skepticism</h1>
+<ol type="1">
+<li><strong>Beware the Gaussian Default</strong>: Introductory courses heavily rely on Normal distribution assumptions (<span class="math inline">\(\mu, \sigma^2\)</span>). As planetary movements demonstrate, physical processes frequently produce uniform, bimodal, and long-tailed distributions where standard means and variances fail to describe the data.</li>
+<li><strong>Summary Tables Condense, But Also Conceal</strong>: Aggregating data points into 8 numbers per variable collapses critical spatial and modal structures (such as bimodal peaks in <code>Dec</code> or opposition spikes in <code>Magnitude</code>).</li>
+<li><strong>Always Look at the Data (EDA First)</strong>: Visual inspection (histograms and KDE density plots) must precede numerical summary calculations. Visual plots immediately reveal multi-modality, skewness, boundary effects, and circular topologies.</li>
+<li><strong>Context &amp; Domain Expertise Matter</strong>: Observables are physical measurements over time. Understanding planetary orbits (Kepler’s laws, retrogrades, synodic cycles, aphelion slowing) explains <em>why</em> distributions take their specific shapes. Note also domain conventions: in astronomy, magnitude is an <strong>inverted logarithmic scale</strong> where larger numbers represent <em>dimmer</em> objects, and lower/negative numbers represent <em>brighter</em> objects.</li>
+<li><strong>Beware of Data Scales, Units, and Transformations</strong>:
+<ul>
+<li>Variables within the same dataset often use completely different units and scales: <code>RA</code> in <strong>hours</strong> (<span class="math inline">\(0–24\text{ h}\)</span>), <code>Dec</code> in <strong>degrees</strong> (<span class="math inline">\(-90^\circ\)</span> to <span class="math inline">\(+90^\circ\)</span>), and <code>Magnitude</code> on an <strong>inverted logarithmic scale</strong>.</li>
+<li>Transforming, standardizing, or normalizing data (e.g.&nbsp;z-score standardization or min-max scaling) requires careful attention to domain units and physical topologies before applying standard algorithms blindly.</li>
+</ul></li>
+<li><strong>Beware of Visualization Artifacts</strong>:
+<ul>
+<li>Analysts must carefully distinguish between <strong>model assumptions</strong>, <strong>physical mechanisms</strong>, and <strong>smoothing artifacts</strong>.</li>
+<li>Density estimation algorithms can introduce boundary smoothing effects (such as KDE edge leaks), whereas physical drivers (like Keplerian velocity variations near aphelion) produce genuine non-uniform data structures. Visual inspection must always be paired with physical domain understanding.</li>
+</ul></li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="an">title:</span><span class="co"> "Data Descriptions: Lessons from Mars"</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="an">subtitle:</span><span class="co"> "Why Means May Not Be Meaningful"</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="an">author:</span><span class="co"> "Mathe3 / Applied Data Science"</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="an">date:</span><span class="co"> "2026-09-14"</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">---</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="in">```{python}</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#| code-summary: "Imports"</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="im">import</span> urllib.request</span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="im">import</span> json</span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="im">import</span> matplotlib.dates <span class="im">as</span> mdates</span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb10-26"><a href="#cb10-26"></a></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="co"># Helper function to render DataFrame head as a clean Markdown table</span></span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="kw">def</span> df_to_markdown(dataframe):</span>
+<span id="cb10-29"><a href="#cb10-29"></a>    cols <span class="op">=</span> <span class="bu">list</span>(dataframe.columns)</span>
+<span id="cb10-30"><a href="#cb10-30"></a>    header <span class="op">=</span> <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cols) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">| "</span> <span class="op">+</span> <span class="st">" | "</span>.join([<span class="st">":---:"</span>] <span class="op">*</span> <span class="bu">len</span>(cols)) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a>    rows <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="ss">f"</span><span class="sc">{</span>val<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">if</span> <span class="bu">isinstance</span>(val, <span class="bu">float</span>) <span class="cf">else</span> <span class="bu">str</span>(val) <span class="cf">for</span> val <span class="kw">in</span> row) <span class="op">+</span> <span class="st">" |"</span> <span class="cf">for</span> row <span class="kw">in</span> dataframe.values)</span>
+<span id="cb10-32"><a href="#cb10-32"></a>    <span class="cf">return</span> header <span class="op">+</span> rows</span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="in">```</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="fu"># 1. Celestial Mechanics: Data from NASA</span></span>
+<span id="cb10-36"><a href="#cb10-36"></a></span>
+<span id="cb10-37"><a href="#cb10-37"></a>To explore how data measurements behave in physical systems, we analyze real long-term observational ephemeris data of the planet **Mars** tracked over a 125-year timeline (1900–2025) obtained from the <span class="co">[</span><span class="ot">NASA JPL Horizons API</span><span class="co">](https://ssd-api.jpl.nasa.gov/doc/horizons.html)</span>{target="_blank" rel="noopener"}.</span>
+<span id="cb10-38"><a href="#cb10-38"></a></span>
+<span id="cb10-39"><a href="#cb10-39"></a>Astronomers track planetary motions using three primary observables:</span>
+<span id="cb10-40"><a href="#cb10-40"></a></span>
+<span id="cb10-41"><a href="#cb10-41"></a><span class="ss">- </span>**Right Ascension (`RA`)**: Celestial longitude measured in hours ($0$ to $24\text{ h}$).</span>
+<span id="cb10-42"><a href="#cb10-42"></a><span class="ss">- </span>**Declination (`Dec`)**: Celestial latitude measured in degrees ($-26.5^\circ$ to $+26.5^\circ$).</span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="ss">- </span>**Apparent Magnitude (`Magnitude`)**: Observed luminosity on an inverse logarithmic brightness scale.</span>
+<span id="cb10-44"><a href="#cb10-44"></a></span>
+<span id="cb10-47"><a href="#cb10-47"></a><span class="in">```{python}</span></span>
+<span id="cb10-48"><a href="#cb10-48"></a><span class="co">#| label: sec-read-data</span></span>
+<span id="cb10-49"><a href="#cb10-49"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#| code-summary: "Read Data"</span></span>
+<span id="cb10-51"><a href="#cb10-51"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-52"><a href="#cb10-52"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-53"><a href="#cb10-53"></a></span>
+<span id="cb10-54"><a href="#cb10-54"></a><span class="co"># Query NASA JPL Horizons API for Mars (Body 499) observed from Earth (500@399) over 125 years (1900-2025)</span></span>
+<span id="cb10-55"><a href="#cb10-55"></a>url <span class="op">=</span> (<span class="st">"https://ssd.jpl.nasa.gov/api/horizons.api?"</span></span>
+<span id="cb10-56"><a href="#cb10-56"></a>       <span class="st">"format=json&amp;COMMAND='499'&amp;CENTER='500@399'&amp;MAKE_EPHEM='YES'"</span></span>
+<span id="cb10-57"><a href="#cb10-57"></a>       <span class="st">"&amp;EPHEM_TYPE='OBSERVER'&amp;START_TIME='1900-01-01'&amp;STOP_TIME='2025-01-01'"</span></span>
+<span id="cb10-58"><a href="#cb10-58"></a>       <span class="st">"&amp;STEP_SIZE='14d'&amp;QUANTITIES='1,9'"</span>)</span>
+<span id="cb10-59"><a href="#cb10-59"></a></span>
+<span id="cb10-60"><a href="#cb10-60"></a>req <span class="op">=</span> urllib.request.urlopen(url)</span>
+<span id="cb10-61"><a href="#cb10-61"></a>data <span class="op">=</span> json.loads(req.read().decode(<span class="st">'utf-8'</span>))</span>
+<span id="cb10-62"><a href="#cb10-62"></a>result_text <span class="op">=</span> data[<span class="st">'result'</span>]</span>
+<span id="cb10-63"><a href="#cb10-63"></a><span class="in">```</span></span>
+<span id="cb10-64"><a href="#cb10-64"></a></span>
+<span id="cb10-67"><a href="#cb10-67"></a><span class="in">```{python}</span></span>
+<span id="cb10-68"><a href="#cb10-68"></a><span class="co">#| label: sec-process-data</span></span>
+<span id="cb10-69"><a href="#cb10-69"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-70"><a href="#cb10-70"></a><span class="co">#| code-summary: "Process Data"</span></span>
+<span id="cb10-71"><a href="#cb10-71"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-72"><a href="#cb10-72"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-73"><a href="#cb10-73"></a></span>
+<span id="cb10-74"><a href="#cb10-74"></a><span class="co"># Parse ephemeris records between $$SOE (Start of Ephemeris) and $$EOE (End of Ephemeris)</span></span>
+<span id="cb10-75"><a href="#cb10-75"></a>start_idx <span class="op">=</span> result_text.find(<span class="st">'$$SOE'</span>) <span class="op">+</span> <span class="dv">6</span></span>
+<span id="cb10-76"><a href="#cb10-76"></a>end_idx <span class="op">=</span> result_text.find(<span class="st">'$$EOE'</span>)</span>
+<span id="cb10-77"><a href="#cb10-77"></a>lines <span class="op">=</span> result_text[start_idx:end_idx].strip().split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
+<span id="cb10-78"><a href="#cb10-78"></a></span>
+<span id="cb10-79"><a href="#cb10-79"></a>records <span class="op">=</span> []</span>
+<span id="cb10-80"><a href="#cb10-80"></a><span class="cf">for</span> line <span class="kw">in</span> lines:</span>
+<span id="cb10-81"><a href="#cb10-81"></a>    parts <span class="op">=</span> line.strip().split()</span>
+<span id="cb10-82"><a href="#cb10-82"></a>    <span class="cf">if</span> <span class="bu">len</span>(parts) <span class="op">&gt;=</span> <span class="dv">9</span>:</span>
+<span id="cb10-83"><a href="#cb10-83"></a>        <span class="co"># Convert sexagesimal RA (hours, minutes, seconds) to decimal hours [0, 24)</span></span>
+<span id="cb10-84"><a href="#cb10-84"></a>        ra_h <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">2</span>]) <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">3</span>])<span class="op">/</span><span class="fl">60.0</span> <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">4</span>])<span class="op">/</span><span class="fl">3600.0</span></span>
+<span id="cb10-85"><a href="#cb10-85"></a>        </span>
+<span id="cb10-86"><a href="#cb10-86"></a>        <span class="co"># Convert sexagesimal Dec (degrees, arcminutes, arcseconds) to signed decimal degrees [-90, +90]</span></span>
+<span id="cb10-87"><a href="#cb10-87"></a>        dec_deg_val <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">5</span>])</span>
+<span id="cb10-88"><a href="#cb10-88"></a>        sign <span class="op">=</span> <span class="op">-</span><span class="fl">1.0</span> <span class="cf">if</span> parts[<span class="dv">5</span>].startswith(<span class="st">'-'</span>) <span class="cf">else</span> <span class="fl">1.0</span></span>
+<span id="cb10-89"><a href="#cb10-89"></a>        dec_deg <span class="op">=</span> dec_deg_val <span class="op">+</span> sign <span class="op">*</span> (<span class="bu">float</span>(parts[<span class="dv">6</span>])<span class="op">/</span><span class="fl">60.0</span> <span class="op">+</span> <span class="bu">float</span>(parts[<span class="dv">7</span>])<span class="op">/</span><span class="fl">3600.0</span>)</span>
+<span id="cb10-90"><a href="#cb10-90"></a>        </span>
+<span id="cb10-91"><a href="#cb10-91"></a>        <span class="cf">try</span>:</span>
+<span id="cb10-92"><a href="#cb10-92"></a>            mag <span class="op">=</span> <span class="bu">float</span>(parts[<span class="dv">8</span>])</span>
+<span id="cb10-93"><a href="#cb10-93"></a>        <span class="cf">except</span> (<span class="pp">ValueError</span>, <span class="pp">IndexError</span>):</span>
+<span id="cb10-94"><a href="#cb10-94"></a>            mag <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb10-95"><a href="#cb10-95"></a>        records.append({<span class="st">'DateStr'</span>: parts[<span class="dv">0</span>], <span class="st">'Date'</span>: pd.to_datetime(parts[<span class="dv">0</span>]), <span class="st">'RA'</span>: ra_h, <span class="st">'Dec'</span>: dec_deg, <span class="st">'Magnitude'</span>: mag})</span>
+<span id="cb10-96"><a href="#cb10-96"></a></span>
+<span id="cb10-97"><a href="#cb10-97"></a><span class="co"># Primary baseline dataset `df` loaded from real NASA JPL Horizons observational data</span></span>
+<span id="cb10-98"><a href="#cb10-98"></a>df <span class="op">=</span> pd.DataFrame(records)</span>
+<span id="cb10-99"><a href="#cb10-99"></a><span class="in">```</span></span>
+<span id="cb10-100"><a href="#cb10-100"></a></span>
+<span id="cb10-103"><a href="#cb10-103"></a><span class="in">```{python}</span></span>
+<span id="cb10-104"><a href="#cb10-104"></a><span class="co">#| label: sec-inspect-data</span></span>
+<span id="cb10-105"><a href="#cb10-105"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-106"><a href="#cb10-106"></a><span class="co">#| code-summary: "Inspect Data"</span></span>
+<span id="cb10-107"><a href="#cb10-107"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-108"><a href="#cb10-108"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb10-109"><a href="#cb10-109"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb10-110"><a href="#cb10-110"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-111"><a href="#cb10-111"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-112"><a href="#cb10-112"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-113"><a href="#cb10-113"></a></span>
+<span id="cb10-114"><a href="#cb10-114"></a><span class="bu">print</span>(<span class="ss">f"Retrieved </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">:,}</span><span class="ss"> real observations from NASA JPL Horizons database (1900–2025) into `df`.</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb10-115"><a href="#cb10-115"></a></span>
+<span id="cb10-116"><a href="#cb10-116"></a><span class="co"># Render first 5 rows of `df` formatted nicely as a Markdown table</span></span>
+<span id="cb10-117"><a href="#cb10-117"></a>display(Markdown(<span class="st">"**First 5 Observations in Primary DataFrame (`df`)**"</span>))</span>
+<span id="cb10-118"><a href="#cb10-118"></a>display(Markdown(df_to_markdown(df[[<span class="st">'DateStr'</span>, <span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]].head().rename(columns<span class="op">=</span>{<span class="st">'DateStr'</span>: <span class="st">'Date'</span>}))))</span>
+<span id="cb10-119"><a href="#cb10-119"></a></span>
+<span id="cb10-120"><a href="#cb10-120"></a><span class="co"># Plot time series directly in Section 1 with 20-year date stamps on x-axis</span></span>
+<span id="cb10-121"><a href="#cb10-121"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.5</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-122"><a href="#cb10-122"></a>sns.set_theme(style<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb10-123"><a href="#cb10-123"></a></span>
+<span id="cb10-124"><a href="#cb10-124"></a><span class="co"># Time Series 1: RA</span></span>
+<span id="cb10-125"><a href="#cb10-125"></a>axes[<span class="dv">0</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'RA'</span>], color<span class="op">=</span><span class="st">'darkcyan'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-126"><a href="#cb10-126"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'RA (Hours)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-127"><a href="#cb10-127"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Right Ascension (RA) over Time'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-128"><a href="#cb10-128"></a>axes[<span class="dv">0</span>].set_ylim(<span class="dv">0</span>, <span class="dv">24</span>)</span>
+<span id="cb10-129"><a href="#cb10-129"></a></span>
+<span id="cb10-130"><a href="#cb10-130"></a><span class="co"># Time Series 2: Dec</span></span>
+<span id="cb10-131"><a href="#cb10-131"></a>axes[<span class="dv">1</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'Dec'</span>], color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-132"><a href="#cb10-132"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Dec (Degrees)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-133"><a href="#cb10-133"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Declination (Dec) over Time'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-134"><a href="#cb10-134"></a>axes[<span class="dv">1</span>].set_ylim(<span class="op">-</span><span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb10-135"><a href="#cb10-135"></a></span>
+<span id="cb10-136"><a href="#cb10-136"></a><span class="co"># Time Series 3: Magnitude</span></span>
+<span id="cb10-137"><a href="#cb10-137"></a>axes[<span class="dv">2</span>].plot(df[<span class="st">'Date'</span>], df[<span class="st">'Magnitude'</span>], color<span class="op">=</span><span class="st">'darkorange'</span>, lw<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-138"><a href="#cb10-138"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">'Magnitude (mag)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-139"><a href="#cb10-139"></a>axes[<span class="dv">2</span>].set_xlabel(<span class="st">'Date (Year)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-140"><a href="#cb10-140"></a>axes[<span class="dv">2</span>].set_title(<span class="st">'Apparent Magnitude over Time (Opposition Flares)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-141"><a href="#cb10-141"></a>axes[<span class="dv">2</span>].invert_yaxis()</span>
+<span id="cb10-142"><a href="#cb10-142"></a></span>
+<span id="cb10-143"><a href="#cb10-143"></a><span class="co"># Set major x-axis ticks every 20 years</span></span>
+<span id="cb10-144"><a href="#cb10-144"></a>axes[<span class="dv">2</span>].xaxis.set_major_locator(mdates.YearLocator(<span class="dv">20</span>))</span>
+<span id="cb10-145"><a href="#cb10-145"></a>axes[<span class="dv">2</span>].xaxis.set_major_formatter(mdates.DateFormatter(<span class="st">'%Y'</span>))</span>
+<span id="cb10-146"><a href="#cb10-146"></a></span>
+<span id="cb10-147"><a href="#cb10-147"></a>plt.tight_layout()</span>
+<span id="cb10-148"><a href="#cb10-148"></a>plt.show()</span>
+<span id="cb10-149"><a href="#cb10-149"></a><span class="in">```</span></span>
+<span id="cb10-150"><a href="#cb10-150"></a></span>
+<span id="cb10-151"><a href="#cb10-151"></a>---</span>
+<span id="cb10-152"><a href="#cb10-152"></a></span>
+<span id="cb10-153"><a href="#cb10-153"></a><span class="fu"># 2. Planetary Models and Simulation</span></span>
+<span id="cb10-154"><a href="#cb10-154"></a></span>
+<span id="cb10-155"><a href="#cb10-155"></a>In addition to real empirical data, we can build a mathematical model of planetary orbits. Simplified models (such as assuming a circular orbit with constant velocity) capture fundamental behaviors (parallactic retrograde loops, declination bounds, and opposition brightness flares), but miss subtle physical effects like Keplerian speed variations near aphelion.</span>
+<span id="cb10-156"><a href="#cb10-156"></a></span>
+<span id="cb10-157"><a href="#cb10-157"></a>The code block below generates a 2,000-year synthetic dataset stored in DataFrame <span class="in">`df_sim`</span>:</span>
+<span id="cb10-158"><a href="#cb10-158"></a></span>
+<span id="cb10-161"><a href="#cb10-161"></a><span class="in">```{python}</span></span>
+<span id="cb10-162"><a href="#cb10-162"></a><span class="co">#| label: sec-simulation</span></span>
+<span id="cb10-163"><a href="#cb10-163"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-164"><a href="#cb10-164"></a><span class="co">#| code-summary: "Simulate Data"</span></span>
+<span id="cb10-165"><a href="#cb10-165"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-166"><a href="#cb10-166"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-167"><a href="#cb10-167"></a></span>
+<span id="cb10-168"><a href="#cb10-168"></a><span class="co"># 1. Parameter setup (2,000 years * 52.1775 weeks = 104,355 data points)</span></span>
+<span id="cb10-169"><a href="#cb10-169"></a>np.random.seed(<span class="dv">1337</span>)</span>
+<span id="cb10-170"><a href="#cb10-170"></a>jahre <span class="op">=</span> <span class="dv">2000</span></span>
+<span id="cb10-171"><a href="#cb10-171"></a>wochen_pro_jahr <span class="op">=</span> <span class="fl">52.1775</span></span>
+<span id="cb10-172"><a href="#cb10-172"></a>n_points <span class="op">=</span> <span class="bu">int</span>(jahre <span class="op">*</span> wochen_pro_jahr)</span>
+<span id="cb10-173"><a href="#cb10-173"></a></span>
+<span id="cb10-174"><a href="#cb10-174"></a><span class="co"># Time axis (in years)</span></span>
+<span id="cb10-175"><a href="#cb10-175"></a>t <span class="op">=</span> np.linspace(<span class="dv">0</span>, jahre, n_points)</span>
+<span id="cb10-176"><a href="#cb10-176"></a></span>
+<span id="cb10-177"><a href="#cb10-177"></a><span class="co"># --- Variable 1: Right Ascension (RA) ---</span></span>
+<span id="cb10-178"><a href="#cb10-178"></a><span class="co"># Simplified circular orbit assumption (constant orbital speed)</span></span>
+<span id="cb10-179"><a href="#cb10-179"></a>ra <span class="op">=</span> np.mod(t <span class="op">*</span> (<span class="fl">1.0</span> <span class="op">/</span> <span class="fl">1.8808</span>) <span class="op">*</span> <span class="dv">24</span>, <span class="dv">24</span>)</span>
+<span id="cb10-180"><a href="#cb10-180"></a>ra <span class="op">=</span> np.mod(ra <span class="op">+</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t) <span class="op">*</span> <span class="fl">0.8</span>, <span class="dv">24</span>)</span>
+<span id="cb10-181"><a href="#cb10-181"></a></span>
+<span id="cb10-182"><a href="#cb10-182"></a><span class="co"># --- Variable 2: Declination (Dec) ---</span></span>
+<span id="cb10-183"><a href="#cb10-183"></a>dec <span class="op">=</span> <span class="fl">26.5</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">+</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">/</span> <span class="fl">1.8808</span>) <span class="op">*</span> <span class="fl">0.1</span>)</span>
+<span id="cb10-184"><a href="#cb10-184"></a></span>
+<span id="cb10-185"><a href="#cb10-185"></a><span class="co"># --- Variable 3: Apparent Magnitude ---</span></span>
+<span id="cb10-186"><a href="#cb10-186"></a>synodisch <span class="op">=</span> np.mod(t, <span class="fl">2.135</span>)</span>
+<span id="cb10-187"><a href="#cb10-187"></a>distanz_effekt <span class="op">=</span> np.exp(<span class="op">-</span>((synodisch <span class="op">-</span> <span class="fl">1.07</span>) <span class="op">/</span> <span class="fl">0.12</span>)<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb10-188"><a href="#cb10-188"></a>exzentrizitaet <span class="op">=</span> <span class="fl">1.0</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> t <span class="op">/</span> <span class="fl">15.0</span>)</span>
+<span id="cb10-189"><a href="#cb10-189"></a></span>
+<span id="cb10-190"><a href="#cb10-190"></a>magnitude <span class="op">=</span> <span class="fl">1.75</span> <span class="op">-</span> (<span class="fl">3.85</span> <span class="op">*</span> distanz_effekt <span class="op">*</span> exzentrizitaet)</span>
+<span id="cb10-191"><a href="#cb10-191"></a>magnitude <span class="op">=</span> np.clip(magnitude, <span class="op">-</span><span class="fl">2.94</span>, <span class="fl">1.86</span>)</span>
+<span id="cb10-192"><a href="#cb10-192"></a></span>
+<span id="cb10-193"><a href="#cb10-193"></a><span class="co"># Construct synthetic DataFrame `df_sim`</span></span>
+<span id="cb10-194"><a href="#cb10-194"></a>df_sim <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb10-195"><a href="#cb10-195"></a>    <span class="st">'RA'</span>: ra,</span>
+<span id="cb10-196"><a href="#cb10-196"></a>    <span class="st">'Dec'</span>: dec,</span>
+<span id="cb10-197"><a href="#cb10-197"></a>    <span class="st">'Magnitude'</span>: magnitude</span>
+<span id="cb10-198"><a href="#cb10-198"></a>})</span>
+<span id="cb10-199"><a href="#cb10-199"></a></span>
+<span id="cb10-200"><a href="#cb10-200"></a><span class="bu">print</span>(<span class="ss">f"Synthetic simulation complete: </span><span class="sc">{</span><span class="bu">len</span>(df_sim)<span class="sc">:,}</span><span class="ss"> data points generated in DataFrame `df_sim`."</span>)</span>
+<span id="cb10-201"><a href="#cb10-201"></a></span>
+<span id="cb10-202"><a href="#cb10-202"></a><span class="co"># Uncomment the line below to overwrite real NASA data `df` with synthetic simulation data `df_sim`:</span></span>
+<span id="cb10-203"><a href="#cb10-203"></a><span class="co"># df = df_sim[['RA', 'Dec', 'Magnitude']]</span></span>
+<span id="cb10-204"><a href="#cb10-204"></a><span class="in">```</span></span>
+<span id="cb10-205"><a href="#cb10-205"></a></span>
+<span id="cb10-206"><a href="#cb10-206"></a>---</span>
+<span id="cb10-207"><a href="#cb10-207"></a></span>
+<span id="cb10-208"><a href="#cb10-208"></a><span class="fu"># 3. Data Summaries</span></span>
+<span id="cb10-209"><a href="#cb10-209"></a></span>
+<span id="cb10-210"><a href="#cb10-210"></a><span class="fu">### 3.1 Visual Summaries</span></span>
+<span id="cb10-211"><a href="#cb10-211"></a></span>
+<span id="cb10-212"><a href="#cb10-212"></a>We examine the density distributions of each observable using Kernel Density Estimates (KDE).</span>
+<span id="cb10-213"><a href="#cb10-213"></a></span>
+<span id="cb10-216"><a href="#cb10-216"></a><span class="in">```{python}</span></span>
+<span id="cb10-217"><a href="#cb10-217"></a><span class="co">#| label: fig-mars-distributions</span></span>
+<span id="cb10-218"><a href="#cb10-218"></a><span class="co">#| fig-cap: "Density distribution of Mars celestial observables."</span></span>
+<span id="cb10-219"><a href="#cb10-219"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-220"><a href="#cb10-220"></a><span class="co">#| code-summary: "Visual Summaries Plot"</span></span>
+<span id="cb10-221"><a href="#cb10-221"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-222"><a href="#cb10-222"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb10-223"><a href="#cb10-223"></a><span class="co">#| fig-height: 4.0</span></span>
+<span id="cb10-224"><a href="#cb10-224"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-225"><a href="#cb10-225"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-226"><a href="#cb10-226"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-227"><a href="#cb10-227"></a></span>
+<span id="cb10-228"><a href="#cb10-228"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
+<span id="cb10-229"><a href="#cb10-229"></a>sns.set_theme(style<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb10-230"><a href="#cb10-230"></a></span>
+<span id="cb10-231"><a href="#cb10-231"></a><span class="co"># Plot 1: RA Density (Unimodal / Uniform)</span></span>
+<span id="cb10-232"><a href="#cb10-232"></a>sns.kdeplot(df[<span class="st">'RA'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">1.2</span>, color<span class="op">=</span><span class="st">'darkcyan'</span>, ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb10-233"><a href="#cb10-233"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Right Ascension (RA)</span><span class="ch">\n</span><span class="st">(Unimodal)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-234"><a href="#cb10-234"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'RA (Hours)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-235"><a href="#cb10-235"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-236"><a href="#cb10-236"></a>axes[<span class="dv">0</span>].set_xlim(<span class="dv">0</span>, <span class="dv">24</span>)</span>
+<span id="cb10-237"><a href="#cb10-237"></a></span>
+<span id="cb10-238"><a href="#cb10-238"></a><span class="co"># Plot 2: Dec Density (Bimodal)</span></span>
+<span id="cb10-239"><a href="#cb10-239"></a>sns.kdeplot(df[<span class="st">'Dec'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">0.8</span>, color<span class="op">=</span><span class="st">'crimson'</span>, ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb10-240"><a href="#cb10-240"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Declination (Dec)</span><span class="ch">\n</span><span class="st">(Bimodal)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-241"><a href="#cb10-241"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Dec (Degrees)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-242"><a href="#cb10-242"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-243"><a href="#cb10-243"></a>axes[<span class="dv">1</span>].set_xlim(<span class="op">-</span><span class="dv">30</span>, <span class="dv">30</span>)</span>
+<span id="cb10-244"><a href="#cb10-244"></a></span>
+<span id="cb10-245"><a href="#cb10-245"></a><span class="co"># Plot 3: Magnitude Density (Skewed)</span></span>
+<span id="cb10-246"><a href="#cb10-246"></a>sns.kdeplot(df[<span class="st">'Magnitude'</span>], fill<span class="op">=</span><span class="va">True</span>, bw_adjust<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'darkorange'</span>, ax<span class="op">=</span>axes[<span class="dv">2</span>])</span>
+<span id="cb10-247"><a href="#cb10-247"></a>axes[<span class="dv">2</span>].set_title(<span class="st">'Apparent Magnitude</span><span class="ch">\n</span><span class="st">(Skewed)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb10-248"><a href="#cb10-248"></a>axes[<span class="dv">2</span>].set_xlabel(<span class="st">'Magnitude (mag)'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-249"><a href="#cb10-249"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">'Density'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb10-250"><a href="#cb10-250"></a>axes[<span class="dv">2</span>].set_xlim(<span class="op">-</span><span class="fl">3.5</span>, <span class="fl">2.5</span>)</span>
+<span id="cb10-251"><a href="#cb10-251"></a>axes[<span class="dv">2</span>].invert_xaxis() <span class="co"># Astronomically correct: Brighter objects (lower/negative values) on right</span></span>
+<span id="cb10-252"><a href="#cb10-252"></a></span>
+<span id="cb10-253"><a href="#cb10-253"></a>plt.tight_layout()</span>
+<span id="cb10-254"><a href="#cb10-254"></a>plt.show()</span>
+<span id="cb10-255"><a href="#cb10-255"></a><span class="in">```</span></span>
+<span id="cb10-256"><a href="#cb10-256"></a></span>
+<span id="cb10-257"><a href="#cb10-257"></a><span class="fu">### 3.2 Numerical Summaries</span></span>
+<span id="cb10-258"><a href="#cb10-258"></a></span>
+<span id="cb10-259"><a href="#cb10-259"></a>Following visual inspection, we compute standard numerical summary statistics (<span class="in">`df.describe()`</span> and sample variance) rendered programmatically as a structured table.</span>
+<span id="cb10-260"><a href="#cb10-260"></a></span>
+<span id="cb10-263"><a href="#cb10-263"></a><span class="in">```{python}</span></span>
+<span id="cb10-264"><a href="#cb10-264"></a><span class="co">#| label: tbl-summary-stats</span></span>
+<span id="cb10-265"><a href="#cb10-265"></a><span class="co">#| tbl-cap: "Descriptive Statistics and Variance for Mars Celestial Observables"</span></span>
+<span id="cb10-266"><a href="#cb10-266"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-267"><a href="#cb10-267"></a><span class="co">#| code-summary: "Numerical Summaries Table"</span></span>
+<span id="cb10-268"><a href="#cb10-268"></a><span class="co">#| code-line-numbers: true</span></span>
+<span id="cb10-269"><a href="#cb10-269"></a></span>
+<span id="cb10-270"><a href="#cb10-270"></a><span class="co"># Select numeric columns for describe and variance calculations</span></span>
+<span id="cb10-271"><a href="#cb10-271"></a>df_num <span class="op">=</span> df[[<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb10-272"><a href="#cb10-272"></a>desc <span class="op">=</span> df_num.describe()</span>
+<span id="cb10-273"><a href="#cb10-273"></a>var_series <span class="op">=</span> df_num.var()</span>
+<span id="cb10-274"><a href="#cb10-274"></a></span>
+<span id="cb10-275"><a href="#cb10-275"></a>metrics_map <span class="op">=</span> [</span>
+<span id="cb10-276"><a href="#cb10-276"></a>    (<span class="st">'count'</span>, <span class="st">'Observation Count ($N$)'</span>, <span class="st">'</span><span class="sc">{:,.0f}</span><span class="st">'</span>),</span>
+<span id="cb10-277"><a href="#cb10-277"></a>    (<span class="st">'mean'</span>, <span class="st">'Mean ($</span><span class="er">\</span><span class="st">mu$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-278"><a href="#cb10-278"></a>    (<span class="st">'std'</span>, <span class="st">'Standard Deviation ($</span><span class="er">\</span><span class="st">sigma$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-279"><a href="#cb10-279"></a>    (<span class="st">'var'</span>, <span class="st">'Variance ($</span><span class="er">\</span><span class="st">sigma^2$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-280"><a href="#cb10-280"></a>    (<span class="st">'min'</span>, <span class="st">'Minimum ($0</span><span class="er">\</span><span class="st">%$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-281"><a href="#cb10-281"></a>    (<span class="st">'25%'</span>, <span class="st">'25th Percentile ($Q_1$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-282"><a href="#cb10-282"></a>    (<span class="st">'50%'</span>, <span class="st">'50th Percentile (Median)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-283"><a href="#cb10-283"></a>    (<span class="st">'75%'</span>, <span class="st">'75th Percentile ($Q_3$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-284"><a href="#cb10-284"></a>    (<span class="st">'max'</span>, <span class="st">'Maximum ($100</span><span class="er">\</span><span class="st">%$)'</span>, <span class="st">'</span><span class="sc">{:.4f}</span><span class="st">'</span>),</span>
+<span id="cb10-285"><a href="#cb10-285"></a>]</span>
+<span id="cb10-286"><a href="#cb10-286"></a></span>
+<span id="cb10-287"><a href="#cb10-287"></a>md_table <span class="op">=</span> <span class="st">"| Statistic / Metric | Right Ascension (`RA`) | Declination (`Dec`) | Apparent Magnitude (`Magnitude`) |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb10-288"><a href="#cb10-288"></a>md_table <span class="op">+=</span> <span class="st">"| :--- | :---: | :---: | :---: |</span><span class="ch">\n</span><span class="st">"</span></span>
+<span id="cb10-289"><a href="#cb10-289"></a></span>
+<span id="cb10-290"><a href="#cb10-290"></a><span class="cf">for</span> stat_key, stat_label, fmt <span class="kw">in</span> metrics_map:</span>
+<span id="cb10-291"><a href="#cb10-291"></a>    <span class="cf">if</span> stat_key <span class="op">==</span> <span class="st">'var'</span>:</span>
+<span id="cb10-292"><a href="#cb10-292"></a>        vals <span class="op">=</span> [fmt.<span class="bu">format</span>(var_series[col]) <span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb10-293"><a href="#cb10-293"></a>    <span class="cf">else</span>:</span>
+<span id="cb10-294"><a href="#cb10-294"></a>        vals <span class="op">=</span> [fmt.<span class="bu">format</span>(desc.loc[stat_key, col]) <span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
+<span id="cb10-295"><a href="#cb10-295"></a>    md_table <span class="op">+=</span> <span class="ss">f"| **</span><span class="sc">{</span>stat_label<span class="sc">}</span><span class="ss">** | </span><span class="sc">{</span>vals[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">2</span>]<span class="sc">}</span><span class="ss"> |</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb10-296"><a href="#cb10-296"></a></span>
+<span id="cb10-297"><a href="#cb10-297"></a>display(Markdown(md_table))</span>
+<span id="cb10-298"><a href="#cb10-298"></a><span class="in">```</span></span>
+<span id="cb10-299"><a href="#cb10-299"></a></span>
+<span id="cb10-300"><a href="#cb10-300"></a>---</span>
+<span id="cb10-301"><a href="#cb10-301"></a></span>
+<span id="cb10-302"><a href="#cb10-302"></a><span class="fu"># 4. Interpretations</span></span>
+<span id="cb10-303"><a href="#cb10-303"></a></span>
+<span id="cb10-304"><a href="#cb10-304"></a><span class="fu">### 4.1 Right Ascension (`RA`)</span></span>
+<span id="cb10-305"><a href="#cb10-305"></a></span>
+<span id="cb10-306"><a href="#cb10-306"></a><span class="ss">- </span><span class="in">`RA`</span> spans $[0, 24)$ hours across the celestial sphere.</span>
+<span id="cb10-307"><a href="#cb10-307"></a><span class="ss">- </span>In real observational data (<span class="in">`df`</span>), <span class="in">`RA`</span> exhibits a pronounced accumulation peak around $\sim 11.5\text{ h}$.</span>
+<span id="cb10-308"><a href="#cb10-308"></a><span class="ss">- </span>The position of this peak corresponds to **Aphelion** (where Mars moves slowest in its orbit according to Kepler's Second Law, spending more time per degree).</span>
+<span id="cb10-309"><a href="#cb10-309"></a></span>
+<span id="cb10-310"><a href="#cb10-310"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-311"><a href="#cb10-311"></a><span class="fu">### Detailed Analysis of Right Ascension &amp; Real Physics vs. Circular Models</span></span>
+<span id="cb10-312"><a href="#cb10-312"></a><span class="ss">- </span>**Real Physics (Keplerian Aphelion Slowdown)**: Real Mars has an eccentric orbit ($e \approx 0.0934$). Its **Aphelion** (farthest point from the Sun) is located at ecliptic longitude $\sim 154^\circ$, corresponding to **$\text{RA} \approx 11\text{ h} - 12\text{ h}$** (constellation Leo/Virgo). According to Kepler's Second Law (*Equal Areas in Equal Times*), Mars travels **slowest near Aphelion** ($v \approx 21.9\text{ km/s}$) and **fastest near Perihelion** ($v \approx 26.5\text{ km/s}$). Mars spends $\sim 20\%$ more time per orbit lingering near Aphelion, creating a real physical accumulation peak around $\text{RA} \sim 11.5\text{ h}$ in <span class="in">`df`</span>.</span>
+<span id="cb10-313"><a href="#cb10-313"></a><span class="ss">- </span>**Circular Model Assumption**: A simplified circular generator uses constant velocity $\text{ra} = \frac{24}{1.8808} t + \text{parallax}$. Because speed is held constant, the underlying distribution of a circular model is perfectly uniform across $[0, 24)\text{ h}$.</span>
+<span id="cb10-314"><a href="#cb10-314"></a><span class="ss">- </span>**Circular Topology**: RA represents directional angles on the celestial sphere ($0.0\text{ h}$ and $23.99\text{ h}$ are physically adjacent). Standard linear summary statistics treat them as opposite extremes, rendering linear means ($\approx 11.65\text{ h}$) misleading without directional/circular statistics.</span>
+<span id="cb10-315"><a href="#cb10-315"></a>:::</span>
+<span id="cb10-316"><a href="#cb10-316"></a></span>
+<span id="cb10-317"><a href="#cb10-317"></a><span class="fu">### 4.2 Declination (`Dec`)</span></span>
+<span id="cb10-318"><a href="#cb10-318"></a></span>
+<span id="cb10-319"><a href="#cb10-319"></a><span class="ss">- </span><span class="in">`Dec`</span> exhibits a strongly **bimodal (U-shaped)** distribution, with twin peaks concentrated near the extrema of $\pm 26.5^\circ$.</span>
+<span id="cb10-320"><a href="#cb10-320"></a><span class="ss">- </span>The mean ($\approx +1.20^\circ$) and median ($\approx +2.37^\circ$) point directly to the location of **minimum observed data density**.</span>
+<span id="cb10-321"><a href="#cb10-321"></a><span class="ss">- </span>**Origin of the $\pm 26.5^\circ$ Extrema**: The declination boundaries are determined by Earth's axial tilt ($23.44^\circ$) plus Mars' orbital inclination ($1.85^\circ$) relative to the ecliptic plane, causing Mars' celestial latitude to oscillate smoothly between $-26.5^\circ$ and $+26.5^\circ$.</span>
+<span id="cb10-322"><a href="#cb10-322"></a></span>
+<span id="cb10-323"><a href="#cb10-323"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-324"><a href="#cb10-324"></a><span class="fu">### Detailed Analysis of Declination</span></span>
+<span id="cb10-325"><a href="#cb10-325"></a><span class="ss">- </span>**Harmonic Dwell Time**: Because harmonic motion slows down near maximum amplitudes ($\frac{d}{dt}\sin(\omega t) \to 0$), Mars lingers near its northern and southern turning points ($\pm 26.5^\circ$) and rushes through the celestial equator ($0^\circ$).</span>
+<span id="cb10-326"><a href="#cb10-326"></a><span class="ss">- </span>**Failure of Unimodal Metrics**: Summary statistics like mean and variance assume a single central cluster. Reporting $\mu = 1.20^\circ$ and $\sigma = 17.26^\circ$ makes the dataset sound like a bell curve centered at $0^\circ$, completely masking the twin peaks at the boundaries.</span>
+<span id="cb10-327"><a href="#cb10-327"></a>:::</span>
+<span id="cb10-328"><a href="#cb10-328"></a></span>
+<span id="cb10-329"><a href="#cb10-329"></a><span class="fu">### 4.3 Apparent Magnitude (`Magnitude`)</span></span>
+<span id="cb10-330"><a href="#cb10-330"></a></span>
+<span id="cb10-331"><a href="#cb10-331"></a><span class="ss">- </span>Highly asymmetric distribution with a dominant baseline peak near faint magnitudes ($+1.1\text{ to }+1.8$ mag) and a long left tail extending to bright magnitudes (down to $-2.95$ mag during opposition flares).</span>
+<span id="cb10-332"><a href="#cb10-332"></a><span class="ss">- </span>The mean ($0.70$ mag) is distorted by rare opposition flares and is not very meaningful (giving a magnitude at which Mars is almost never observed). Baseline visual faintness dominates the quantiles (where larger numerical magnitude values denote dimmer visual brightness).</span>
+<span id="cb10-333"><a href="#cb10-333"></a></span>
+<span id="cb10-334"><a href="#cb10-334"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-335"><a href="#cb10-335"></a><span class="fu">### Detailed Analysis of Apparent Magnitude</span></span>
+<span id="cb10-336"><a href="#cb10-336"></a><span class="ss">- </span>**Distortion by Rare Events**: For ~90% of its synodic cycle, Mars is far from Earth and faint. During brief opposition alignments, brightness flares up. The mean ($0.70$ mag) is pulled away from the true baseline mode by these rare flares, giving an average value at which Mars is almost never observed.</span>
+<span id="cb10-337"><a href="#cb10-337"></a><span class="ss">- </span>**Quantile Collapse**: Because baseline faintness dominates, interquartile range ($IQR$) collapses, hiding the extreme flare range down to $-2.95$ mag during perihelic oppositions.</span>
+<span id="cb10-338"><a href="#cb10-338"></a>:::</span>
+<span id="cb10-339"><a href="#cb10-339"></a></span>
+<span id="cb10-340"><a href="#cb10-340"></a>---</span>
+<span id="cb10-341"><a href="#cb10-341"></a></span>
+<span id="cb10-342"><a href="#cb10-342"></a><span class="fu"># 5. Takeaways and Skepticism</span></span>
+<span id="cb10-343"><a href="#cb10-343"></a></span>
+<span id="cb10-344"><a href="#cb10-344"></a><span class="ss">1. </span>**Beware the Gaussian Default**: Introductory courses heavily rely on Normal distribution assumptions ($\mu, \sigma^2$). As planetary movements demonstrate, physical processes frequently produce uniform, bimodal, and long-tailed distributions where standard means and variances fail to describe the data.</span>
+<span id="cb10-345"><a href="#cb10-345"></a><span class="ss">2. </span>**Summary Tables Condense, But Also Conceal**: Aggregating data points into 8 numbers per variable collapses critical spatial and modal structures (such as bimodal peaks in <span class="in">`Dec`</span> or opposition spikes in <span class="in">`Magnitude`</span>).</span>
+<span id="cb10-346"><a href="#cb10-346"></a><span class="ss">3. </span>**Always Look at the Data (EDA First)**: Visual inspection (histograms and KDE density plots) must precede numerical summary calculations. Visual plots immediately reveal multi-modality, skewness, boundary effects, and circular topologies.</span>
+<span id="cb10-347"><a href="#cb10-347"></a><span class="ss">4. </span>**Context &amp; Domain Expertise Matter**: Observables are physical measurements over time. Understanding planetary orbits (Kepler's laws, retrogrades, synodic cycles, aphelion slowing) explains *why* distributions take their specific shapes. Note also domain conventions: in astronomy, magnitude is an **inverted logarithmic scale** where larger numbers represent *dimmer* objects, and lower/negative numbers represent *brighter* objects.</span>
+<span id="cb10-348"><a href="#cb10-348"></a><span class="ss">5. </span>**Beware of Data Scales, Units, and Transformations**:</span>
+<span id="cb10-349"><a href="#cb10-349"></a><span class="ss">   - </span>Variables within the same dataset often use completely different units and scales: <span class="in">`RA`</span> in **hours** ($0–24\text{ h}$), `Dec` in **degrees** ($-90^\circ$ to $+90^\circ$), and `Magnitude` on an **inverted logarithmic scale**.</span>
+<span id="cb10-350"><a href="#cb10-350"></a><span class="ss">   - </span>Transforming, standardizing, or normalizing data (e.g. z-score standardization or min-max scaling) requires careful attention to domain units and physical topologies before applying standard algorithms blindly.</span>
+<span id="cb10-351"><a href="#cb10-351"></a><span class="ss">6. </span>**Beware of Visualization Artifacts**:</span>
+<span id="cb10-352"><a href="#cb10-352"></a><span class="ss">   - </span>Analysts must carefully distinguish between **model assumptions**, **physical mechanisms**, and **smoothing artifacts**.</span>
+<span id="cb10-353"><a href="#cb10-353"></a><span class="ss">   - </span>Density estimation algorithms can introduce boundary smoothing effects (such as KDE edge leaks), whereas physical drivers (like Keplerian velocity variations near aphelion) produce genuine non-uniform data structures. Visual inspection must always be paired with physical domain understanding.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
