@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,9 +11,6 @@
 
 <title>12 Bias-Variance Tradeoff, Regularization &amp; ML System Diagnostics – Mathematics for Machine Learning</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -76,14 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0348920b7671f696dc9078d39bff215e.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67125028e0609b6b5569340e499a5305.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -113,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -126,7 +123,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -344,6 +341,14 @@ window.Quarto = {
     <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
  <span class="dropdown-text">01 Tutorial</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -443,7 +448,7 @@ window.Quarto = {
 <div id="sec-imports" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Imports &amp; Styling Setup</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
@@ -453,7 +458,7 @@ window.Quarto = {
 <span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
 <span id="cb1-9"><a href="#cb1-9"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> mean_squared_error</span>
 <span id="cb1-10"><a href="#cb1-10"></a></span>
-<span id="cb1-11"><a href="#cb1-11"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-11"><a href="#cb1-11"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="pre-class-preparation" class="level2">
@@ -507,7 +512,7 @@ window.Quarto = {
 <div id="cell-fig-bias-variance-tradeoff" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="2">
 <details class="code-fold">
 <summary>Generate Bias-Variance Comparison Plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>np.random.seed(<span class="dv">42</span>)</span>
 <span id="cb2-2"><a href="#cb2-2"></a>x_true <span class="op">=</span> np.linspace(<span class="dv">18</span>, <span class="dv">35</span>, <span class="dv">100</span>) <span class="co"># BMI (kg/m^2)</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>y_true <span class="op">=</span> <span class="dv">110</span> <span class="op">+</span> <span class="fl">1.2</span> <span class="op">*</span> x_true <span class="op">+</span> <span class="fl">0.05</span> <span class="op">*</span> (x_true <span class="op">-</span> <span class="dv">25</span>)<span class="op">**</span><span class="dv">2</span> <span class="co"># True non-linear Systolic BP</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a></span>
@@ -537,7 +542,7 @@ window.Quarto = {
 <span id="cb2-28"><a href="#cb2-28"></a>    axes[idx].legend(fontsize<span class="op">=</span><span class="dv">7</span>, loc<span class="op">=</span><span class="st">'upper left'</span>)</span>
 <span id="cb2-29"><a href="#cb2-29"></a></span>
 <span id="cb2-30"><a href="#cb2-30"></a>plt.tight_layout()</span>
-<span id="cb2-31"><a href="#cb2-31"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-31"><a href="#cb2-31"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-bias-variance-tradeoff" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -565,7 +570,7 @@ Figure&nbsp;1: Empirical Bias-Variance Tradeoff: High Bias (Degree 1), Balanced 
 <div id="cell-fig-regularization-paths" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="3">
 <details class="code-fold">
 <summary>Generate L1 vs L2 Weight Paths Plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>np.random.seed(<span class="dv">42</span>)</span>
 <span id="cb3-2"><a href="#cb3-2"></a>n_features <span class="op">=</span> <span class="dv">8</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a>n_pts <span class="op">=</span> <span class="dv">40</span></span>
 <span id="cb3-4"><a href="#cb3-4"></a>X_mat <span class="op">=</span> np.random.randn(n_pts, n_features)</span>
@@ -597,7 +602,7 @@ Figure&nbsp;1: Empirical Bias-Variance Tradeoff: High Bias (Degree 1), Balanced 
 <span id="cb3-30"><a href="#cb3-30"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Weight Value $w_j$'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
 <span id="cb3-31"><a href="#cb3-31"></a></span>
 <span id="cb3-32"><a href="#cb3-32"></a>plt.tight_layout()</span>
-<span id="cb3-33"><a href="#cb3-33"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-33"><a href="#cb3-33"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-regularization-paths" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -685,7 +690,7 @@ Figure&nbsp;2: L1 Lasso vs.&nbsp;L2 Ridge Regularization Weight Paths across Pen
 <div id="cell-fig-learning-curves" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="4">
 <details class="code-fold">
 <summary>Generate Learning Curves Diagnostic Plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>m_sizes <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">200</span>, <span class="dv">20</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>m_sizes <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">200</span>, <span class="dv">20</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="co"># High Bias curves (both high, small gap)</span></span>
 <span id="cb4-4"><a href="#cb4-4"></a>train_err_bias <span class="op">=</span> <span class="fl">15.0</span> <span class="op">-</span> <span class="fl">10.0</span> <span class="op">/</span> np.sqrt(m_sizes)</span>
@@ -714,7 +719,7 @@ Figure&nbsp;2: L1 Lasso vs.&nbsp;L2 Ridge Regularization Weight Paths across Pen
 <span id="cb4-27"><a href="#cb4-27"></a>axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
 <span id="cb4-28"><a href="#cb4-28"></a></span>
 <span id="cb4-29"><a href="#cb4-29"></a>plt.tight_layout()</span>
-<span id="cb4-30"><a href="#cb4-30"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-30"><a href="#cb4-30"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-learning-curves" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -740,7 +745,7 @@ Figure&nbsp;3: Learning Curves: High Bias (left) vs.&nbsp;High Variance (right) 
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Systematic ML Engineering Workflow
+Systematic ML Engineering Workflow
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -826,14 +831,13 @@ Figure&nbsp;3: Learning Curves: High Bias (left) vs.&nbsp;High Variance (right) 
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1233,7 +1237,7 @@ Figure&nbsp;3: Learning Curves: High Bias (left) vs.&nbsp;High Variance (right) 
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">---</span></span>
+<div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">---</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="an">title:</span><span class="co"> "12 Bias-Variance Tradeoff, Regularization &amp; ML System Diagnostics"</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning (Mathe3)"</span></span>
 <span id="cb5-4"><a href="#cb5-4"></a><span class="an">author:</span><span class="co"> "Mathe3 / Applied Data Science"</span></span>
@@ -1495,7 +1499,7 @@ Figure&nbsp;3: Learning Curves: High Bias (left) vs.&nbsp;High Variance (right) 
 <span id="cb5-268"><a href="#cb5-268"></a><span class="ss">   - </span>If High Bias $\to$ Increase model capacity (add features, decrease $\lambda$).</span>
 <span id="cb5-269"><a href="#cb5-269"></a><span class="ss">   - </span>If High Variance $\to$ Constrain model capacity (increase $\lambda$, prune features, collect more training data).</span>
 <span id="cb5-270"><a href="#cb5-270"></a>:::</span>
-</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

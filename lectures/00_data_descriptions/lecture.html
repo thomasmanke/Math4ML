@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -11,9 +11,6 @@
 
 <title>Data Descriptions: Lessons from Mars – Mathematics for Machine Learning</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -76,14 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0348920b7671f696dc9078d39bff215e.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67125028e0609b6b5569340e499a5305.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -113,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -126,7 +123,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -344,6 +341,14 @@ window.Quarto = {
     <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
  <span class="dropdown-text">01 Tutorial</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -442,7 +447,7 @@ window.Quarto = {
 <div id="sec-imports" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Imports</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> urllib.request</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> urllib.request</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> json</span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -456,7 +461,7 @@ window.Quarto = {
 <span id="cb1-12"><a href="#cb1-12"></a>    cols <span class="op">=</span> <span class="bu">list</span>(dataframe.columns)</span>
 <span id="cb1-13"><a href="#cb1-13"></a>    header <span class="op">=</span> <span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(cols) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">| "</span> <span class="op">+</span> <span class="st">" | "</span>.join([<span class="st">":---:"</span>] <span class="op">*</span> <span class="bu">len</span>(cols)) <span class="op">+</span> <span class="st">" |</span><span class="ch">\n</span><span class="st">"</span></span>
 <span id="cb1-14"><a href="#cb1-14"></a>    rows <span class="op">=</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(<span class="st">"| "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="ss">f"</span><span class="sc">{</span>val<span class="sc">:.4f}</span><span class="ss">"</span> <span class="cf">if</span> <span class="bu">isinstance</span>(val, <span class="bu">float</span>) <span class="cf">else</span> <span class="bu">str</span>(val) <span class="cf">for</span> val <span class="kw">in</span> row) <span class="op">+</span> <span class="st">" |"</span> <span class="cf">for</span> row <span class="kw">in</span> dataframe.values)</span>
-<span id="cb1-15"><a href="#cb1-15"></a>    <span class="cf">return</span> header <span class="op">+</span> rows</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="cf">return</span> header <span class="op">+</span> rows</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="celestial-mechanics-data-from-nasa" class="level1">
@@ -471,7 +476,7 @@ window.Quarto = {
 <div id="sec-read-data" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Read Data</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Query NASA JPL Horizons API for Mars (Body 499) observed from Earth (500@399) over 125 years (1900-2025)</span></span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Query NASA JPL Horizons API for Mars (Body 499) observed from Earth (500@399) over 125 years (1900-2025)</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>url <span class="op">=</span> (<span class="st">"https://ssd.jpl.nasa.gov/api/horizons.api?"</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>       <span class="st">"format=json&amp;COMMAND='499'&amp;CENTER='500@399'&amp;MAKE_EPHEM='YES'"</span></span>
 <span id="cb2-4"><a href="#cb2-4"></a>       <span class="st">"&amp;EPHEM_TYPE='OBSERVER'&amp;START_TIME='1900-01-01'&amp;STOP_TIME='2025-01-01'"</span></span>
@@ -479,13 +484,13 @@ window.Quarto = {
 <span id="cb2-6"><a href="#cb2-6"></a></span>
 <span id="cb2-7"><a href="#cb2-7"></a>req <span class="op">=</span> urllib.request.urlopen(url)</span>
 <span id="cb2-8"><a href="#cb2-8"></a>data <span class="op">=</span> json.loads(req.read().decode(<span class="st">'utf-8'</span>))</span>
-<span id="cb2-9"><a href="#cb2-9"></a>result_text <span class="op">=</span> data[<span class="st">'result'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-9"><a href="#cb2-9"></a>result_text <span class="op">=</span> data[<span class="st">'result'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div id="sec-process-data" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Process Data</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Parse ephemeris records between $$SOE (Start of Ephemeris) and $$EOE (End of Ephemeris)</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Parse ephemeris records between $$SOE (Start of Ephemeris) and $$EOE (End of Ephemeris)</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>start_idx <span class="op">=</span> result_text.find(<span class="st">'$$SOE'</span>) <span class="op">+</span> <span class="dv">6</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a>end_idx <span class="op">=</span> result_text.find(<span class="st">'$$EOE'</span>)</span>
 <span id="cb3-4"><a href="#cb3-4"></a>lines <span class="op">=</span> result_text[start_idx:end_idx].strip().split(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)</span>
@@ -509,13 +514,13 @@ window.Quarto = {
 <span id="cb3-22"><a href="#cb3-22"></a>        records.append({<span class="st">'DateStr'</span>: parts[<span class="dv">0</span>], <span class="st">'Date'</span>: pd.to_datetime(parts[<span class="dv">0</span>]), <span class="st">'RA'</span>: ra_h, <span class="st">'Dec'</span>: dec_deg, <span class="st">'Magnitude'</span>: mag})</span>
 <span id="cb3-23"><a href="#cb3-23"></a></span>
 <span id="cb3-24"><a href="#cb3-24"></a><span class="co"># Primary baseline dataset `df` loaded from real NASA JPL Horizons observational data</span></span>
-<span id="cb3-25"><a href="#cb3-25"></a>df <span class="op">=</span> pd.DataFrame(records)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-25"><a href="#cb3-25"></a>df <span class="op">=</span> pd.DataFrame(records)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div id="sec-inspect-data" class="cell" data-fig-height="4.5" data-fig-width="11" data-execution_count="4">
 <details class="code-fold">
 <summary>Inspect Data</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="bu">print</span>(<span class="ss">f"Retrieved </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">:,}</span><span class="ss"> real observations from NASA JPL Horizons database (1900–2025) into `df`.</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="bu">print</span>(<span class="ss">f"Retrieved </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">:,}</span><span class="ss"> real observations from NASA JPL Horizons database (1900–2025) into `df`.</span><span class="ch">\n</span><span class="ss">"</span>)</span>
 <span id="cb4-2"><a href="#cb4-2"></a></span>
 <span id="cb4-3"><a href="#cb4-3"></a><span class="co"># Render first 5 rows of `df` formatted nicely as a Markdown table</span></span>
 <span id="cb4-4"><a href="#cb4-4"></a>display(Markdown(<span class="st">"**First 5 Observations in Primary DataFrame (`df`)**"</span>))</span>
@@ -549,7 +554,7 @@ window.Quarto = {
 <span id="cb4-32"><a href="#cb4-32"></a>axes[<span class="dv">2</span>].xaxis.set_major_formatter(mdates.DateFormatter(<span class="st">'%Y'</span>))</span>
 <span id="cb4-33"><a href="#cb4-33"></a></span>
 <span id="cb4-34"><a href="#cb4-34"></a>plt.tight_layout()</span>
-<span id="cb4-35"><a href="#cb4-35"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-35"><a href="#cb4-35"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Retrieved 3,262 real observations from NASA JPL Horizons database (1900–2025) into `df`.
@@ -619,7 +624,7 @@ window.Quarto = {
 <div id="sec-simulation" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Simulate Data</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># 1. Parameter setup (2,000 years * 52.1775 weeks = 104,355 data points)</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># 1. Parameter setup (2,000 years * 52.1775 weeks = 104,355 data points)</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>np.random.seed(<span class="dv">1337</span>)</span>
 <span id="cb6-3"><a href="#cb6-3"></a>jahre <span class="op">=</span> <span class="dv">2000</span></span>
 <span id="cb6-4"><a href="#cb6-4"></a>wochen_pro_jahr <span class="op">=</span> <span class="fl">52.1775</span></span>
@@ -654,7 +659,7 @@ window.Quarto = {
 <span id="cb6-33"><a href="#cb6-33"></a><span class="bu">print</span>(<span class="ss">f"Synthetic simulation complete: </span><span class="sc">{</span><span class="bu">len</span>(df_sim)<span class="sc">:,}</span><span class="ss"> data points generated in DataFrame `df_sim`."</span>)</span>
 <span id="cb6-34"><a href="#cb6-34"></a></span>
 <span id="cb6-35"><a href="#cb6-35"></a><span class="co"># Uncomment the line below to overwrite real NASA data `df` with synthetic simulation data `df_sim`:</span></span>
-<span id="cb6-36"><a href="#cb6-36"></a><span class="co"># df = df_sim[['RA', 'Dec', 'Magnitude']]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="co"># df = df_sim[['RA', 'Dec', 'Magnitude']]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Synthetic simulation complete: 104,355 data points generated in DataFrame `df_sim`.</code></pre>
@@ -670,7 +675,7 @@ window.Quarto = {
 <div id="cell-fig-mars-distributions" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="6">
 <details class="code-fold">
 <summary>Visual Summaries Plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
 <span id="cb8-2"><a href="#cb8-2"></a>sns.set_theme(style<span class="op">=</span><span class="st">"white"</span>)</span>
 <span id="cb8-3"><a href="#cb8-3"></a></span>
 <span id="cb8-4"><a href="#cb8-4"></a><span class="co"># Plot 1: RA Density (Unimodal / Uniform)</span></span>
@@ -696,7 +701,7 @@ window.Quarto = {
 <span id="cb8-24"><a href="#cb8-24"></a>axes[<span class="dv">2</span>].invert_xaxis() <span class="co"># Astronomically correct: Brighter objects (lower/negative values) on right</span></span>
 <span id="cb8-25"><a href="#cb8-25"></a></span>
 <span id="cb8-26"><a href="#cb8-26"></a>plt.tight_layout()</span>
-<span id="cb8-27"><a href="#cb8-27"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-27"><a href="#cb8-27"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-mars-distributions" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
@@ -718,7 +723,7 @@ Figure&nbsp;1: Density distribution of Mars celestial observables.
 <div class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Numerical Summaries Table</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Select numeric columns for describe and variance calculations</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Select numeric columns for describe and variance calculations</span></span>
 <span id="cb9-2"><a href="#cb9-2"></a>df_num <span class="op">=</span> df[[<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
 <span id="cb9-3"><a href="#cb9-3"></a>desc <span class="op">=</span> df_num.describe()</span>
 <span id="cb9-4"><a href="#cb9-4"></a>var_series <span class="op">=</span> df_num.var()</span>
@@ -745,7 +750,7 @@ Figure&nbsp;1: Density distribution of Mars celestial observables.
 <span id="cb9-25"><a href="#cb9-25"></a>        vals <span class="op">=</span> [fmt.<span class="bu">format</span>(desc.loc[stat_key, col]) <span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'RA'</span>, <span class="st">'Dec'</span>, <span class="st">'Magnitude'</span>]]</span>
 <span id="cb9-26"><a href="#cb9-26"></a>    md_table <span class="op">+=</span> <span class="ss">f"| **</span><span class="sc">{</span>stat_label<span class="sc">}</span><span class="ss">** | </span><span class="sc">{</span>vals[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> | </span><span class="sc">{</span>vals[<span class="dv">2</span>]<span class="sc">}</span><span class="ss"> |</span><span class="ch">\n</span><span class="ss">"</span></span>
 <span id="cb9-27"><a href="#cb9-27"></a></span>
-<span id="cb9-28"><a href="#cb9-28"></a>display(Markdown(md_table))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-28"><a href="#cb9-28"></a>display(Markdown(md_table))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div id="tbl-summary-stats" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -754,7 +759,7 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
 </figcaption>
 <div aria-describedby="tbl-summary-stats-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output cell-output-display cell-output-markdown">
-<table class="cell caption-top table table-sm table-striped small">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 21%">
 <col style="width: 26%">
@@ -844,12 +849,12 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
 <li>The position of this peak corresponds to <strong>Aphelion</strong> (where Mars moves slowest in its orbit according to Kepler’s Second Law, spending more time per degree).</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Detailed Analysis of Right Ascension &amp; Real Physics vs.&nbsp;Circular Models
+Detailed Analysis of Right Ascension &amp; Real Physics vs.&nbsp;Circular Models
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -872,12 +877,12 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
 <li><strong>Origin of the <span class="math inline">\(\pm 26.5^\circ\)</span> Extrema</strong>: The declination boundaries are determined by Earth’s axial tilt (<span class="math inline">\(23.44^\circ\)</span>) plus Mars’ orbital inclination (<span class="math inline">\(1.85^\circ\)</span>) relative to the ecliptic plane, causing Mars’ celestial latitude to oscillate smoothly between <span class="math inline">\(-26.5^\circ\)</span> and <span class="math inline">\(+26.5^\circ\)</span>.</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Detailed Analysis of Declination
+Detailed Analysis of Declination
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -898,12 +903,12 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
 <li>The mean (<span class="math inline">\(0.70\)</span> mag) is distorted by rare opposition flares and is not very meaningful (giving a magnitude at which Mars is almost never observed). Baseline visual faintness dominates the quantiles (where larger numerical magnitude values denote dimmer visual brightness).</li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Detailed Analysis of Apparent Magnitude
+Detailed Analysis of Apparent Magnitude
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -1008,14 +1013,13 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1415,7 +1419,7 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
+<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="an">title:</span><span class="co"> "Data Descriptions: Lessons from Mars"</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a><span class="an">subtitle:</span><span class="co"> "Why Means May Not Be Meaningful"</span></span>
 <span id="cb10-4"><a href="#cb10-4"></a><span class="an">author:</span><span class="co"> "Mathe3 / Applied Data Science"</span></span>
@@ -1754,7 +1758,7 @@ Table&nbsp;1: Descriptive Statistics and Variance for Mars Celestial Observables
 <span id="cb10-351"><a href="#cb10-351"></a><span class="ss">6. </span>**Beware of Visualization Artifacts**:</span>
 <span id="cb10-352"><a href="#cb10-352"></a><span class="ss">   - </span>Analysts must carefully distinguish between **model assumptions**, **physical mechanisms**, and **smoothing artifacts**.</span>
 <span id="cb10-353"><a href="#cb10-353"></a><span class="ss">   - </span>Density estimation algorithms can introduce boundary smoothing effects (such as KDE edge leaks), whereas physical drivers (like Keplerian velocity variations near aphelion) produce genuine non-uniform data structures. Visual inspection must always be paired with physical domain understanding.</span>
-</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

@@ -2,18 +2,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Thomas Manke">
-<meta name="dcterms.date" content="2026-10-13">
+<meta name="dcterms.date" content="2026-10-14">
 
 <title>01 Linear Regression – Mathematics for Machine Learning</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -76,14 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0348920b7671f696dc9078d39bff215e.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67125028e0609b6b5569340e499a5305.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-98e6ca2bb2eb52143d93c0b0870de24a.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -113,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -126,7 +123,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -344,6 +341,14 @@ window.Quarto = {
     <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
  <span class="dropdown-text">01 Tutorial</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -391,7 +396,7 @@ window.Quarto = {
   <li><a href="#n-100-patients-in-matrix-form" id="toc-n-100-patients-in-matrix-form" class="nav-link" data-scroll-target="#n-100-patients-in-matrix-form"><span class="math inline">\(n = 100\)</span> Patients in Matrix Form</a></li>
   </ul></li>
   <li><a href="#the-gram-trick" id="toc-the-gram-trick" class="nav-link" data-scroll-target="#the-gram-trick">2. The Gram Trick</a></li>
-  <li><a href="#ordinary-least-squares" id="toc-ordinary-least-squares" class="nav-link" data-scroll-target="#ordinary-least-squares">3. Ordinary Least Squares</a>
+  <li><a href="#ordinary-least-squares-ols" id="toc-ordinary-least-squares-ols" class="nav-link" data-scroll-target="#ordinary-least-squares-ols">3. Ordinary Least Squares (OLS)</a>
   <ul class="collapse">
   <li><a href="#residual-sum-of-squares-rss" id="toc-residual-sum-of-squares-rss" class="nav-link" data-scroll-target="#residual-sum-of-squares-rss">Residual Sum of Squares (RSS)</a></li>
   <li><a href="#deriving-the-ols-estimator" id="toc-deriving-the-ols-estimator" class="nav-link" data-scroll-target="#deriving-the-ols-estimator">Deriving the OLS Estimator</a></li>
@@ -400,7 +405,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#probabilistic-modeling-of-noise" id="toc-probabilistic-modeling-of-noise" class="nav-link" data-scroll-target="#probabilistic-modeling-of-noise">Probabilistic Modeling of Noise</a></li>
   <li><a href="#the-likelihood-function-ltheta" id="toc-the-likelihood-function-ltheta" class="nav-link" data-scroll-target="#the-likelihood-function-ltheta">The Likelihood Function <span class="math inline">\(L(\theta)\)</span></a></li>
-  <li><a href="#maximizing-log-likelihood-textmle" id="toc-maximizing-log-likelihood-textmle" class="nav-link" data-scroll-target="#maximizing-log-likelihood-textmle">Maximizing Log-Likelihood (<span class="math inline">\(\text{MLE}\)</span>)</a></li>
+  <li><a href="#maximizing-log-likelihood" id="toc-maximizing-log-likelihood" class="nav-link" data-scroll-target="#maximizing-log-likelihood">Maximizing Log-Likelihood</a></li>
   </ul></li>
   <li><a href="#geometric-derivation" id="toc-geometric-derivation" class="nav-link" data-scroll-target="#geometric-derivation">5. Geometric Derivation</a>
   <ul class="collapse">
@@ -436,7 +441,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 13, 2026</p>
+      <p class="date">October 14, 2026</p>
     </div>
   </div>
   
@@ -462,7 +467,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span><span class="math inline">\(n = 2 \to n = 100\)</span> ?
+<span class="math inline">\(n = 2 \to n = 100\)</span> ?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -476,7 +481,7 @@ window.Quarto = {
 <div id="cell-patient_data_100_plot" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Python Code: Medical Scatter Plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3"></a></span>
 <span id="cb1-4"><a href="#cb1-4"></a>np.random.seed(<span class="dv">42</span>)</span>
@@ -493,7 +498,7 @@ window.Quarto = {
 <span id="cb1-15"><a href="#cb1-15"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
 <span id="cb1-16"><a href="#cb1-16"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb1-17"><a href="#cb1-17"></a>plt.tight_layout()</span>
-<span id="cb1-18"><a href="#cb1-18"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-18"><a href="#cb1-18"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -517,10 +522,10 @@ window.Quarto = {
 <section id="the-gram-trick" class="level2">
 <h2 class="anchored" data-anchor-id="the-gram-trick">2. The Gram Trick</h2>
 <p>What happens if we take the rectangular system <span class="math inline">\(y = X\theta\)</span> and multiply both sides on the left by <span class="math inline">\(X^T\)</span>?</p>
-<p><span class="math display">\[X^T y = X^T X \theta \implies \hat{\theta} = (X^T X)^{-1} X^T y\]</span></p>
+<p><span class="math display">\[y = X \theta \implies X^T y = X^T X \theta \implies \theta = (X^T X)^{-1} X^T y\]</span></p>
 <ul>
 <li><p><strong>Squaring the System:</strong> Multiplying <span class="math inline">\(X \in \mathbb{R}^{100 \times 2}\)</span> by its transpose <span class="math inline">\(X^T \in \mathbb{R}^{2 \times 100}\)</span> converts the rectangular system into a <strong>square, symmetric <span class="math inline">\(2 \times 2\)</span> Gram matrix (<span class="math inline">\(X^T X\)</span>)</strong>.</p></li>
-<li><p><strong>The Pragmatic Solution:</strong> Assuming <span class="math inline">\(X^T X\)</span> is invertible, left-multiplication by <span class="math inline">\(X^T\)</span> immediately yields a concrete solution <span class="math inline">\(\hat{\theta}\)</span>.</p></li>
+<li><p><strong>The Pragmatic Solution:</strong> Assuming <span class="math inline">\(X^T X\)</span> is invertible, left-multiplication by <span class="math inline">\(X^T\)</span> immediately yields a concrete solution <span class="math inline">\(\theta\)</span>.</p></li>
 </ul>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -528,20 +533,21 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>What is the origin of this trick?
+What is the origin of this trick?
 </div>
 </div>
 <div class="callout-body-container callout-body">
 <ul>
 <li>minimizing losses</li>
 <li>maximizing likelihood</li>
+<li>geometric projection</li>
 </ul>
 </div>
 </div>
 <hr>
 </section>
-<section id="ordinary-least-squares" class="level2">
-<h2 class="anchored" data-anchor-id="ordinary-least-squares">3. Ordinary Least Squares</h2>
+<section id="ordinary-least-squares-ols" class="level2">
+<h2 class="anchored" data-anchor-id="ordinary-least-squares-ols">3. Ordinary Least Squares (OLS)</h2>
 <section id="residual-sum-of-squares-rss" class="level3">
 <h3 class="anchored" data-anchor-id="residual-sum-of-squares-rss">Residual Sum of Squares (RSS)</h3>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -550,7 +556,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A loss function ?
+A loss function ?
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -560,7 +566,7 @@ window.Quarto = {
 <div id="cell-baseline_model_errors_plot" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Python Code: Baseline Model &amp; Residual Errors</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
 <span id="cb2-4"><a href="#cb2-4"></a>np.random.seed(<span class="dv">42</span>)</span>
@@ -580,7 +586,7 @@ window.Quarto = {
 <span id="cb2-18"><a href="#cb2-18"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
 <span id="cb2-19"><a href="#cb2-19"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-20"><a href="#cb2-20"></a>plt.tight_layout()</span>
-<span id="cb2-21"><a href="#cb2-21"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-21"><a href="#cb2-21"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -602,12 +608,12 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="deriving-the-ols-estimator">Deriving the OLS Estimator</h3>
 <p>To find the optimal parameter vector <span class="math inline">\(\hat{\theta}_{\text{OLS}}\)</span>, we minimize <span class="math inline">\(\text{RSS}(\theta)\)</span> by setting its gradient to zero:</p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Step-by-Step Derivation
+Step-by-Step Derivation
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -618,14 +624,17 @@ window.Quarto = {
 \text{RSS}(\theta) &amp;= e^T e = (y - X\theta)^T (y - X\theta) \\
 &amp;= y^T y - y^T X \theta - \theta^T X^T y + \theta^T X^T X \theta \\
 &amp;= y^T y - 2 \theta^T X^T y + \theta^T X^T X \theta
-\end{aligned}\]</span> <em>(Notice that <span class="math inline">\(y^T X \theta = \theta^T X^T y\)</span> is a scalar).</em></p></li>
+\end{aligned}\]</span></p>
+<p>Notice: <span class="math inline">\(y^T X \theta = \theta^T X^T y\)</span> is a scalar.</p></li>
 <li><p><strong>Compute the gradient vector with respect to <span class="math inline">\(\theta\)</span>:</strong> <span class="math display">\[\begin{aligned}
 \nabla_\theta \text{RSS}(\theta) &amp;= -2 X^T y + 2 X^T X \theta \\
 &amp;= -2 X^T (y - X\theta) = -2 X^T e
-\end{aligned}\]</span> <em>(<span class="math inline">\(\text{RSS}(\theta)\)</span> is a scalar and the gradient <span class="math inline">\(\nabla_\theta \text{RSS}(\theta)\)</span> has the same dimensions as <span class="math inline">\(\theta\)</span>).</em></p></li>
+\end{aligned}\]</span></p>
+<p>Notice: <span class="math inline">\(\text{RSS}(\theta)\)</span> is a scalar and the gradient <span class="math inline">\(\nabla_\theta \text{RSS}(\theta)\)</span> has the same dimensions as <span class="math inline">\(\theta\)</span></p></li>
 <li><p><strong>Set the gradient to zero (First-Order Necessary Condition):</strong> <span class="math display">\[-2 X^T e = 0 \iff X^T X \theta = X^T y \quad \text{(Normal Equations)}\]</span></p></li>
 <li><p><strong>Solve for <span class="math inline">\(\theta\)</span> assuming <span class="math inline">\(C = X^T X\)</span> is invertible:</strong> <span class="math display">\[\hat{\theta}_{\text{OLS}} = C^{-1} X^T y \quad \text{where } C = X^T X\]</span></p></li>
-<li><p><strong>Dimensions Summary:</strong> <span class="math display">\[\hat{\theta}_{\text{OLS}} \in \mathbb{R}^{p \times 1}, \quad C = X^T X \in \mathbb{R}^{p \times p}, \quad C^{-1} \in \mathbb{R}^{p \times p}, \quad X^T \in \mathbb{R}^{p \times n}, \quad y \in \mathbb{R}^{n \times 1}\]</span></p></li>
+<li><p><strong>Dimensions Summary:</strong> <span class="math display">\[\hat{\theta}_{\text{OLS}} \in \mathbb{R}^{p \times 1}, \quad C = X^T X \in \mathbb{R}^{p \times p}, \quad C^{-1} \in \mathbb{R}^{p \times p}, \quad X^T \in \mathbb{R}^{p \times n}, \quad y \in \mathbb{R}^{n \times 1}\]</span></p>
+<p>Notice: for our motivating example <span class="math inline">\(n=100\)</span> and <span class="math inline">\(p=2\)</span></p></li>
 </ol>
 </div>
 </div>
@@ -638,8 +647,8 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="maximum-likelihood-estimation-mle">4. Maximum Likelihood Estimation (MLE)</h2>
 <section id="probabilistic-modeling-of-noise" class="level3">
 <h3 class="anchored" data-anchor-id="probabilistic-modeling-of-noise">Probabilistic Modeling of Noise</h3>
-<p>Why do we minimize squared errors (<span class="math inline">\(L_2\)</span> loss)? Assume residual errors <span class="math inline">\(e_i\)</span> are independent Gaussian noise:</p>
-<p><span class="math display">\[e_i \sim \mathcal{N}(0, \sigma^2) \implies y_i \sim \mathcal{N}(x_i^T \theta, \sigma^2)\]</span></p>
+<p><span class="math display">\[y_i = x_i^T \theta + e_i\]</span></p>
+<p>Assume residual errors <span class="math inline">\(e_i\)</span> are independent Gaussian noise: <span class="math display">\[e_i \sim \mathcal{N}(0, \sigma^2) \implies y_i \sim \mathcal{N}(x_i^T \theta, \sigma^2)\]</span></p>
 <hr>
 </section>
 <section id="the-likelihood-function-ltheta" class="level3">
@@ -650,8 +659,8 @@ window.Quarto = {
 <p><span class="math display">\[L(\theta) = \prod_{i=1}^n p(y_i \mid x_i, \theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(y_i - x_i^T\theta)^2}{2\sigma^2} \right)\]</span></p>
 <hr>
 </section>
-<section id="maximizing-log-likelihood-textmle" class="level3">
-<h3 class="anchored" data-anchor-id="maximizing-log-likelihood-textmle">Maximizing Log-Likelihood (<span class="math inline">\(\text{MLE}\)</span>)</h3>
+<section id="maximizing-log-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="maximizing-log-likelihood">Maximizing Log-Likelihood</h3>
 <p>Taking the natural log turns the product into a sum:</p>
 <p><span class="math display">\[\ell(\theta) = \ln L(\theta) = -\frac{n}{2}\ln(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - x_i^T\theta)^2\]</span></p>
 <p>Maximizing <span class="math inline">\(\ell(\theta)\)</span> with respect to <span class="math inline">\(\theta\)</span>:</p>
@@ -691,7 +700,7 @@ window.Quarto = {
 </section>
 <section id="model-predictions" class="level2">
 <h2 class="anchored" data-anchor-id="model-predictions">6. Model Predictions</h2>
-<p>With the optimal parameters <span class="math inline">\(\hat{\theta}_{\text{OLS}}\)</span>, we compute predicted responses <span class="math inline">\(\hat{y}\)</span> for our cohort:</p>
+<p>With the optimal parameters <span class="math inline">\(\hat \theta\)</span>, we can compute predicted responses <span class="math inline">\(\hat{y}\)</span> for <strong>any</strong> patient data <span class="math inline">\(X\)</span>:</p>
 <p><span class="math display">\[\hat{y} = X\hat{\theta} = X(X^T X)^{-1} X^T y = H y \quad \text{where } H = X(X^T X)^{-1} X^T\]</span></p>
 <ul>
 <li><strong>The Hat Matrix (<span class="math inline">\(H \in \mathbb{R}^{n \times n}\)</span>):</strong> <span class="math inline">\(H\)</span> transforms observed responses <span class="math inline">\(y\)</span> directly into fitted predictions <span class="math inline">\(\hat{y}\)</span> (“putting a hat on <span class="math inline">\(y\)</span>”).</li>
@@ -714,7 +723,7 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>History and Ethics of Statistics
+History and Ethics of Statistics
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -730,10 +739,16 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="summary">8. Summary</h2>
 <ul>
 <li><strong>Matrix power:</strong> <span class="math inline">\(y = X\theta\)</span></li>
-<li><strong>Modesty:</strong> <span class="math inline">\(y = X\theta + \varepsilon\)</span></li>
-<li><strong>Optimism:</strong> <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, \sigma^2)\)</span> or <span class="math inline">\(\varepsilon \perp \hat{y}\)</span></li>
-<li><strong>Solution:</strong> <span class="math inline">\(\theta = (X^T X)^{-1} X^T y\)</span></li>
-<li><strong>Predictions:</strong> <span class="math inline">\(\hat{y} = P y\)</span>, where <span class="math inline">\(H = X(X^T X)^{-1} X^T\)</span> is the hat matrix (<span class="math inline">\(P = H\)</span>).</li>
+<li><strong>Modesty:</strong> <span class="math inline">\(y = X\theta + e\)</span></li>
+<li><strong>Optimism:</strong>
+<ul>
+<li><span class="math inline">\(e^T e \to \mbox{min}\)</span></li>
+<li><span class="math inline">\(e \sim \mathcal{N}(0, \sigma^2)\)</span></li>
+<li><span class="math inline">\(e \perp \hat{y}\)</span></li>
+</ul></li>
+<li><strong>Solution:</strong> <span class="math inline">\(\hat \theta = (X^T X)^{-1} X^T y\)</span></li>
+<li><strong>Predictions:</strong> <span class="math inline">\(\hat y = X \hat \theta\)</span></li>
+<li><strong>Projections:</strong> <span class="math inline">\(\hat y = H y\)</span>, where <span class="math inline">\(H = X(X^T X)^{-1} X^T\)</span> is the <em>hat</em> matrix: <span class="math inline">\(H = H^T = H^2\)</span>.</li>
 </ul>
 
 
@@ -806,14 +821,13 @@ window.Quarto = {
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1213,7 +1227,7 @@ window.Quarto = {
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">---</span></span>
+<div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">---</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="an">title:</span><span class="co"> "01 Linear Regression"</span></span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
 <span id="cb3-4"><a href="#cb3-4"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
@@ -1290,212 +1304,222 @@ window.Quarto = {
 <span id="cb3-77"><a href="#cb3-77"></a></span>
 <span id="cb3-78"><a href="#cb3-78"></a>What happens if we take the rectangular system $y = X\theta$ and multiply both sides on the left by $X^T$?</span>
 <span id="cb3-79"><a href="#cb3-79"></a></span>
-<span id="cb3-80"><a href="#cb3-80"></a>$$X^T y = X^T X \theta \implies \hat{\theta} = (X^T X)^{-1} X^T y$$</span>
+<span id="cb3-80"><a href="#cb3-80"></a>$$y = X \theta \implies X^T y = X^T X \theta \implies \theta = (X^T X)^{-1} X^T y$$</span>
 <span id="cb3-81"><a href="#cb3-81"></a></span>
 <span id="cb3-82"><a href="#cb3-82"></a><span class="ss">* </span>**Squaring the System:** Multiplying $X \in \mathbb{R}^{100 \times 2}$ by its transpose $X^T \in \mathbb{R}^{2 \times 100}$ converts the rectangular system into a **square, symmetric $2 \times 2$ Gram matrix ($X^T X$)**.</span>
 <span id="cb3-83"><a href="#cb3-83"></a></span>
-<span id="cb3-84"><a href="#cb3-84"></a><span class="ss">* </span>**The Pragmatic Solution:** Assuming $X^T X$ is invertible, left-multiplication by $X^T$ immediately yields a concrete solution $\hat{\theta}$.</span>
+<span id="cb3-84"><a href="#cb3-84"></a><span class="ss">* </span>**The Pragmatic Solution:** Assuming $X^T X$ is invertible, left-multiplication by $X^T$ immediately yields a concrete solution $\theta$.</span>
 <span id="cb3-85"><a href="#cb3-85"></a></span>
 <span id="cb3-86"><a href="#cb3-86"></a>::: {.callout-note}</span>
 <span id="cb3-87"><a href="#cb3-87"></a><span class="fu">### What is the origin of this trick?</span></span>
 <span id="cb3-88"><a href="#cb3-88"></a></span>
 <span id="cb3-89"><a href="#cb3-89"></a><span class="ss">* </span>minimizing losses</span>
 <span id="cb3-90"><a href="#cb3-90"></a><span class="ss">* </span>maximizing likelihood</span>
-<span id="cb3-91"><a href="#cb3-91"></a></span>
-<span id="cb3-92"><a href="#cb3-92"></a>:::</span>
-<span id="cb3-93"><a href="#cb3-93"></a></span>
-<span id="cb3-94"><a href="#cb3-94"></a>---</span>
-<span id="cb3-95"><a href="#cb3-95"></a></span>
-<span id="cb3-96"><a href="#cb3-96"></a><span class="fu">## 3. Ordinary Least Squares</span></span>
-<span id="cb3-97"><a href="#cb3-97"></a></span>
-<span id="cb3-98"><a href="#cb3-98"></a><span class="fu">### Residual Sum of Squares (RSS)</span></span>
-<span id="cb3-99"><a href="#cb3-99"></a></span>
-<span id="cb3-100"><a href="#cb3-100"></a>::: {.callout-note}</span>
-<span id="cb3-101"><a href="#cb3-101"></a><span class="fu">### A loss function ?</span></span>
-<span id="cb3-102"><a href="#cb3-102"></a></span>
-<span id="cb3-103"><a href="#cb3-103"></a>If we accept that we cannot perfectily fit all data points, what would be the best compromise? How should we measures a distance from optimal fit? Can we invent a single number?</span>
-<span id="cb3-104"><a href="#cb3-104"></a>:::</span>
-<span id="cb3-105"><a href="#cb3-105"></a></span>
-<span id="cb3-108"><a href="#cb3-108"></a><span class="in">```{python}</span></span>
-<span id="cb3-109"><a href="#cb3-109"></a><span class="co">#| label: baseline_model_errors_plot</span></span>
-<span id="cb3-110"><a href="#cb3-110"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb3-111"><a href="#cb3-111"></a><span class="co">#| code-summary: "Python Code: Baseline Model &amp; Residual Errors"</span></span>
-<span id="cb3-112"><a href="#cb3-112"></a><span class="co">#| echo: true</span></span>
-<span id="cb3-113"><a href="#cb3-113"></a></span>
-<span id="cb3-114"><a href="#cb3-114"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb3-115"><a href="#cb3-115"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb3-116"><a href="#cb3-116"></a></span>
-<span id="cb3-117"><a href="#cb3-117"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb3-118"><a href="#cb3-118"></a>n <span class="op">=</span> <span class="dv">100</span></span>
-<span id="cb3-119"><a href="#cb3-119"></a>x <span class="op">=</span> np.random.uniform(<span class="dv">10</span>, <span class="dv">80</span>, n)</span>
-<span id="cb3-120"><a href="#cb3-120"></a>y <span class="op">=</span> <span class="dv">20</span> <span class="op">+</span> <span class="fl">1.8</span> <span class="op">*</span> x <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">12</span>, n)</span>
-<span id="cb3-121"><a href="#cb3-121"></a>y_mean <span class="op">=</span> np.mean(y)</span>
-<span id="cb3-122"><a href="#cb3-122"></a></span>
-<span id="cb3-123"><a href="#cb3-123"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
-<span id="cb3-124"><a href="#cb3-124"></a>ax.vlines(x, y_mean, y, colors<span class="op">=</span><span class="st">'#d62728'</span>, linestyles<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, zorder<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Errors ($e_i$)'</span>)</span>
-<span id="cb3-125"><a href="#cb3-125"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
-<span id="cb3-126"><a href="#cb3-126"></a>ax.axhline(y_mean, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, zorder<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">'Mean Model ($</span><span class="ch">\\</span><span class="st">bar</span><span class="sc">{y}</span><span class="st">$)'</span>)</span>
-<span id="cb3-127"><a href="#cb3-127"></a></span>
-<span id="cb3-128"><a href="#cb3-128"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb3-129"><a href="#cb3-129"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb3-130"><a href="#cb3-130"></a>ax.set_title(<span class="st">'Baseline Model (Mean Blood Glucose) &amp; Residual Errors'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb3-131"><a href="#cb3-131"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb3-132"><a href="#cb3-132"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-133"><a href="#cb3-133"></a>plt.tight_layout()</span>
-<span id="cb3-134"><a href="#cb3-134"></a>plt.show()</span>
-<span id="cb3-135"><a href="#cb3-135"></a><span class="in">```</span></span>
-<span id="cb3-136"><a href="#cb3-136"></a></span>
-<span id="cb3-137"><a href="#cb3-137"></a>We define the Residual Sum of Squares $\text{RSS}(\theta)$ as the squared $L_2$ norm of the error vector $e$:</span>
-<span id="cb3-138"><a href="#cb3-138"></a></span>
-<span id="cb3-139"><a href="#cb3-139"></a>$$\begin{aligned}</span>
-<span id="cb3-140"><a href="#cb3-140"></a>\text{RSS}(\theta) &amp;= <span class="sc">\|</span>e<span class="sc">\|</span>^2 = e^T e = \sum_{i=1}^n e_i^2 <span class="sc">\\</span></span>
-<span id="cb3-141"><a href="#cb3-141"></a>&amp;= (y - X\theta)^T (y - X\theta) \qquad \longrightarrow \qquad \text{minimize}</span>
-<span id="cb3-142"><a href="#cb3-142"></a>\end{aligned}$$</span>
-<span id="cb3-143"><a href="#cb3-143"></a></span>
-<span id="cb3-144"><a href="#cb3-144"></a>Notice that RSS is a simple number (a scalar product).</span>
-<span id="cb3-145"><a href="#cb3-145"></a></span>
-<span id="cb3-146"><a href="#cb3-146"></a>---</span>
-<span id="cb3-147"><a href="#cb3-147"></a></span>
-<span id="cb3-148"><a href="#cb3-148"></a><span class="fu">### Deriving the OLS Estimator</span></span>
-<span id="cb3-149"><a href="#cb3-149"></a></span>
-<span id="cb3-150"><a href="#cb3-150"></a>To find the optimal parameter vector $\hat{\theta}_{\text{OLS}}$, we minimize $\text{RSS}(\theta)$ by setting its gradient to zero:</span>
-<span id="cb3-151"><a href="#cb3-151"></a></span>
-<span id="cb3-152"><a href="#cb3-152"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb3-153"><a href="#cb3-153"></a><span class="fu">### Step-by-Step Derivation</span></span>
-<span id="cb3-154"><a href="#cb3-154"></a></span>
-<span id="cb3-155"><a href="#cb3-155"></a><span class="ss">1. </span>**Expand the Residual Sum of Squares $\text{RSS}(\theta)$:**</span>
-<span id="cb3-156"><a href="#cb3-156"></a>   $$\begin{aligned}</span>
-<span id="cb3-157"><a href="#cb3-157"></a>   \text{RSS}(\theta) &amp;= e^T e = (y - X\theta)^T (y - X\theta) <span class="sc">\\</span></span>
-<span id="cb3-158"><a href="#cb3-158"></a>   &amp;= y^T y - y^T X \theta - \theta^T X^T y + \theta^T X^T X \theta <span class="sc">\\</span></span>
-<span id="cb3-159"><a href="#cb3-159"></a>   &amp;= y^T y - 2 \theta^T X^T y + \theta^T X^T X \theta</span>
-<span id="cb3-160"><a href="#cb3-160"></a>   \end{aligned}$$</span>
-<span id="cb3-161"><a href="#cb3-161"></a>   *(Notice that $y^T X \theta = \theta^T X^T y$ is a scalar).*</span>
+<span id="cb3-91"><a href="#cb3-91"></a><span class="ss">* </span>geometric projection</span>
+<span id="cb3-92"><a href="#cb3-92"></a></span>
+<span id="cb3-93"><a href="#cb3-93"></a>:::</span>
+<span id="cb3-94"><a href="#cb3-94"></a></span>
+<span id="cb3-95"><a href="#cb3-95"></a>---</span>
+<span id="cb3-96"><a href="#cb3-96"></a></span>
+<span id="cb3-97"><a href="#cb3-97"></a><span class="fu">## 3. Ordinary Least Squares (OLS)</span></span>
+<span id="cb3-98"><a href="#cb3-98"></a></span>
+<span id="cb3-99"><a href="#cb3-99"></a><span class="fu">### Residual Sum of Squares (RSS)</span></span>
+<span id="cb3-100"><a href="#cb3-100"></a></span>
+<span id="cb3-101"><a href="#cb3-101"></a>::: {.callout-note}</span>
+<span id="cb3-102"><a href="#cb3-102"></a><span class="fu">### A loss function ?</span></span>
+<span id="cb3-103"><a href="#cb3-103"></a></span>
+<span id="cb3-104"><a href="#cb3-104"></a>If we accept that we cannot perfectily fit all data points, what would be the best compromise? How should we measures a distance from optimal fit? Can we invent a single number?</span>
+<span id="cb3-105"><a href="#cb3-105"></a>:::</span>
+<span id="cb3-106"><a href="#cb3-106"></a></span>
+<span id="cb3-109"><a href="#cb3-109"></a><span class="in">```{python}</span></span>
+<span id="cb3-110"><a href="#cb3-110"></a><span class="co">#| label: baseline_model_errors_plot</span></span>
+<span id="cb3-111"><a href="#cb3-111"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb3-112"><a href="#cb3-112"></a><span class="co">#| code-summary: "Python Code: Baseline Model &amp; Residual Errors"</span></span>
+<span id="cb3-113"><a href="#cb3-113"></a><span class="co">#| echo: true</span></span>
+<span id="cb3-114"><a href="#cb3-114"></a></span>
+<span id="cb3-115"><a href="#cb3-115"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-116"><a href="#cb3-116"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-117"><a href="#cb3-117"></a></span>
+<span id="cb3-118"><a href="#cb3-118"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-119"><a href="#cb3-119"></a>n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb3-120"><a href="#cb3-120"></a>x <span class="op">=</span> np.random.uniform(<span class="dv">10</span>, <span class="dv">80</span>, n)</span>
+<span id="cb3-121"><a href="#cb3-121"></a>y <span class="op">=</span> <span class="dv">20</span> <span class="op">+</span> <span class="fl">1.8</span> <span class="op">*</span> x <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">12</span>, n)</span>
+<span id="cb3-122"><a href="#cb3-122"></a>y_mean <span class="op">=</span> np.mean(y)</span>
+<span id="cb3-123"><a href="#cb3-123"></a></span>
+<span id="cb3-124"><a href="#cb3-124"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb3-125"><a href="#cb3-125"></a>ax.vlines(x, y_mean, y, colors<span class="op">=</span><span class="st">'#d62728'</span>, linestyles<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, zorder<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Errors ($e_i$)'</span>)</span>
+<span id="cb3-126"><a href="#cb3-126"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, zorder<span class="op">=</span><span class="dv">3</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb3-127"><a href="#cb3-127"></a>ax.axhline(y_mean, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, zorder<span class="op">=</span><span class="dv">4</span>, label<span class="op">=</span><span class="st">'Mean Model ($</span><span class="ch">\\</span><span class="st">bar</span><span class="sc">{y}</span><span class="st">$)'</span>)</span>
+<span id="cb3-128"><a href="#cb3-128"></a></span>
+<span id="cb3-129"><a href="#cb3-129"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-130"><a href="#cb3-130"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-131"><a href="#cb3-131"></a>ax.set_title(<span class="st">'Baseline Model (Mean Blood Glucose) &amp; Residual Errors'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-132"><a href="#cb3-132"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-133"><a href="#cb3-133"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-134"><a href="#cb3-134"></a>plt.tight_layout()</span>
+<span id="cb3-135"><a href="#cb3-135"></a>plt.show()</span>
+<span id="cb3-136"><a href="#cb3-136"></a><span class="in">```</span></span>
+<span id="cb3-137"><a href="#cb3-137"></a></span>
+<span id="cb3-138"><a href="#cb3-138"></a>We define the Residual Sum of Squares $\text{RSS}(\theta)$ as the squared $L_2$ norm of the error vector $e$:</span>
+<span id="cb3-139"><a href="#cb3-139"></a></span>
+<span id="cb3-140"><a href="#cb3-140"></a>$$\begin{aligned}</span>
+<span id="cb3-141"><a href="#cb3-141"></a>\text{RSS}(\theta) &amp;= <span class="sc">\|</span>e<span class="sc">\|</span>^2 = e^T e = \sum_{i=1}^n e_i^2 <span class="sc">\\</span></span>
+<span id="cb3-142"><a href="#cb3-142"></a>&amp;= (y - X\theta)^T (y - X\theta) \qquad \longrightarrow \qquad \text{minimize}</span>
+<span id="cb3-143"><a href="#cb3-143"></a>\end{aligned}$$</span>
+<span id="cb3-144"><a href="#cb3-144"></a></span>
+<span id="cb3-145"><a href="#cb3-145"></a>Notice that RSS is a simple number (a scalar product).</span>
+<span id="cb3-146"><a href="#cb3-146"></a></span>
+<span id="cb3-147"><a href="#cb3-147"></a>---</span>
+<span id="cb3-148"><a href="#cb3-148"></a></span>
+<span id="cb3-149"><a href="#cb3-149"></a><span class="fu">### Deriving the OLS Estimator</span></span>
+<span id="cb3-150"><a href="#cb3-150"></a></span>
+<span id="cb3-151"><a href="#cb3-151"></a>To find the optimal parameter vector $\hat{\theta}_{\text{OLS}}$, we minimize $\text{RSS}(\theta)$ by setting its gradient to zero:</span>
+<span id="cb3-152"><a href="#cb3-152"></a></span>
+<span id="cb3-153"><a href="#cb3-153"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb3-154"><a href="#cb3-154"></a><span class="fu">### Step-by-Step Derivation</span></span>
+<span id="cb3-155"><a href="#cb3-155"></a></span>
+<span id="cb3-156"><a href="#cb3-156"></a><span class="ss">1. </span>**Expand the Residual Sum of Squares $\text{RSS}(\theta)$:**</span>
+<span id="cb3-157"><a href="#cb3-157"></a>   $$\begin{aligned}</span>
+<span id="cb3-158"><a href="#cb3-158"></a>   \text{RSS}(\theta) &amp;= e^T e = (y - X\theta)^T (y - X\theta) <span class="sc">\\</span></span>
+<span id="cb3-159"><a href="#cb3-159"></a>   &amp;= y^T y - y^T X \theta - \theta^T X^T y + \theta^T X^T X \theta <span class="sc">\\</span></span>
+<span id="cb3-160"><a href="#cb3-160"></a>   &amp;= y^T y - 2 \theta^T X^T y + \theta^T X^T X \theta</span>
+<span id="cb3-161"><a href="#cb3-161"></a>   \end{aligned}$$</span>
 <span id="cb3-162"><a href="#cb3-162"></a></span>
-<span id="cb3-163"><a href="#cb3-163"></a><span class="ss">2. </span>**Compute the gradient vector with respect to $\theta$:**</span>
-<span id="cb3-164"><a href="#cb3-164"></a>   $$\begin{aligned}</span>
-<span id="cb3-165"><a href="#cb3-165"></a>   \nabla_\theta \text{RSS}(\theta) &amp;= -2 X^T y + 2 X^T X \theta <span class="sc">\\</span></span>
-<span id="cb3-166"><a href="#cb3-166"></a>   &amp;= -2 X^T (y - X\theta) = -2 X^T e</span>
-<span id="cb3-167"><a href="#cb3-167"></a>   \end{aligned}$$</span>
-<span id="cb3-168"><a href="#cb3-168"></a>   *($\text{RSS}(\theta)$ is a scalar and the gradient $\nabla_\theta \text{RSS}(\theta)$ has the same dimensions as $\theta$).*</span>
-<span id="cb3-169"><a href="#cb3-169"></a></span>
-<span id="cb3-170"><a href="#cb3-170"></a><span class="ss">3. </span>**Set the gradient to zero (First-Order Necessary Condition):**</span>
-<span id="cb3-171"><a href="#cb3-171"></a>   $$-2 X^T e = 0 \iff X^T X \theta = X^T y \quad \text{(Normal Equations)}$$</span>
+<span id="cb3-163"><a href="#cb3-163"></a>   Notice: $y^T X \theta = \theta^T X^T y$ is a scalar.</span>
+<span id="cb3-164"><a href="#cb3-164"></a></span>
+<span id="cb3-165"><a href="#cb3-165"></a><span class="ss">2. </span>**Compute the gradient vector with respect to $\theta$:**</span>
+<span id="cb3-166"><a href="#cb3-166"></a>   $$\begin{aligned}</span>
+<span id="cb3-167"><a href="#cb3-167"></a>   \nabla_\theta \text{RSS}(\theta) &amp;= -2 X^T y + 2 X^T X \theta <span class="sc">\\</span></span>
+<span id="cb3-168"><a href="#cb3-168"></a>   &amp;= -2 X^T (y - X\theta) = -2 X^T e</span>
+<span id="cb3-169"><a href="#cb3-169"></a>   \end{aligned}$$</span>
+<span id="cb3-170"><a href="#cb3-170"></a></span>
+<span id="cb3-171"><a href="#cb3-171"></a>   Notice: $\text{RSS}(\theta)$ is a scalar and the gradient $\nabla_\theta \text{RSS}(\theta)$ has the same dimensions as $\theta$</span>
 <span id="cb3-172"><a href="#cb3-172"></a></span>
-<span id="cb3-173"><a href="#cb3-173"></a><span class="ss">4. </span>**Solve for $\theta$ assuming $C = X^T X$ is invertible:**</span>
-<span id="cb3-174"><a href="#cb3-174"></a>   $$\hat{\theta}_{\text{OLS}} = C^{-1} X^T y \quad \text{where } C = X^T X$$</span>
+<span id="cb3-173"><a href="#cb3-173"></a><span class="ss">3. </span>**Set the gradient to zero (First-Order Necessary Condition):**</span>
+<span id="cb3-174"><a href="#cb3-174"></a>   $$-2 X^T e = 0 \iff X^T X \theta = X^T y \quad \text{(Normal Equations)}$$</span>
 <span id="cb3-175"><a href="#cb3-175"></a></span>
-<span id="cb3-176"><a href="#cb3-176"></a><span class="ss">5. </span>**Dimensions Summary:**</span>
-<span id="cb3-177"><a href="#cb3-177"></a>   $$\hat{\theta}_{\text{OLS}} \in \mathbb{R}^{p \times 1}, \quad C = X^T X \in \mathbb{R}^{p \times p}, \quad C^{-1} \in \mathbb{R}^{p \times p}, \quad X^T \in \mathbb{R}^{p \times n}, \quad y \in \mathbb{R}^{n \times 1}$$</span>
-<span id="cb3-178"><a href="#cb3-178"></a>:::</span>
-<span id="cb3-179"><a href="#cb3-179"></a></span>
-<span id="cb3-180"><a href="#cb3-180"></a>$$\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y$$</span>
+<span id="cb3-176"><a href="#cb3-176"></a><span class="ss">4. </span>**Solve for $\theta$ assuming $C = X^T X$ is invertible:**</span>
+<span id="cb3-177"><a href="#cb3-177"></a>   $$\hat{\theta}_{\text{OLS}} = C^{-1} X^T y \quad \text{where } C = X^T X$$</span>
+<span id="cb3-178"><a href="#cb3-178"></a></span>
+<span id="cb3-179"><a href="#cb3-179"></a><span class="ss">5. </span>**Dimensions Summary:**</span>
+<span id="cb3-180"><a href="#cb3-180"></a>   $$\hat{\theta}_{\text{OLS}} \in \mathbb{R}^{p \times 1}, \quad C = X^T X \in \mathbb{R}^{p \times p}, \quad C^{-1} \in \mathbb{R}^{p \times p}, \quad X^T \in \mathbb{R}^{p \times n}, \quad y \in \mathbb{R}^{n \times 1}$$</span>
 <span id="cb3-181"><a href="#cb3-181"></a></span>
-<span id="cb3-182"><a href="#cb3-182"></a>---</span>
-<span id="cb3-183"><a href="#cb3-183"></a></span>
-<span id="cb3-184"><a href="#cb3-184"></a><span class="fu">## 4. Maximum Likelihood Estimation (MLE)</span></span>
-<span id="cb3-185"><a href="#cb3-185"></a></span>
-<span id="cb3-186"><a href="#cb3-186"></a><span class="fu">### Probabilistic Modeling of Noise</span></span>
-<span id="cb3-187"><a href="#cb3-187"></a></span>
-<span id="cb3-188"><a href="#cb3-188"></a>Why do we minimize squared errors ($L_2$ loss)? Assume residual errors $e_i$ are independent Gaussian noise:</span>
-<span id="cb3-189"><a href="#cb3-189"></a></span>
-<span id="cb3-190"><a href="#cb3-190"></a>$$e_i \sim \mathcal{N}(0, \sigma^2) \implies y_i \sim \mathcal{N}(x_i^T \theta, \sigma^2)$$</span>
-<span id="cb3-191"><a href="#cb3-191"></a></span>
-<span id="cb3-192"><a href="#cb3-192"></a>---</span>
-<span id="cb3-193"><a href="#cb3-193"></a></span>
-<span id="cb3-194"><a href="#cb3-194"></a><span class="fu">### The Likelihood Function $L(\theta)$</span></span>
-<span id="cb3-195"><a href="#cb3-195"></a></span>
-<span id="cb3-196"><a href="#cb3-196"></a>Assuming the model is correct, the probability of a single observation $y_i$ is:</span>
+<span id="cb3-182"><a href="#cb3-182"></a>   Notice: for our motivating example $n=100$ and $p=2$</span>
+<span id="cb3-183"><a href="#cb3-183"></a>:::</span>
+<span id="cb3-184"><a href="#cb3-184"></a></span>
+<span id="cb3-185"><a href="#cb3-185"></a>$$\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y$$</span>
+<span id="cb3-186"><a href="#cb3-186"></a></span>
+<span id="cb3-187"><a href="#cb3-187"></a>---</span>
+<span id="cb3-188"><a href="#cb3-188"></a></span>
+<span id="cb3-189"><a href="#cb3-189"></a><span class="fu">## 4. Maximum Likelihood Estimation (MLE)</span></span>
+<span id="cb3-190"><a href="#cb3-190"></a></span>
+<span id="cb3-191"><a href="#cb3-191"></a><span class="fu">### Probabilistic Modeling of Noise</span></span>
+<span id="cb3-192"><a href="#cb3-192"></a></span>
+<span id="cb3-193"><a href="#cb3-193"></a>$$y_i = x_i^T \theta + e_i$$</span>
+<span id="cb3-194"><a href="#cb3-194"></a></span>
+<span id="cb3-195"><a href="#cb3-195"></a>Assume residual errors $e_i$ are independent Gaussian noise:</span>
+<span id="cb3-196"><a href="#cb3-196"></a>$$e_i \sim \mathcal{N}(0, \sigma^2) \implies y_i \sim \mathcal{N}(x_i^T \theta, \sigma^2)$$</span>
 <span id="cb3-197"><a href="#cb3-197"></a></span>
-<span id="cb3-198"><a href="#cb3-198"></a>$$p(y_i \mid x_i, \theta) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(y_i - x_i^T\theta)^2}{2\sigma^2} \right)$$</span>
+<span id="cb3-198"><a href="#cb3-198"></a>---</span>
 <span id="cb3-199"><a href="#cb3-199"></a></span>
-<span id="cb3-200"><a href="#cb3-200"></a>Assuming independent observations, the joint likelihood of observing all $n$ patient responses is the product over all observations:</span>
+<span id="cb3-200"><a href="#cb3-200"></a><span class="fu">### The Likelihood Function $L(\theta)$</span></span>
 <span id="cb3-201"><a href="#cb3-201"></a></span>
-<span id="cb3-202"><a href="#cb3-202"></a>$$L(\theta) = \prod_{i=1}^n p(y_i \mid x_i, \theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(y_i - x_i^T\theta)^2}{2\sigma^2} \right)$$</span>
+<span id="cb3-202"><a href="#cb3-202"></a>Assuming the model is correct, the probability of a single observation $y_i$ is:</span>
 <span id="cb3-203"><a href="#cb3-203"></a></span>
-<span id="cb3-204"><a href="#cb3-204"></a>---</span>
+<span id="cb3-204"><a href="#cb3-204"></a>$$p(y_i \mid x_i, \theta) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(y_i - x_i^T\theta)^2}{2\sigma^2} \right)$$</span>
 <span id="cb3-205"><a href="#cb3-205"></a></span>
-<span id="cb3-206"><a href="#cb3-206"></a><span class="fu">### Maximizing Log-Likelihood ($\text{MLE}$)</span></span>
+<span id="cb3-206"><a href="#cb3-206"></a>Assuming independent observations, the joint likelihood of observing all $n$ patient responses is the product over all observations:</span>
 <span id="cb3-207"><a href="#cb3-207"></a></span>
-<span id="cb3-208"><a href="#cb3-208"></a>Taking the natural log turns the product into a sum:</span>
+<span id="cb3-208"><a href="#cb3-208"></a>$$L(\theta) = \prod_{i=1}^n p(y_i \mid x_i, \theta) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(y_i - x_i^T\theta)^2}{2\sigma^2} \right)$$</span>
 <span id="cb3-209"><a href="#cb3-209"></a></span>
-<span id="cb3-210"><a href="#cb3-210"></a>$$\ell(\theta) = \ln L(\theta) = -\frac{n}{2}\ln(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - x_i^T\theta)^2$$</span>
+<span id="cb3-210"><a href="#cb3-210"></a>---</span>
 <span id="cb3-211"><a href="#cb3-211"></a></span>
-<span id="cb3-212"><a href="#cb3-212"></a>Maximizing $\ell(\theta)$ with respect to $\theta$:</span>
+<span id="cb3-212"><a href="#cb3-212"></a><span class="fu">### Maximizing Log-Likelihood</span></span>
 <span id="cb3-213"><a href="#cb3-213"></a></span>
-<span id="cb3-214"><a href="#cb3-214"></a>$$\arg\max_\theta \ell(\theta) \iff \arg\min_\theta \sum_{i=1}^n (y_i - x_i^T\theta)^2 = \arg\min_\theta <span class="sc">\|</span>y - X\theta<span class="sc">\|</span>^2$$</span>
+<span id="cb3-214"><a href="#cb3-214"></a>Taking the natural log turns the product into a sum:</span>
 <span id="cb3-215"><a href="#cb3-215"></a></span>
-<span id="cb3-216"><a href="#cb3-216"></a><span class="at">&gt; **Takeaway:** Under Gaussian noise, Maximum Likelihood Estimation (MLE) yields the **exact same estimator** as OLS!</span></span>
+<span id="cb3-216"><a href="#cb3-216"></a>$$\ell(\theta) = \ln L(\theta) = -\frac{n}{2}\ln(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - x_i^T\theta)^2$$</span>
 <span id="cb3-217"><a href="#cb3-217"></a></span>
-<span id="cb3-218"><a href="#cb3-218"></a>---</span>
+<span id="cb3-218"><a href="#cb3-218"></a>Maximizing $\ell(\theta)$ with respect to $\theta$:</span>
 <span id="cb3-219"><a href="#cb3-219"></a></span>
-<span id="cb3-220"><a href="#cb3-220"></a><span class="fu">## 5. Geometric Derivation</span></span>
+<span id="cb3-220"><a href="#cb3-220"></a>$$\arg\max_\theta \ell(\theta) \iff \arg\min_\theta \sum_{i=1}^n (y_i - x_i^T\theta)^2 = \arg\min_\theta <span class="sc">\|</span>y - X\theta<span class="sc">\|</span>^2$$</span>
 <span id="cb3-221"><a href="#cb3-221"></a></span>
-<span id="cb3-222"><a href="#cb3-222"></a>Instead of calculus, we can derive OLS purely using **Linear Algebra &amp; Vector Projections** in observation space ($\mathbb{R}^n$):</span>
+<span id="cb3-222"><a href="#cb3-222"></a><span class="at">&gt; **Takeaway:** Under Gaussian noise, Maximum Likelihood Estimation (MLE) yields the **exact same estimator** as OLS!</span></span>
 <span id="cb3-223"><a href="#cb3-223"></a></span>
-<span id="cb3-224"><a href="#cb3-224"></a><span class="ss">* </span>**Observation Space ($\mathbb{R}^n$):**</span>
-<span id="cb3-225"><a href="#cb3-225"></a>  The target vector $y \in \mathbb{R}^n$ lives in $n$-dimensional observation space ($n=100$). The origin $\mathbf{0}$ represents zero response for all patients.</span>
-<span id="cb3-226"><a href="#cb3-226"></a></span>
-<span id="cb3-227"><a href="#cb3-227"></a><span class="ss">* </span>**Model Subspace ($\text{col}(X)$):**</span>
-<span id="cb3-228"><a href="#cb3-228"></a>  All possible predictions $\hat{y}$ are linear combinations of the columns of $X$:</span>
-<span id="cb3-229"><a href="#cb3-229"></a>  $$\begin{bmatrix} \hat{y}_1 <span class="sc">\\</span> \vdots <span class="sc">\\</span> \hat{y}_n \end{bmatrix} = \theta_0 \mathbf{1}_n + \theta_1 \begin{bmatrix} x_1 <span class="sc">\\</span> \vdots <span class="sc">\\</span> x_n \end{bmatrix}$$</span>
-<span id="cb3-230"><a href="#cb3-230"></a>  where $\mathbf{1}_n$ denotes the $n \times 1$ column vector of ones. All possible parameter combinations $(\theta_0, \theta_1)$ trace out the column space $\text{col}(X)$, and any model prediction $\hat{y}$ is simply an element of this subspace.</span>
-<span id="cb3-231"><a href="#cb3-231"></a></span>
-<span id="cb3-232"><a href="#cb3-232"></a><span class="ss">* </span>**Orthogonal Projection:**</span>
-<span id="cb3-233"><a href="#cb3-233"></a>  The point $\hat{y} \in \text{col}(X)$ closest to $y$ is the **orthogonal projection** of $y$ onto $\text{col}(X)$.</span>
-<span id="cb3-234"><a href="#cb3-234"></a></span>
-<span id="cb3-235"><a href="#cb3-235"></a><span class="al">![Geometric Projection View of OLS](images/ols_geometry_2d.png)</span>{width="85%" fig-align="center"}</span>
-<span id="cb3-236"><a href="#cb3-236"></a></span>
-<span id="cb3-237"><a href="#cb3-237"></a>---</span>
-<span id="cb3-238"><a href="#cb3-238"></a></span>
-<span id="cb3-239"><a href="#cb3-239"></a><span class="fu">### Orthogonality Condition</span></span>
+<span id="cb3-224"><a href="#cb3-224"></a>---</span>
+<span id="cb3-225"><a href="#cb3-225"></a></span>
+<span id="cb3-226"><a href="#cb3-226"></a><span class="fu">## 5. Geometric Derivation</span></span>
+<span id="cb3-227"><a href="#cb3-227"></a></span>
+<span id="cb3-228"><a href="#cb3-228"></a>Instead of calculus, we can derive OLS purely using **Linear Algebra &amp; Vector Projections** in observation space ($\mathbb{R}^n$):</span>
+<span id="cb3-229"><a href="#cb3-229"></a></span>
+<span id="cb3-230"><a href="#cb3-230"></a><span class="ss">* </span>**Observation Space ($\mathbb{R}^n$):**</span>
+<span id="cb3-231"><a href="#cb3-231"></a>  The target vector $y \in \mathbb{R}^n$ lives in $n$-dimensional observation space ($n=100$). The origin $\mathbf{0}$ represents zero response for all patients.</span>
+<span id="cb3-232"><a href="#cb3-232"></a></span>
+<span id="cb3-233"><a href="#cb3-233"></a><span class="ss">* </span>**Model Subspace ($\text{col}(X)$):**</span>
+<span id="cb3-234"><a href="#cb3-234"></a>  All possible predictions $\hat{y}$ are linear combinations of the columns of $X$:</span>
+<span id="cb3-235"><a href="#cb3-235"></a>  $$\begin{bmatrix} \hat{y}_1 <span class="sc">\\</span> \vdots <span class="sc">\\</span> \hat{y}_n \end{bmatrix} = \theta_0 \mathbf{1}_n + \theta_1 \begin{bmatrix} x_1 <span class="sc">\\</span> \vdots <span class="sc">\\</span> x_n \end{bmatrix}$$</span>
+<span id="cb3-236"><a href="#cb3-236"></a>  where $\mathbf{1}_n$ denotes the $n \times 1$ column vector of ones. All possible parameter combinations $(\theta_0, \theta_1)$ trace out the column space $\text{col}(X)$, and any model prediction $\hat{y}$ is simply an element of this subspace.</span>
+<span id="cb3-237"><a href="#cb3-237"></a></span>
+<span id="cb3-238"><a href="#cb3-238"></a><span class="ss">* </span>**Orthogonal Projection:**</span>
+<span id="cb3-239"><a href="#cb3-239"></a>  The point $\hat{y} \in \text{col}(X)$ closest to $y$ is the **orthogonal projection** of $y$ onto $\text{col}(X)$.</span>
 <span id="cb3-240"><a href="#cb3-240"></a></span>
-<span id="cb3-241"><a href="#cb3-241"></a>The residual error vector $e = y - \hat{y} = y - X\hat{\theta}$ must drop at a **right angle ($\perp$)** onto $\text{col}(X)$:</span>
+<span id="cb3-241"><a href="#cb3-241"></a><span class="al">![Geometric Projection View of OLS](images/ols_geometry_2d.png)</span>{width="85%" fig-align="center"}</span>
 <span id="cb3-242"><a href="#cb3-242"></a></span>
-<span id="cb3-243"><a href="#cb3-243"></a>$$e \perp \text{col}(X) \iff X^T e = 0$$</span>
+<span id="cb3-243"><a href="#cb3-243"></a>---</span>
 <span id="cb3-244"><a href="#cb3-244"></a></span>
-<span id="cb3-245"><a href="#cb3-245"></a>Substituting $e = y - X\hat{\theta}$:</span>
+<span id="cb3-245"><a href="#cb3-245"></a><span class="fu">### Orthogonality Condition</span></span>
 <span id="cb3-246"><a href="#cb3-246"></a></span>
-<span id="cb3-247"><a href="#cb3-247"></a>$$X^T (y - X\hat{\theta}) = 0 \implies X^T y - X^T X \hat{\theta} = 0 \implies X^T X \hat{\theta} = X^T y$$</span>
+<span id="cb3-247"><a href="#cb3-247"></a>The residual error vector $e = y - \hat{y} = y - X\hat{\theta}$ must drop at a **right angle ($\perp$)** onto $\text{col}(X)$:</span>
 <span id="cb3-248"><a href="#cb3-248"></a></span>
-<span id="cb3-249"><a href="#cb3-249"></a><span class="at">&gt; **Conclusion:** Both Calculus ($\nabla_\theta \text{RSS} = 0$) and Geometry ($e \perp \text{col}(X)$) yield the **exact same Normal Equations**!</span></span>
+<span id="cb3-249"><a href="#cb3-249"></a>$$e \perp \text{col}(X) \iff X^T e = 0$$</span>
 <span id="cb3-250"><a href="#cb3-250"></a></span>
-<span id="cb3-251"><a href="#cb3-251"></a>---</span>
+<span id="cb3-251"><a href="#cb3-251"></a>Substituting $e = y - X\hat{\theta}$:</span>
 <span id="cb3-252"><a href="#cb3-252"></a></span>
-<span id="cb3-253"><a href="#cb3-253"></a><span class="fu">## 6. Model Predictions</span></span>
+<span id="cb3-253"><a href="#cb3-253"></a>$$X^T (y - X\hat{\theta}) = 0 \implies X^T y - X^T X \hat{\theta} = 0 \implies X^T X \hat{\theta} = X^T y$$</span>
 <span id="cb3-254"><a href="#cb3-254"></a></span>
-<span id="cb3-255"><a href="#cb3-255"></a>With the optimal parameters $\hat{\theta}_{\text{OLS}}$, we compute predicted responses $\hat{y}$ for our cohort:</span>
+<span id="cb3-255"><a href="#cb3-255"></a><span class="at">&gt; **Conclusion:** Both Calculus ($\nabla_\theta \text{RSS} = 0$) and Geometry ($e \perp \text{col}(X)$) yield the **exact same Normal Equations**!</span></span>
 <span id="cb3-256"><a href="#cb3-256"></a></span>
-<span id="cb3-257"><a href="#cb3-257"></a>$$\hat{y} = X\hat{\theta} = X(X^T X)^{-1} X^T y = H y \quad \text{where } H = X(X^T X)^{-1} X^T$$</span>
+<span id="cb3-257"><a href="#cb3-257"></a>---</span>
 <span id="cb3-258"><a href="#cb3-258"></a></span>
-<span id="cb3-259"><a href="#cb3-259"></a><span class="ss">* </span>**The Hat Matrix ($H \in \mathbb{R}^{n \times n}$):** $H$ transforms observed responses $y$ directly into fitted predictions $\hat{y}$ ("putting a hat on $y$").</span>
-<span id="cb3-260"><a href="#cb3-260"></a><span class="ss">* </span>**Projection Operator:** The hat matrix $H$ is symmetric ($H^T = H$) and acts as a projection operator that maps any vector from observation space $\mathbb{R}^n$ onto the model subspace $\text{col}(X)$, as illustrated in the geometric projection figure.</span>
-<span id="cb3-261"><a href="#cb3-261"></a></span>
-<span id="cb3-262"><a href="#cb3-262"></a>---</span>
-<span id="cb3-263"><a href="#cb3-263"></a></span>
-<span id="cb3-264"><a href="#cb3-264"></a><span class="fu">## 7. History of Regression</span></span>
-<span id="cb3-265"><a href="#cb3-265"></a></span>
-<span id="cb3-266"><a href="#cb3-266"></a>Behind every mathematical formula are historical pioneers, contextual motivations, and critical ethical reflections:</span>
+<span id="cb3-259"><a href="#cb3-259"></a><span class="fu">## 6. Model Predictions</span></span>
+<span id="cb3-260"><a href="#cb3-260"></a></span>
+<span id="cb3-261"><a href="#cb3-261"></a>With the optimal parameters $\hat \theta$, we can compute predicted responses $\hat{y}$ for **any** patient data $X$:</span>
+<span id="cb3-262"><a href="#cb3-262"></a></span>
+<span id="cb3-263"><a href="#cb3-263"></a>$$\hat{y} = X\hat{\theta} = X(X^T X)^{-1} X^T y = H y \quad \text{where } H = X(X^T X)^{-1} X^T$$</span>
+<span id="cb3-264"><a href="#cb3-264"></a></span>
+<span id="cb3-265"><a href="#cb3-265"></a><span class="ss">* </span>**The Hat Matrix ($H \in \mathbb{R}^{n \times n}$):** $H$ transforms observed responses $y$ directly into fitted predictions $\hat{y}$ ("putting a hat on $y$").</span>
+<span id="cb3-266"><a href="#cb3-266"></a><span class="ss">* </span>**Projection Operator:** The hat matrix $H$ is symmetric ($H^T = H$) and acts as a projection operator that maps any vector from observation space $\mathbb{R}^n$ onto the model subspace $\text{col}(X)$, as illustrated in the geometric projection figure.</span>
 <span id="cb3-267"><a href="#cb3-267"></a></span>
-<span id="cb3-268"><a href="#cb3-268"></a>!<span class="co">[</span><span class="ot">Historical Pioneers of Ordinary Least Squares: [Carl Friedrich Gauss](https://en.wikipedia.org/wiki/Carl_Friedrich_Gauss){target="_blank" rel="noopener"}, [Francis Galton](https://en.wikipedia.org/wiki/Francis_Galton){target="_blank" rel="noopener"}, and [Karl Pearson](https://en.wikipedia.org/wiki/Karl_Pearson){target="_blank" rel="noopener"}</span><span class="co">](images/history_triptych.png)</span>{width="85%" fig-align="center"}</span>
+<span id="cb3-268"><a href="#cb3-268"></a>---</span>
 <span id="cb3-269"><a href="#cb3-269"></a></span>
-<span id="cb3-270"><a href="#cb3-270"></a>::: {.callout-warning}</span>
-<span id="cb3-271"><a href="#cb3-271"></a><span class="fu">### History and Ethics of Statistics</span></span>
-<span id="cb3-272"><a href="#cb3-272"></a></span>
-<span id="cb3-273"><a href="#cb3-273"></a><span class="ss">* </span>**The Controversial Legacy:** Both <span class="co">[</span><span class="ot">Francis Galton</span><span class="co">](https://en.wikipedia.org/wiki/Francis_Galton)</span>{target="_blank" rel="noopener"} (who coined the term *"eugenics"*) and <span class="co">[</span><span class="ot">Karl Pearson</span><span class="co">](https://en.wikipedia.org/wiki/Karl_Pearson)</span>{target="_blank" rel="noopener"} (who held the Galton Chair of Eugenics at UCL) developed foundational statistical tools to quantify human genetics and social hierarchies.</span>
-<span id="cb3-274"><a href="#cb3-274"></a></span>
-<span id="cb3-275"><a href="#cb3-275"></a><span class="ss">* </span>**Modern Data Science Lesson:** Mathematics and algorithms are formal structures, but **data selection, feature choice, and modeling goals are never strictly neutral**. Understanding bias in statistical data is essential for responsible Machine Learning.</span>
-<span id="cb3-276"><a href="#cb3-276"></a>:::</span>
-<span id="cb3-277"><a href="#cb3-277"></a></span>
-<span id="cb3-278"><a href="#cb3-278"></a>---</span>
-<span id="cb3-279"><a href="#cb3-279"></a></span>
-<span id="cb3-280"><a href="#cb3-280"></a><span class="fu">## 8. Summary</span></span>
-<span id="cb3-281"><a href="#cb3-281"></a></span>
-<span id="cb3-282"><a href="#cb3-282"></a><span class="ss">* </span>**Matrix power:** $y = X\theta$</span>
-<span id="cb3-283"><a href="#cb3-283"></a><span class="ss">* </span>**Modesty:** $y = X\theta + \varepsilon$</span>
-<span id="cb3-284"><a href="#cb3-284"></a><span class="ss">* </span>**Optimism:** $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ or $\varepsilon \perp \hat{y}$</span>
-<span id="cb3-285"><a href="#cb3-285"></a><span class="ss">* </span>**Solution:** $\theta = (X^T X)^{-1} X^T y$</span>
-<span id="cb3-286"><a href="#cb3-286"></a><span class="ss">* </span>**Predictions:** $\hat{y} = P y$, where $H = X(X^T X)^{-1} X^T$ is the hat matrix ($P = H$).</span>
-</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+<span id="cb3-270"><a href="#cb3-270"></a><span class="fu">## 7. History of Regression</span></span>
+<span id="cb3-271"><a href="#cb3-271"></a></span>
+<span id="cb3-272"><a href="#cb3-272"></a>Behind every mathematical formula are historical pioneers, contextual motivations, and critical ethical reflections:</span>
+<span id="cb3-273"><a href="#cb3-273"></a></span>
+<span id="cb3-274"><a href="#cb3-274"></a>!<span class="co">[</span><span class="ot">Historical Pioneers of Ordinary Least Squares: [Carl Friedrich Gauss](https://en.wikipedia.org/wiki/Carl_Friedrich_Gauss){target="_blank" rel="noopener"}, [Francis Galton](https://en.wikipedia.org/wiki/Francis_Galton){target="_blank" rel="noopener"}, and [Karl Pearson](https://en.wikipedia.org/wiki/Karl_Pearson){target="_blank" rel="noopener"}</span><span class="co">](images/history_triptych.png)</span>{width="85%" fig-align="center"}</span>
+<span id="cb3-275"><a href="#cb3-275"></a></span>
+<span id="cb3-276"><a href="#cb3-276"></a>::: {.callout-warning}</span>
+<span id="cb3-277"><a href="#cb3-277"></a><span class="fu">### History and Ethics of Statistics</span></span>
+<span id="cb3-278"><a href="#cb3-278"></a></span>
+<span id="cb3-279"><a href="#cb3-279"></a><span class="ss">* </span>**The Controversial Legacy:** Both <span class="co">[</span><span class="ot">Francis Galton</span><span class="co">](https://en.wikipedia.org/wiki/Francis_Galton)</span>{target="_blank" rel="noopener"} (who coined the term *"eugenics"*) and <span class="co">[</span><span class="ot">Karl Pearson</span><span class="co">](https://en.wikipedia.org/wiki/Karl_Pearson)</span>{target="_blank" rel="noopener"} (who held the Galton Chair of Eugenics at UCL) developed foundational statistical tools to quantify human genetics and social hierarchies.</span>
+<span id="cb3-280"><a href="#cb3-280"></a></span>
+<span id="cb3-281"><a href="#cb3-281"></a><span class="ss">* </span>**Modern Data Science Lesson:** Mathematics and algorithms are formal structures, but **data selection, feature choice, and modeling goals are never strictly neutral**. Understanding bias in statistical data is essential for responsible Machine Learning.</span>
+<span id="cb3-282"><a href="#cb3-282"></a>:::</span>
+<span id="cb3-283"><a href="#cb3-283"></a></span>
+<span id="cb3-284"><a href="#cb3-284"></a>---</span>
+<span id="cb3-285"><a href="#cb3-285"></a></span>
+<span id="cb3-286"><a href="#cb3-286"></a><span class="fu">## 8. Summary</span></span>
+<span id="cb3-287"><a href="#cb3-287"></a></span>
+<span id="cb3-288"><a href="#cb3-288"></a><span class="ss">* </span>**Matrix power:** $y = X\theta$</span>
+<span id="cb3-289"><a href="#cb3-289"></a><span class="ss">* </span>**Modesty:** $y = X\theta + e$</span>
+<span id="cb3-290"><a href="#cb3-290"></a><span class="ss">* </span>**Optimism:** </span>
+<span id="cb3-291"><a href="#cb3-291"></a><span class="ss">  - </span>$e^T e \to \mbox{min}$ </span>
+<span id="cb3-292"><a href="#cb3-292"></a><span class="ss">  - </span>$e \sim \mathcal{N}(0, \sigma^2)$ </span>
+<span id="cb3-293"><a href="#cb3-293"></a><span class="ss">  - </span>$e \perp \hat{y}$</span>
+<span id="cb3-294"><a href="#cb3-294"></a><span class="ss">* </span>**Solution:** $\hat \theta = (X^T X)^{-1} X^T y$</span>
+<span id="cb3-295"><a href="#cb3-295"></a><span class="ss">* </span>**Predictions:** $\hat y = X \hat \theta$ </span>
+<span id="cb3-296"><a href="#cb3-296"></a><span class="ss">* </span>**Projections:** $\hat y = H y$, where $H = X(X^T X)^{-1} X^T$ is the *hat* matrix: $H = H^T = H^2$.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
