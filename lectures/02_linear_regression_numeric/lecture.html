@@ -1,2 +1,1763 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"></html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-10-19">
+
+<title>02 Numerical Linear Regression – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/scikit_learn.html">
+ <span class="dropdown-text">Scikit-Learn</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">1. Goal</a></li>
+  <li><a href="#solving-normal-equations" id="toc-solving-normal-equations" class="nav-link" data-scroll-target="#solving-normal-equations">2. Solving Normal Equations</a>
+  <ul class="collapse">
+  <li><a href="#numpy-implementation" id="toc-numpy-implementation" class="nav-link" data-scroll-target="#numpy-implementation">NumPy Implementation</a></li>
+  <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization">Visualization</a></li>
+  </ul></li>
+  <li><a href="#parameter-uncertainty" id="toc-parameter-uncertainty" class="nav-link" data-scroll-target="#parameter-uncertainty">3. Parameter Uncertainty</a>
+  <ul class="collapse">
+  <li><a href="#intuitive-motivation-why-do-parameter-estimates-contain-errors" id="toc-intuitive-motivation-why-do-parameter-estimates-contain-errors" class="nav-link" data-scroll-target="#intuitive-motivation-why-do-parameter-estimates-contain-errors">Intuitive Motivation: Why do parameter estimates contain errors?</a></li>
+  <li><a href="#variance-of-parameter-estimates" id="toc-variance-of-parameter-estimates" class="nav-link" data-scroll-target="#variance-of-parameter-estimates">Variance of Parameter Estimates</a></li>
+  <li><a href="#computing-standard-errors" id="toc-computing-standard-errors" class="nav-link" data-scroll-target="#computing-standard-errors">Computing Standard Errors</a></li>
+  </ul></li>
+  <li><a href="#prediction-uncertainty" id="toc-prediction-uncertainty" class="nav-link" data-scroll-target="#prediction-uncertainty">4. Prediction Uncertainty</a>
+  <ul class="collapse">
+  <li><a href="#error-propagation" id="toc-error-propagation" class="nav-link" data-scroll-target="#error-propagation">Error Propagation</a></li>
+  </ul></li>
+  <li><a href="#iterative-optimization" id="toc-iterative-optimization" class="nav-link" data-scroll-target="#iterative-optimization">5. Iterative Optimization</a>
+  <ul class="collapse">
+  <li><a href="#why-iterative-algorithms" id="toc-why-iterative-algorithms" class="nav-link" data-scroll-target="#why-iterative-algorithms">Why Iterative Algorithms?</a></li>
+  <li><a href="#gradient-descent-update-rule" id="toc-gradient-descent-update-rule" class="nav-link" data-scroll-target="#gradient-descent-update-rule">Gradient Descent Update Rule</a></li>
+  <li><a href="#loss-curve-mse-decline" id="toc-loss-curve-mse-decline" class="nav-link" data-scroll-target="#loss-curve-mse-decline">Loss Curve (MSE Decline)</a></li>
+  </ul></li>
+  <li><a href="#review" id="toc-review" class="nav-link" data-scroll-target="#review">6. Review</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">02 Numerical Linear Regression</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning</p>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 19, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">1. Goal</h2>
+<p>In the previous lecture, we derived the closed-form analytical OLS solution:</p>
+<p><span class="math display">\[\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y\]</span></p>
+<p>Even if <span class="math inline">\((X^T X)^{-1}\)</span> exists and is mathematically solvable, there are still important engineering decisions to consider:</p>
+<ol type="1">
+<li><p>Which numerical functions (<code>np.linalg.solve</code> vs.&nbsp;<code>inv</code>) to use to compute <span class="math inline">\(\hat{\theta}\)</span> in NumPy?</p></li>
+<li><p>How measurement noise propagates into parameter uncertainty.</p></li>
+<li><p>How to solve linear models when <span class="math inline">\(X^T X\)</span> is too large to invert or when exact inversion is computationally intractable.</p></li>
+<li><p>What to do for non-linear models if the original relationship between <span class="math inline">\(X\)</span> and <span class="math inline">\(y\)</span> is not even linear.</p></li>
+</ol>
+<hr>
+</section>
+<section id="solving-normal-equations" class="level2">
+<h2 class="anchored" data-anchor-id="solving-normal-equations">2. Solving Normal Equations</h2>
+<section id="numpy-implementation" class="level3">
+<h3 class="anchored" data-anchor-id="numpy-implementation">NumPy Implementation</h3>
+<p>In NumPy, we set up the Design Matrix <span class="math inline">\(X \in \mathbb{R}^{n \times 2}\)</span> (including the bias column of ones) and compute <span class="math inline">\(\hat{\theta}\)</span>:</p>
+<div id="numpy_ols" class="cell" data-execution_count="1">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co"># Synthetic medical dataset (n = 100 patients)</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-5"><a href="#cb1-5"></a>n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>x <span class="op">=</span> np.random.uniform(<span class="dv">10</span>, <span class="dv">80</span>, n)  <span class="co"># Carbohydrate Intake (g)</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>y <span class="op">=</span> <span class="dv">20</span> <span class="op">+</span> <span class="fl">1.8</span> <span class="op">*</span> x <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">12</span>, n)  <span class="co"># Blood Glucose Response (mg/dL)</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co"># Design matrix X with intercept column</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>X <span class="op">=</span> np.column_stack([np.ones(n), x])</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co"># Solve Normal Equations using np.linalg.solve (more stable than inv)</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a>theta_ols <span class="op">=</span> np.linalg.solve(X.T <span class="op">@</span> X, X.T <span class="op">@</span> y)</span>
+<span id="cb1-14"><a href="#cb1-14"></a></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="bu">print</span>(<span class="ss">f"Estimated Intercept (theta_0): </span><span class="sc">{</span>theta_ols[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="bu">print</span>(<span class="ss">f"Estimated Slope     (theta_1): </span><span class="sc">{</span>theta_ols[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL / g"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Intercept (theta_0): 23.37 mg/dL
+Estimated Slope     (theta_1): 1.72 mg/dL / g</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="visualization" class="level3">
+<h3 class="anchored" data-anchor-id="visualization">Visualization</h3>
+<div id="cell-numpy_ols_visualization" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># Grid for plotting fitted line</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">80</span>, <span class="dv">200</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>y_grid <span class="op">=</span> theta_ols[<span class="dv">0</span>] <span class="op">+</span> theta_ols[<span class="dv">1</span>] <span class="op">*</span> x_grid</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb3-9"><a href="#cb3-9"></a>ax.plot(x_grid, y_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'OLS Fitted Line'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a>title_str <span class="op">=</span> <span class="ss">f'OLS Fitted Line: $</span><span class="ch">\\</span><span class="ss">theta_0 = </span><span class="sc">{</span>theta_ols[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ch">\\</span><span class="ss">text</span><span class="ch">{{</span><span class="ss"> mg/dL</span><span class="ch">}}</span><span class="ss">, </span><span class="ch">\\</span><span class="ss">theta_1 = </span><span class="sc">{</span>theta_ols[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ch">\\</span><span class="ss">text</span><span class="ch">{{</span><span class="ss"> mg/dL / g</span><span class="ch">}}</span><span class="ss">$'</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>ax.set_title(title_str, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-17"><a href="#cb3-17"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lecture_files/figure-html/numpy_ols_visualization-output-1.png" id="numpy_ols_visualization" width="2091" height="1390" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Notice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Model as Data Compression:</strong> Instead of storing 100 individual patient data pairs <span class="math inline">\((x_i, y_i)\)</span>, the linear model compresses the underlying biological signal into just <strong>two scalar parameters</strong>: <span class="math inline">\((\theta_0, \theta_1)\)</span>.</p></li>
+<li><p><strong>Model as Predictor:</strong> The model equation <span class="math inline">\(\hat{y} = \theta_0 + \theta_1 x\)</span> allows us to predict the expected blood glucose response for <em>new</em> patient carbohydrate intake values <span class="math inline">\(x\)</span>.</p></li>
+<li><p><strong>Interpreting Model Parameters:</strong></p>
+<ul>
+<li><strong>Baseline (<span class="math inline">\(\theta_0 \approx 23.37\text{ mg/dL}\)</span>):</strong> Expected baseline blood glucose level when carbohydrate intake is zero (<span class="math inline">\(x = 0\text{ g}\)</span>).</li>
+<li><strong>Rate of Increase (<span class="math inline">\(\theta_1 \approx 1.72\text{ mg/dL / g}\)</span>):</strong> Expected increase in blood glucose for every additional gram of carbohydrates consumed.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="parameter-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-uncertainty">3. Parameter Uncertainty</h2>
+<section id="intuitive-motivation-why-do-parameter-estimates-contain-errors" class="level3">
+<h3 class="anchored" data-anchor-id="intuitive-motivation-why-do-parameter-estimates-contain-errors">Intuitive Motivation: Why do parameter estimates contain errors?</h3>
+<p>When we generated our synthetic patient data, we used true underlying parameters <span class="math inline">\(\theta_0 = 20.0\text{ mg/dL}\)</span> and <span class="math inline">\(\theta_1 = 1.80\text{ mg/dL/g}\)</span>. However, our OLS calculation estimated <span class="math inline">\(\hat{\theta}_0 = 23.37\)</span> and <span class="math inline">\(\hat{\theta}_1 = 1.72\)</span>. Why didn’t OLS recover the exact values <span class="math inline">\(20.0\)</span> and <span class="math inline">\(1.80\)</span>?</p>
+<p>Imagine drawing data from a <em>different</em> sample of 100 patients, or missing a few data points. Because individual biological responses contain random noise, a new sample would yield slightly different estimates (e.g.&nbsp;<span class="math inline">\(\hat{\theta}_0 = 21.2, \hat{\theta}_1 = 1.79\)</span>). Because our estimates <span class="math inline">\(\hat{\theta}\)</span> depend on noisy sample observations, <strong>the estimated parameters themselves are random variables</strong> that carry sampling uncertainty!</p>
+<hr>
+</section>
+<section id="variance-of-parameter-estimates" class="level3">
+<h3 class="anchored" data-anchor-id="variance-of-parameter-estimates">Variance of Parameter Estimates</h3>
+<p>Noise in data measurements propagates through matrix operations into parameter estimate uncertainty according to:</p>
+<p><span class="math display">\[\text{Var}(\hat{\theta}) = \sigma^2 (X^T X)^{-1}\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Mathematical Derivation of Var(θ)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In probability theory, the variance of a random parameter vector <span class="math inline">\(\hat{\theta}\)</span> relative to its mean <span class="math inline">\(\mathbb{E}[\hat{\theta}] = \theta\)</span> is defined as the expectation of its squared deviation:</p>
+<p><span class="math display">\[\text{Var}(\hat{\theta}) = \mathbb{E}\left[ (\hat{\theta} - \mathbb{E}[\hat{\theta}])(\hat{\theta} - \mathbb{E}[\hat{\theta}])^T \right]\]</span></p>
+<p>Because the target <span class="math inline">\(y = X\theta + \epsilon\)</span> is a sum of a deterministic signal <span class="math inline">\(X\theta\)</span> (zero variance) and a random noise vector <span class="math inline">\(\epsilon \sim \mathcal{N}(0, \sigma^2 I)\)</span>, the variance in <span class="math inline">\(y\)</span> comes entirely from the noise term: <span class="math inline">\(\text{Var}(y) = \text{Var}(\epsilon) = \sigma^2 I\)</span>.</p>
+<p>Starting from the OLS estimator <span class="math inline">\(\hat{\theta} = (X^T X)^{-1} X^T y\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+\text{Var}(\hat{\theta}) &amp;= \text{Var}\left( (X^T X)^{-1} X^T y \right) \\[6pt]
+&amp;= (X^T X)^{-1} X^T \text{Var}(y) \left( (X^T X)^{-1} X^T \right)^T \\[6pt]
+&amp;= (X^T X)^{-1} X^T (\sigma^2 I) X (X^T X)^{-1} \\[6pt]
+&amp;= \sigma^2 (X^T X)^{-1} X^T X (X^T X)^{-1} \\[6pt]
+&amp;= \sigma^2 (X^T X)^{-1}
+\end{aligned}\]</span></p>
+</div>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Notice that Var(θ) is a Matrix!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Because we are estimating two parameters (<span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span>), the parameter variance <span class="math inline">\(\text{Var}(\hat{\theta})\)</span> is a <strong><span class="math inline">\(2 \times 2\)</span> Covariance Matrix</strong>:</p>
+<p><span class="math display">\[\text{Var}(\hat{\theta}) = \begin{bmatrix} \text{Var}(\hat{\theta}_0) &amp; \text{Cov}(\hat{\theta}_0, \hat{\theta}_1) \\ \text{Cov}(\hat{\theta}_0, \hat{\theta}_1) &amp; \text{Var}(\hat{\theta}_1) \end{bmatrix}\]</span></p>
+<ul>
+<li><strong>Diagonal Elements:</strong> Represent the individual variance of each parameter. Taking the square root gives the <strong>Standard Errors</strong>: <span class="math inline">\(SE(\hat{\theta}_0) = \sqrt{\text{Var}(\hat{\theta}_0)}\)</span> and <span class="math inline">\(SE(\hat{\theta}_1) = \sqrt{\text{Var}(\hat{\theta}_1)}\)</span>.</li>
+<li><strong>Off-Diagonal Elements:</strong> Represent the <strong>covariance / correlation</strong> between the intercept and slope estimates.</li>
+</ul>
+</div>
+</div>
+<div id="cell-cov_matrix_plot" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Estimate residual variance s^2</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>residuals <span class="op">=</span> y <span class="op">-</span> X <span class="op">@</span> theta_ols</span>
+<span id="cb4-3"><a href="#cb4-3"></a>sigma_sq <span class="op">=</span> np.<span class="bu">sum</span>(residuals<span class="op">**</span><span class="dv">2</span>) <span class="op">/</span> (n <span class="op">-</span> <span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>cov_theta <span class="op">=</span> sigma_sq <span class="op">*</span> np.linalg.inv(X.T <span class="op">@</span> X)</span>
+<span id="cb4-5"><a href="#cb4-5"></a></span>
+<span id="cb4-6"><a href="#cb4-6"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>, <span class="fl">4.5</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>im <span class="op">=</span> ax.imshow(cov_theta, cmap<span class="op">=</span><span class="st">'Blues'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co"># Display numerical values inside matrix cells</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb4-12"><a href="#cb4-12"></a>        val <span class="op">=</span> cov_theta[i, j]</span>
+<span id="cb4-13"><a href="#cb4-13"></a>        text_color <span class="op">=</span> <span class="st">'white'</span> <span class="cf">if</span> val <span class="op">&gt;</span> (np.<span class="bu">max</span>(cov_theta)<span class="op">*</span><span class="fl">0.6</span>) <span class="cf">else</span> <span class="st">'black'</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>        ax.text(j, i, <span class="ss">f'</span><span class="sc">{</span>val<span class="sc">:.4f}</span><span class="ss">'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>                color<span class="op">=</span>text_color, fontsize<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a></span>
+<span id="cb4-17"><a href="#cb4-17"></a>ax.set_xticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb4-18"><a href="#cb4-18"></a>ax.set_yticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb4-19"><a href="#cb4-19"></a>ax.set_xticklabels([<span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Intercept</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Slope</span><span class="kw">)</span><span class="vs">'</span>], fontsize<span class="op">=</span><span class="dv">11</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-20"><a href="#cb4-20"></a>ax.set_yticklabels([<span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Intercept</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Slope</span><span class="kw">)</span><span class="vs">'</span>], fontsize<span class="op">=</span><span class="dv">11</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a>ax.set_title(<span class="st">'Covariance Matrix'</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb4-22"><a href="#cb4-22"></a>fig.colorbar(im, ax<span class="op">=</span>ax, fraction<span class="op">=</span><span class="fl">0.046</span>, pad<span class="op">=</span><span class="fl">0.04</span>)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lecture_files/figure-html/cov_matrix_plot-output-1.png" id="cov_matrix_plot" width="1633" height="1266" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="computing-standard-errors" class="level3">
+<h3 class="anchored" data-anchor-id="computing-standard-errors">Computing Standard Errors</h3>
+<p>The <strong>Standard Error</strong> of parameter estimate <span class="math inline">\(\hat{\theta}_j\)</span> is defined as the square root of its diagonal variance entry:</p>
+<p><span class="math display">\[SE(\hat{\theta}_j) = \sqrt{\text{Var}(\hat{\theta})_{jj}}\]</span></p>
+<div id="compute_standard_errors" class="cell" data-execution_count="4">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Standard errors are square roots of diagonal elements</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>se_theta <span class="op">=</span> np.sqrt(np.diag(cov_theta))</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="bu">print</span>(<span class="ss">f"SE(theta_0): </span><span class="sc">{</span>se_theta[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="bu">print</span>(<span class="ss">f"SE(theta_1): </span><span class="sc">{</span>se_theta[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss"> mg/dL / g"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE(theta_0): 2.504 mg/dL
+SE(theta_1): 0.053 mg/dL / g</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="prediction-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="prediction-uncertainty">4. Prediction Uncertainty</h2>
+<section id="error-propagation" class="level3">
+<h3 class="anchored" data-anchor-id="error-propagation">Error Propagation</h3>
+<p>Errors in parameter estimates <span class="math inline">\(\hat{\theta}\)</span> directly translate into uncertainty in model predictions <span class="math inline">\(\hat{y}(x)\)</span>.</p>
+<p>For any specific feature vector <span class="math inline">\(x = [1, x]^T\)</span> (including the lead element <span class="math inline">\(1\)</span> for the intercept), the predicted output is <span class="math inline">\(\hat{y}(x) = x^T \hat{\theta}\)</span>. Applying matrix variance rules, the variance of the prediction is:</p>
+<p><span class="math display">\[\text{Var}(\hat{y}(x)) = \text{Var}\left( x^T \hat{\theta} \right) = x^T \text{Var}(\hat{\theta}) x\]</span></p>
+<p>The standard error of prediction is the square root of this scalar variance:</p>
+<p><span class="math display">\[SE(\hat{y}(x)) = \sqrt{x^T \text{Var}(\hat{\theta}) x}\]</span></p>
+<section id="probabilistic-meaning-multiples" class="level4">
+<h4 class="anchored" data-anchor-id="probabilistic-meaning-multiples">Probabilistic Meaning &amp; Multiples</h4>
+<ul>
+<li><strong>Single Standard Error (<span class="math inline">\(\hat{y} \pm 1 \cdot SE\)</span>):</strong> Covers approximately <strong><span class="math inline">\(68.3\%\)</span></strong> of the sampling probability distribution under a Gaussian error model.</li>
+<li><strong>Higher Coverage Multiples (<span class="math inline">\(\hat{y} \pm 1.96 \cdot SE\)</span>):</strong> To cover a larger percentage of prediction uncertainty (e.g.&nbsp;<strong><span class="math inline">\(95\%\)</span> probability coverage</strong>), we multiply the standard error by <span class="math inline">\(1.96\)</span>:</li>
+</ul>
+<p><span class="math display">\[\text{95\% Confidence Interval} = \hat{y}(x) \pm 1.96 \cdot SE(\hat{y}(x))\]</span></p>
+<div id="cell-parameter_uncertainty_plot" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Compute 95% Confidence Band across x_grid</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>X_grid <span class="op">=</span> np.column_stack([np.ones(<span class="bu">len</span>(x_grid)), x_grid])</span>
+<span id="cb7-3"><a href="#cb7-3"></a>y_pred <span class="op">=</span> X_grid <span class="op">@</span> theta_ols</span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co"># Vectorized prediction standard error: SE(y_hat(x)) = sqrt(diag(X_grid @ cov_theta @ X_grid.T))</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>pred_se <span class="op">=</span> np.sqrt(np.<span class="bu">sum</span>((X_grid <span class="op">@</span> cov_theta) <span class="op">*</span> X_grid, axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.45</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a>ax.plot(x_grid, y_pred, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="vs">r'OLS Fitted Line </span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{y} = X</span><span class="er">\</span><span class="vs">hat{</span><span class="ch">\t</span><span class="vs">heta}</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb7-11"><a href="#cb7-11"></a>ax.fill_between(x_grid, y_pred <span class="op">-</span> <span class="fl">1.96</span><span class="op">*</span>pred_se, y_pred <span class="op">+</span> <span class="fl">1.96</span><span class="op">*</span>pred_se, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, label<span class="op">=</span><span class="vs">r'95% Confidence Band </span><span class="kw">(</span><span class="dv">$</span><span class="er">\</span><span class="vs">pm 1</span><span class="dv">.</span><span class="vs">96 </span><span class="er">\</span><span class="vs">cdot SE</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-15"><a href="#cb7-15"></a>ax.set_title(<span class="st">'Parameter Uncertainty &amp; 95% Confidence Band'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-16"><a href="#cb7-16"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-18"><a href="#cb7-18"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lecture_files/figure-html/parameter_uncertainty_plot-output-1.png" id="parameter_uncertainty_plot" width="2091" height="1390" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Analytical Insert: Uncertainty &amp; Error Propagation
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>How do errors and uncertainties in the data propagate analytically through parameter estimation into model predictions?</p>
+<ul>
+<li><p><strong>Data Uncertainty (Measurement Noise):</strong> Assuming observation noise is uncorrelated and homoscedastic with variance <span class="math inline">\(\sigma^2\)</span>: <span class="math display">\[\text{Cov}(y) = \sigma^2 I_n \in \mathbb{R}^{n \times n}\]</span></p></li>
+<li><p><strong>Parameter Uncertainty Propagation:</strong> Since <span class="math inline">\(\hat{\theta} = (X^T X)^{-1} X^T y\)</span> is a linear function of <span class="math inline">\(y\)</span>, covariance propagation <span class="math inline">\(\text{Cov}(A y) = A \text{Cov}(y) A^T\)</span> yields: <span class="math display">\[\text{Cov}(\hat{\theta}) = (X^T X)^{-1} X^T (\sigma^2 I_n) X (X^T X)^{-1} = \sigma^2 (X^T X)^{-1} \in \mathbb{R}^{p \times p}\]</span></p></li>
+<li><p><strong>In-Sample Prediction Uncertainty Propagation:</strong> Propagating parameter uncertainty back to in-sample predictions <span class="math inline">\(\hat{y} = H y\)</span> via the hat matrix <span class="math inline">\(H = X(X^T X)^{-1} X^T\)</span>: <span class="math display">\[\text{Cov}(\hat{y}) = H \text{Cov}(y) H^T = \sigma^2 H H^T = \sigma^2 H \in \mathbb{R}^{n \times n}\]</span> For an individual patient <span class="math inline">\(i\)</span>, the in-sample prediction variance is <span class="math inline">\(\text{Var}(\hat{y}_i) = \sigma^2 h_{ii}\)</span>, where <span class="math inline">\(h_{ii} = H_{ii}\)</span> is the patient’s <strong>leverage</strong>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Looking for Scikit-Learn?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The high-level library implementation, parameter extraction, and evaluation metrics using <code>scikit-learn</code> have been consolidated into the dedicated reference guide: Scikit-Learn: Linear Regression.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="iterative-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="iterative-optimization">5. Iterative Optimization</h2>
+<section id="why-iterative-algorithms" class="level3">
+<h3 class="anchored" data-anchor-id="why-iterative-algorithms">Why Iterative Algorithms?</h3>
+<ol type="1">
+<li><p><strong>Computational Complexity:</strong> Exact matrix inversion <span class="math inline">\((X^T X)^{-1}\)</span> requires <span class="math inline">\(\mathcal{O}(p^3)\)</span> operations. When <span class="math inline">\(p = 10^6\)</span> features or streaming data <span class="math inline">\(n \to \infty\)</span>, exact inversion is computationally infeasible.</p></li>
+<li><p><strong>Non-Linear Extensions:</strong> In complex Machine Learning and Neural Networks, analytical closed-form solutions do not exist at all, requiring iterative algorithms to approach the optimal parameters.</p></li>
+</ol>
+<hr>
+</section>
+<section id="gradient-descent-update-rule" class="level3">
+<h3 class="anchored" data-anchor-id="gradient-descent-update-rule">Gradient Descent Update Rule</h3>
+<p>We define the <strong>Mean Squared Error (MSE) loss</strong> <span class="math inline">\(S(\theta)\)</span> as <span class="math inline">\(\frac{1}{n} \times \text{RSS}(\theta)\)</span>, taking the average squared error across all <span class="math inline">\(n\)</span> data points:</p>
+<p><span class="math display">\[S(\theta) = \frac{1}{n} \text{RSS}(\theta) = \frac{1}{n} \|y - X\theta\|^2 = \frac{1}{n} \sum_{i=1}^n (y_i - x_i^T \theta)^2\]</span></p>
+<p><em>(Note: Dividing by <span class="math inline">\(n\)</span> normalizes the Residual Sum of Squares so the loss magnitude remains independent of dataset size <span class="math inline">\(n\)</span>).</em></p>
+<p>Taking the partial derivative of <span class="math inline">\(S(\theta)\)</span> with respect to <span class="math inline">\(\theta\)</span>:</p>
+<p><span class="math display">\[\frac{\partial S}{\partial \theta} = -\frac{2}{n} X^T \left( y - X\theta \right)\]</span></p>
+<p>Starting from an initial parameter guess <span class="math inline">\(\theta^{(0)}\)</span>, we step iteratively in the direction opposite to the partial derivative:</p>
+<p><span class="math display">\[\theta^{(k+1)} = \theta^{(k)} - \alpha \frac{\partial S}{\partial \theta^{(k)}} = \theta^{(k)} + \frac{2\alpha}{n} X^T \left( y - X\theta^{(k)} \right)\]</span></p>
+<div id="gd_iterative_loop" class="cell" data-execution_count="6">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Gradient Descent loop tracking parameters and loss history</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>theta <span class="op">=</span> np.array([<span class="fl">75.0</span>, <span class="op">-</span><span class="fl">0.4</span>])  <span class="co"># Epoch 0: Initial random guess</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>alpha <span class="op">=</span> <span class="fl">0.0003</span>                  <span class="co"># Single scalar learning rate</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb8-6"><a href="#cb8-6"></a>snapshots <span class="op">=</span> {<span class="dv">0</span>: theta.copy()}</span>
+<span id="cb8-7"><a href="#cb8-7"></a></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4001</span>):</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    err <span class="op">=</span> y <span class="op">-</span> X <span class="op">@</span> theta</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    mse <span class="op">=</span> np.mean(err<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>    loss_history.append(mse)</span>
+<span id="cb8-12"><a href="#cb8-12"></a>    grad <span class="op">=</span> <span class="op">-</span><span class="dv">2</span><span class="op">/</span>n <span class="op">*</span> X.T <span class="op">@</span> err</span>
+<span id="cb8-13"><a href="#cb8-13"></a>    theta <span class="op">-=</span> alpha <span class="op">*</span> grad</span>
+<span id="cb8-14"><a href="#cb8-14"></a>    <span class="cf">if</span> epoch <span class="kw">in</span> [<span class="dv">100</span>, <span class="dv">4000</span>]:</span>
+<span id="cb8-15"><a href="#cb8-15"></a>        snapshots[epoch] <span class="op">=</span> theta.copy()</span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="bu">print</span>(<span class="ss">f"Gradient Descent Intercept (Epoch 4000): </span><span class="sc">{</span>theta[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="bu">print</span>(<span class="ss">f"Gradient Descent Slope     (Epoch 4000): </span><span class="sc">{</span>theta[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL / g"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Gradient Descent Intercept (Epoch 4000): 56.19 mg/dL
+Gradient Descent Slope     (Epoch 4000): 1.10 mg/dL / g</code></pre>
+</div>
+</div>
+<div id="cell-gd_snapshots_plot" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.45</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">80</span>, <span class="dv">200</span>)</span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co"># Convenient 3-color scheme for Epochs 0, 100, 4000 (all solid lines)</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>colors <span class="op">=</span> [<span class="st">'#e377c2'</span>, <span class="st">'#ff7f0e'</span>, <span class="st">'#1f77b4'</span>]</span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="cf">for</span> (ep, th), col <span class="kw">in</span> <span class="bu">zip</span>(snapshots.items(), colors):</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    y_line <span class="op">=</span> th[<span class="dv">0</span>] <span class="op">+</span> th[<span class="dv">1</span>] <span class="op">*</span> x_grid</span>
+<span id="cb10-11"><a href="#cb10-11"></a>    ax.plot(x_grid, y_line, color<span class="op">=</span>col, linewidth<span class="op">=</span><span class="fl">2.5</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, label<span class="op">=</span><span class="ss">f'Epoch </span><span class="sc">{</span>ep<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb10-12"><a href="#cb10-12"></a></span>
+<span id="cb10-13"><a href="#cb10-13"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-14"><a href="#cb10-14"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-15"><a href="#cb10-15"></a>ax.set_title(<span class="st">'Gradient Descent Iterative Line Fit'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-16"><a href="#cb10-16"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-17"><a href="#cb10-17"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-18"><a href="#cb10-18"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="gd_snapshots_plot" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="lecture_files/figure-html/gd_snapshots_plot-output-1.png" width="2091" height="1390" class="figure-img"></p>
+<figcaption>Gradient descent iterative line fit. Notice that this fit has not yet converged.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="loss-curve-mse-decline" class="level3">
+<h3 class="anchored" data-anchor-id="loss-curve-mse-decline">Loss Curve (MSE Decline)</h3>
+<p>The performance of Gradient Descent is tracked by recording the Mean Squared Error loss <span class="math inline">\(S(\theta)\)</span> at each epoch:</p>
+<div id="cell-gd_loss_curve_plot" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.2</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb11-2"><a href="#cb11-2"></a>ax.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4001</span>), loss_history, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="vs">r'MSE Loss </span><span class="dv">$</span><span class="vs">S</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>ax.set_title(<span class="st">'Gradient Descent Loss Curve'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>ax.set_xlabel(<span class="st">'Epoch (Iteration)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb11-5"><a href="#cb11-5"></a>ax.set_ylabel(<span class="st">'Mean Squared Error (MSE)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb11-6"><a href="#cb11-6"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb11-7"><a href="#cb11-7"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-8"><a href="#cb11-8"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="lecture_files/figure-html/gd_loss_curve_plot-output-1.png" id="gd_loss_curve_plot" width="2117" height="1251" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="review" class="level2">
+<h2 class="anchored" data-anchor-id="review">6. Review</h2>
+<ul>
+<li><p><strong>Model Compression:</strong> Linear models compress <span class="math inline">\(n\)</span> data points into a few scalar parameters (for example, <span class="math inline">\(\theta_0\)</span> and <span class="math inline">\(\theta_1\)</span>).</p></li>
+<li><p><strong>Model Predictions:</strong> Given the parameters, we can predict expected values for any new sample—even for nonsensical input data beyond the original scope (for example, evaluating carbohydrate intake <span class="math inline">\(x = -100\text{ g}\)</span>).</p></li>
+<li><p><strong>Analytical vs.&nbsp;Iterative Solvers:</strong> OLS provides exact closed-form solutions for small <span class="math inline">\(p\)</span>, while Gradient Descent progressively rotates and shifts the line toward the optimal fit.</p></li>
+<li><p><strong>Error Propagation:</strong> Noise in data <span class="math inline">\(\longrightarrow\)</span> uncertain parameter estimates <span class="math inline">\(\longrightarrow\)</span> uncertain model predictions.</p></li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="an">title:</span><span class="co"> "02 Numerical Linear Regression"</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">---</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="fu">## 1. Goal</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a>In the previous lecture, we derived the closed-form analytical OLS solution:</span>
+<span id="cb12-12"><a href="#cb12-12"></a></span>
+<span id="cb12-13"><a href="#cb12-13"></a>$$\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y$$</span>
+<span id="cb12-14"><a href="#cb12-14"></a></span>
+<span id="cb12-15"><a href="#cb12-15"></a>Even if $(X^T X)^{-1}$ exists and is mathematically solvable, there are still important engineering decisions to consider:</span>
+<span id="cb12-16"><a href="#cb12-16"></a></span>
+<span id="cb12-17"><a href="#cb12-17"></a><span class="ss">1. </span>Which numerical functions (<span class="in">`np.linalg.solve`</span> vs. <span class="in">`inv`</span>) to use to compute $\hat{\theta}$ in NumPy?</span>
+<span id="cb12-18"><a href="#cb12-18"></a></span>
+<span id="cb12-19"><a href="#cb12-19"></a><span class="ss">2. </span>How measurement noise propagates into parameter uncertainty.</span>
+<span id="cb12-20"><a href="#cb12-20"></a></span>
+<span id="cb12-21"><a href="#cb12-21"></a><span class="ss">3. </span>How to solve linear models when $X^T X$ is too large to invert or when exact inversion is computationally intractable.</span>
+<span id="cb12-22"><a href="#cb12-22"></a></span>
+<span id="cb12-23"><a href="#cb12-23"></a><span class="ss">4. </span>What to do for non-linear models if the original relationship between $X$ and $y$ is not even linear.</span>
+<span id="cb12-24"><a href="#cb12-24"></a></span>
+<span id="cb12-25"><a href="#cb12-25"></a>---</span>
+<span id="cb12-26"><a href="#cb12-26"></a></span>
+<span id="cb12-27"><a href="#cb12-27"></a><span class="fu">## 2. Solving Normal Equations</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a></span>
+<span id="cb12-29"><a href="#cb12-29"></a><span class="fu">### NumPy Implementation</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a>In NumPy, we set up the Design Matrix $X \in \mathbb{R}^{n \times 2}$ (including the bias column of ones) and compute $\hat{\theta}$:</span>
+<span id="cb12-31"><a href="#cb12-31"></a></span>
+<span id="cb12-34"><a href="#cb12-34"></a><span class="in">```{python}</span></span>
+<span id="cb12-35"><a href="#cb12-35"></a><span class="co">#| label: numpy_ols</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a><span class="co">#| code-fold: show</span></span>
+<span id="cb12-37"><a href="#cb12-37"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a></span>
+<span id="cb12-39"><a href="#cb12-39"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb12-40"><a href="#cb12-40"></a></span>
+<span id="cb12-41"><a href="#cb12-41"></a><span class="co"># Synthetic medical dataset (n = 100 patients)</span></span>
+<span id="cb12-42"><a href="#cb12-42"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb12-43"><a href="#cb12-43"></a>n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb12-44"><a href="#cb12-44"></a>x <span class="op">=</span> np.random.uniform(<span class="dv">10</span>, <span class="dv">80</span>, n)  <span class="co"># Carbohydrate Intake (g)</span></span>
+<span id="cb12-45"><a href="#cb12-45"></a>y <span class="op">=</span> <span class="dv">20</span> <span class="op">+</span> <span class="fl">1.8</span> <span class="op">*</span> x <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">12</span>, n)  <span class="co"># Blood Glucose Response (mg/dL)</span></span>
+<span id="cb12-46"><a href="#cb12-46"></a></span>
+<span id="cb12-47"><a href="#cb12-47"></a><span class="co"># Design matrix X with intercept column</span></span>
+<span id="cb12-48"><a href="#cb12-48"></a>X <span class="op">=</span> np.column_stack([np.ones(n), x])</span>
+<span id="cb12-49"><a href="#cb12-49"></a></span>
+<span id="cb12-50"><a href="#cb12-50"></a><span class="co"># Solve Normal Equations using np.linalg.solve (more stable than inv)</span></span>
+<span id="cb12-51"><a href="#cb12-51"></a>theta_ols <span class="op">=</span> np.linalg.solve(X.T <span class="op">@</span> X, X.T <span class="op">@</span> y)</span>
+<span id="cb12-52"><a href="#cb12-52"></a></span>
+<span id="cb12-53"><a href="#cb12-53"></a><span class="bu">print</span>(<span class="ss">f"Estimated Intercept (theta_0): </span><span class="sc">{</span>theta_ols[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb12-54"><a href="#cb12-54"></a><span class="bu">print</span>(<span class="ss">f"Estimated Slope     (theta_1): </span><span class="sc">{</span>theta_ols[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL / g"</span>)</span>
+<span id="cb12-55"><a href="#cb12-55"></a><span class="in">```</span></span>
+<span id="cb12-56"><a href="#cb12-56"></a></span>
+<span id="cb12-57"><a href="#cb12-57"></a>---</span>
+<span id="cb12-58"><a href="#cb12-58"></a></span>
+<span id="cb12-59"><a href="#cb12-59"></a><span class="fu">### Visualization</span></span>
+<span id="cb12-60"><a href="#cb12-60"></a></span>
+<span id="cb12-63"><a href="#cb12-63"></a><span class="in">```{python}</span></span>
+<span id="cb12-64"><a href="#cb12-64"></a><span class="co">#| label: numpy_ols_visualization</span></span>
+<span id="cb12-65"><a href="#cb12-65"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb12-66"><a href="#cb12-66"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-67"><a href="#cb12-67"></a></span>
+<span id="cb12-68"><a href="#cb12-68"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-69"><a href="#cb12-69"></a></span>
+<span id="cb12-70"><a href="#cb12-70"></a><span class="co"># Grid for plotting fitted line</span></span>
+<span id="cb12-71"><a href="#cb12-71"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">80</span>, <span class="dv">200</span>)</span>
+<span id="cb12-72"><a href="#cb12-72"></a>y_grid <span class="op">=</span> theta_ols[<span class="dv">0</span>] <span class="op">+</span> theta_ols[<span class="dv">1</span>] <span class="op">*</span> x_grid</span>
+<span id="cb12-73"><a href="#cb12-73"></a></span>
+<span id="cb12-74"><a href="#cb12-74"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-75"><a href="#cb12-75"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb12-76"><a href="#cb12-76"></a>ax.plot(x_grid, y_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'OLS Fitted Line'</span>)</span>
+<span id="cb12-77"><a href="#cb12-77"></a></span>
+<span id="cb12-78"><a href="#cb12-78"></a>title_str <span class="op">=</span> <span class="ss">f'OLS Fitted Line: $</span><span class="ch">\\</span><span class="ss">theta_0 = </span><span class="sc">{</span>theta_ols[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ch">\\</span><span class="ss">text</span><span class="ch">{{</span><span class="ss"> mg/dL</span><span class="ch">}}</span><span class="ss">, </span><span class="ch">\\</span><span class="ss">theta_1 = </span><span class="sc">{</span>theta_ols[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ch">\\</span><span class="ss">text</span><span class="ch">{{</span><span class="ss"> mg/dL / g</span><span class="ch">}}</span><span class="ss">$'</span></span>
+<span id="cb12-79"><a href="#cb12-79"></a>ax.set_title(title_str, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb12-80"><a href="#cb12-80"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-81"><a href="#cb12-81"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-82"><a href="#cb12-82"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb12-83"><a href="#cb12-83"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-84"><a href="#cb12-84"></a>plt.show()</span>
+<span id="cb12-85"><a href="#cb12-85"></a><span class="in">```</span></span>
+<span id="cb12-86"><a href="#cb12-86"></a></span>
+<span id="cb12-87"><a href="#cb12-87"></a>::: {.callout-note}</span>
+<span id="cb12-88"><a href="#cb12-88"></a><span class="fu">### Notice</span></span>
+<span id="cb12-89"><a href="#cb12-89"></a></span>
+<span id="cb12-90"><a href="#cb12-90"></a><span class="ss">* </span>**Model as Data Compression:**</span>
+<span id="cb12-91"><a href="#cb12-91"></a>  Instead of storing 100 individual patient data pairs $(x_i, y_i)$, the linear model compresses the underlying biological signal into just **two scalar parameters**: $(\theta_0, \theta_1)$.</span>
+<span id="cb12-92"><a href="#cb12-92"></a></span>
+<span id="cb12-93"><a href="#cb12-93"></a><span class="ss">* </span>**Model as Predictor:**</span>
+<span id="cb12-94"><a href="#cb12-94"></a>  The model equation $\hat{y} = \theta_0 + \theta_1 x$ allows us to predict the expected blood glucose response for *new* patient carbohydrate intake values $x$.</span>
+<span id="cb12-95"><a href="#cb12-95"></a></span>
+<span id="cb12-96"><a href="#cb12-96"></a><span class="ss">* </span>**Interpreting Model Parameters:**</span>
+<span id="cb12-97"><a href="#cb12-97"></a><span class="ss">  * </span>**Baseline ($\theta_0 \approx 23.37\text{ mg/dL}$):** Expected baseline blood glucose level when carbohydrate intake is zero ($x = 0\text{ g}$).</span>
+<span id="cb12-98"><a href="#cb12-98"></a><span class="ss">  * </span>**Rate of Increase ($\theta_1 \approx 1.72\text{ mg/dL / g}$):** Expected increase in blood glucose for every additional gram of carbohydrates consumed.</span>
+<span id="cb12-99"><a href="#cb12-99"></a>:::</span>
+<span id="cb12-100"><a href="#cb12-100"></a></span>
+<span id="cb12-101"><a href="#cb12-101"></a>---</span>
+<span id="cb12-102"><a href="#cb12-102"></a></span>
+<span id="cb12-103"><a href="#cb12-103"></a><span class="fu">## 3. Parameter Uncertainty</span></span>
+<span id="cb12-104"><a href="#cb12-104"></a></span>
+<span id="cb12-105"><a href="#cb12-105"></a><span class="fu">### Intuitive Motivation: Why do parameter estimates contain errors?</span></span>
+<span id="cb12-106"><a href="#cb12-106"></a>When we generated our synthetic patient data, we used true underlying parameters $\theta_0 = 20.0\text{ mg/dL}$ and $\theta_1 = 1.80\text{ mg/dL/g}$. However, our OLS calculation estimated $\hat{\theta}_0 = 23.37$ and $\hat{\theta}_1 = 1.72$. Why didn't OLS recover the exact values $20.0$ and $1.80$?</span>
+<span id="cb12-107"><a href="#cb12-107"></a></span>
+<span id="cb12-108"><a href="#cb12-108"></a>Imagine drawing data from a *different* sample of 100 patients, or missing a few data points. Because individual biological responses contain random noise, a new sample would yield slightly different estimates (e.g. $\hat{\theta}_0 = 21.2, \hat{\theta}_1 = 1.79$). Because our estimates $\hat{\theta}$ depend on noisy sample observations, **the estimated parameters themselves are random variables** that carry sampling uncertainty!</span>
+<span id="cb12-109"><a href="#cb12-109"></a></span>
+<span id="cb12-110"><a href="#cb12-110"></a>---</span>
+<span id="cb12-111"><a href="#cb12-111"></a></span>
+<span id="cb12-112"><a href="#cb12-112"></a><span class="fu">### Variance of Parameter Estimates</span></span>
+<span id="cb12-113"><a href="#cb12-113"></a>Noise in data measurements propagates through matrix operations into parameter estimate uncertainty according to:</span>
+<span id="cb12-114"><a href="#cb12-114"></a></span>
+<span id="cb12-115"><a href="#cb12-115"></a>$$\text{Var}(\hat{\theta}) = \sigma^2 (X^T X)^{-1}$$</span>
+<span id="cb12-116"><a href="#cb12-116"></a></span>
+<span id="cb12-117"><a href="#cb12-117"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb12-118"><a href="#cb12-118"></a><span class="fu">### Mathematical Derivation of Var(θ)</span></span>
+<span id="cb12-119"><a href="#cb12-119"></a>In probability theory, the variance of a random parameter vector $\hat{\theta}$ relative to its mean $\mathbb{E}<span class="co">[</span><span class="ot">\hat{\theta}</span><span class="co">]</span> = \theta$ is defined as the expectation of its squared deviation:</span>
+<span id="cb12-120"><a href="#cb12-120"></a></span>
+<span id="cb12-121"><a href="#cb12-121"></a>$$\text{Var}(\hat{\theta}) = \mathbb{E}\left<span class="co">[</span><span class="ot"> (\hat{\theta} - \mathbb{E}[\hat{\theta}])(\hat{\theta} - \mathbb{E}[\hat{\theta}])^T \right</span><span class="co">]</span>$$</span>
+<span id="cb12-122"><a href="#cb12-122"></a></span>
+<span id="cb12-123"><a href="#cb12-123"></a>Because the target $y = X\theta + \epsilon$ is a sum of a deterministic signal $X\theta$ (zero variance) and a random noise vector $\epsilon \sim \mathcal{N}(0, \sigma^2 I)$, the variance in $y$ comes entirely from the noise term: $\text{Var}(y) = \text{Var}(\epsilon) = \sigma^2 I$.</span>
+<span id="cb12-124"><a href="#cb12-124"></a></span>
+<span id="cb12-125"><a href="#cb12-125"></a>Starting from the OLS estimator $\hat{\theta} = (X^T X)^{-1} X^T y$:</span>
+<span id="cb12-126"><a href="#cb12-126"></a></span>
+<span id="cb12-127"><a href="#cb12-127"></a>$$\begin{aligned}</span>
+<span id="cb12-128"><a href="#cb12-128"></a>\text{Var}(\hat{\theta}) &amp;= \text{Var}\left( (X^T X)^{-1} X^T y \right) <span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb12-129"><a href="#cb12-129"></a>&amp;= (X^T X)^{-1} X^T \text{Var}(y) \left( (X^T X)^{-1} X^T \right)^T <span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb12-130"><a href="#cb12-130"></a>&amp;= (X^T X)^{-1} X^T (\sigma^2 I) X (X^T X)^{-1} <span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb12-131"><a href="#cb12-131"></a>&amp;= \sigma^2 (X^T X)^{-1} X^T X (X^T X)^{-1} <span class="sc">\\</span><span class="co">[</span><span class="ot">6pt</span><span class="co">]</span></span>
+<span id="cb12-132"><a href="#cb12-132"></a>&amp;= \sigma^2 (X^T X)^{-1}</span>
+<span id="cb12-133"><a href="#cb12-133"></a>\end{aligned}$$</span>
+<span id="cb12-134"><a href="#cb12-134"></a>:::</span>
+<span id="cb12-135"><a href="#cb12-135"></a></span>
+<span id="cb12-136"><a href="#cb12-136"></a>---</span>
+<span id="cb12-137"><a href="#cb12-137"></a></span>
+<span id="cb12-138"><a href="#cb12-138"></a>::: {.callout-important}</span>
+<span id="cb12-139"><a href="#cb12-139"></a><span class="fu">### Notice that Var(θ) is a Matrix!</span></span>
+<span id="cb12-140"><a href="#cb12-140"></a>Because we are estimating two parameters ($\theta_0$ and $\theta_1$), the parameter variance $\text{Var}(\hat{\theta})$ is a **$2 \times 2$ Covariance Matrix**:</span>
+<span id="cb12-141"><a href="#cb12-141"></a></span>
+<span id="cb12-142"><a href="#cb12-142"></a>$$\text{Var}(\hat{\theta}) = \begin{bmatrix} \text{Var}(\hat{\theta}_0) &amp; \text{Cov}(\hat{\theta}_0, \hat{\theta}_1) <span class="sc">\\</span> \text{Cov}(\hat{\theta}_0, \hat{\theta}_1) &amp; \text{Var}(\hat{\theta}_1) \end{bmatrix}$$</span>
+<span id="cb12-143"><a href="#cb12-143"></a></span>
+<span id="cb12-144"><a href="#cb12-144"></a><span class="ss">* </span>**Diagonal Elements:** Represent the individual variance of each parameter. Taking the square root gives the **Standard Errors**: $SE(\hat{\theta}_0) = \sqrt{\text{Var}(\hat{\theta}_0)}$ and $SE(\hat{\theta}_1) = \sqrt{\text{Var}(\hat{\theta}_1)}$.</span>
+<span id="cb12-145"><a href="#cb12-145"></a><span class="ss">* </span>**Off-Diagonal Elements:** Represent the **covariance / correlation** between the intercept and slope estimates.</span>
+<span id="cb12-146"><a href="#cb12-146"></a>:::</span>
+<span id="cb12-147"><a href="#cb12-147"></a></span>
+<span id="cb12-150"><a href="#cb12-150"></a><span class="in">```{python}</span></span>
+<span id="cb12-151"><a href="#cb12-151"></a><span class="co">#| label: cov_matrix_plot</span></span>
+<span id="cb12-152"><a href="#cb12-152"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb12-153"><a href="#cb12-153"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-154"><a href="#cb12-154"></a></span>
+<span id="cb12-155"><a href="#cb12-155"></a><span class="co"># Estimate residual variance s^2</span></span>
+<span id="cb12-156"><a href="#cb12-156"></a>residuals <span class="op">=</span> y <span class="op">-</span> X <span class="op">@</span> theta_ols</span>
+<span id="cb12-157"><a href="#cb12-157"></a>sigma_sq <span class="op">=</span> np.<span class="bu">sum</span>(residuals<span class="op">**</span><span class="dv">2</span>) <span class="op">/</span> (n <span class="op">-</span> <span class="dv">2</span>)</span>
+<span id="cb12-158"><a href="#cb12-158"></a>cov_theta <span class="op">=</span> sigma_sq <span class="op">*</span> np.linalg.inv(X.T <span class="op">@</span> X)</span>
+<span id="cb12-159"><a href="#cb12-159"></a></span>
+<span id="cb12-160"><a href="#cb12-160"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">5.5</span>, <span class="fl">4.5</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-161"><a href="#cb12-161"></a>im <span class="op">=</span> ax.imshow(cov_theta, cmap<span class="op">=</span><span class="st">'Blues'</span>)</span>
+<span id="cb12-162"><a href="#cb12-162"></a></span>
+<span id="cb12-163"><a href="#cb12-163"></a><span class="co"># Display numerical values inside matrix cells</span></span>
+<span id="cb12-164"><a href="#cb12-164"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb12-165"><a href="#cb12-165"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">2</span>):</span>
+<span id="cb12-166"><a href="#cb12-166"></a>        val <span class="op">=</span> cov_theta[i, j]</span>
+<span id="cb12-167"><a href="#cb12-167"></a>        text_color <span class="op">=</span> <span class="st">'white'</span> <span class="cf">if</span> val <span class="op">&gt;</span> (np.<span class="bu">max</span>(cov_theta)<span class="op">*</span><span class="fl">0.6</span>) <span class="cf">else</span> <span class="st">'black'</span></span>
+<span id="cb12-168"><a href="#cb12-168"></a>        ax.text(j, i, <span class="ss">f'</span><span class="sc">{</span>val<span class="sc">:.4f}</span><span class="ss">'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb12-169"><a href="#cb12-169"></a>                color<span class="op">=</span>text_color, fontsize<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb12-170"><a href="#cb12-170"></a></span>
+<span id="cb12-171"><a href="#cb12-171"></a>ax.set_xticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb12-172"><a href="#cb12-172"></a>ax.set_yticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb12-173"><a href="#cb12-173"></a>ax.set_xticklabels([<span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Intercept</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Slope</span><span class="kw">)</span><span class="vs">'</span>], fontsize<span class="op">=</span><span class="dv">11</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb12-174"><a href="#cb12-174"></a>ax.set_yticklabels([<span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Intercept</span><span class="kw">)</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Slope</span><span class="kw">)</span><span class="vs">'</span>], fontsize<span class="op">=</span><span class="dv">11</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb12-175"><a href="#cb12-175"></a>ax.set_title(<span class="st">'Covariance Matrix'</span>, fontsize<span class="op">=</span><span class="dv">13</span>, pad<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb12-176"><a href="#cb12-176"></a>fig.colorbar(im, ax<span class="op">=</span>ax, fraction<span class="op">=</span><span class="fl">0.046</span>, pad<span class="op">=</span><span class="fl">0.04</span>)</span>
+<span id="cb12-177"><a href="#cb12-177"></a>plt.show()</span>
+<span id="cb12-178"><a href="#cb12-178"></a><span class="in">```</span></span>
+<span id="cb12-179"><a href="#cb12-179"></a></span>
+<span id="cb12-180"><a href="#cb12-180"></a>---</span>
+<span id="cb12-181"><a href="#cb12-181"></a></span>
+<span id="cb12-182"><a href="#cb12-182"></a><span class="fu">### Computing Standard Errors</span></span>
+<span id="cb12-183"><a href="#cb12-183"></a></span>
+<span id="cb12-184"><a href="#cb12-184"></a>The **Standard Error** of parameter estimate $\hat{\theta}_j$ is defined as the square root of its diagonal variance entry:</span>
+<span id="cb12-185"><a href="#cb12-185"></a></span>
+<span id="cb12-186"><a href="#cb12-186"></a>$$SE(\hat{\theta}_j) = \sqrt{\text{Var}(\hat{\theta})_{jj}}$$</span>
+<span id="cb12-187"><a href="#cb12-187"></a></span>
+<span id="cb12-190"><a href="#cb12-190"></a><span class="in">```{python}</span></span>
+<span id="cb12-191"><a href="#cb12-191"></a><span class="co">#| label: compute_standard_errors</span></span>
+<span id="cb12-192"><a href="#cb12-192"></a><span class="co">#| code-fold: show</span></span>
+<span id="cb12-193"><a href="#cb12-193"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-194"><a href="#cb12-194"></a></span>
+<span id="cb12-195"><a href="#cb12-195"></a><span class="co"># Standard errors are square roots of diagonal elements</span></span>
+<span id="cb12-196"><a href="#cb12-196"></a>se_theta <span class="op">=</span> np.sqrt(np.diag(cov_theta))</span>
+<span id="cb12-197"><a href="#cb12-197"></a></span>
+<span id="cb12-198"><a href="#cb12-198"></a><span class="bu">print</span>(<span class="ss">f"SE(theta_0): </span><span class="sc">{</span>se_theta[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb12-199"><a href="#cb12-199"></a><span class="bu">print</span>(<span class="ss">f"SE(theta_1): </span><span class="sc">{</span>se_theta[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss"> mg/dL / g"</span>)</span>
+<span id="cb12-200"><a href="#cb12-200"></a><span class="in">```</span></span>
+<span id="cb12-201"><a href="#cb12-201"></a></span>
+<span id="cb12-202"><a href="#cb12-202"></a>---</span>
+<span id="cb12-203"><a href="#cb12-203"></a></span>
+<span id="cb12-204"><a href="#cb12-204"></a><span class="fu">## 4. Prediction Uncertainty</span></span>
+<span id="cb12-205"><a href="#cb12-205"></a></span>
+<span id="cb12-206"><a href="#cb12-206"></a><span class="fu">### Error Propagation</span></span>
+<span id="cb12-207"><a href="#cb12-207"></a></span>
+<span id="cb12-208"><a href="#cb12-208"></a>Errors in parameter estimates $\hat{\theta}$ directly translate into uncertainty in model predictions $\hat{y}(x)$.</span>
+<span id="cb12-209"><a href="#cb12-209"></a></span>
+<span id="cb12-210"><a href="#cb12-210"></a>For any specific feature vector $x = <span class="co">[</span><span class="ot">1, x</span><span class="co">]</span>^T$ (including the lead element $1$ for the intercept), the predicted output is $\hat{y}(x) = x^T \hat{\theta}$. Applying matrix variance rules, the variance of the prediction is:</span>
+<span id="cb12-211"><a href="#cb12-211"></a></span>
+<span id="cb12-212"><a href="#cb12-212"></a>$$\text{Var}(\hat{y}(x)) = \text{Var}\left( x^T \hat{\theta} \right) = x^T \text{Var}(\hat{\theta}) x$$</span>
+<span id="cb12-213"><a href="#cb12-213"></a></span>
+<span id="cb12-214"><a href="#cb12-214"></a>The standard error of prediction is the square root of this scalar variance:</span>
+<span id="cb12-215"><a href="#cb12-215"></a></span>
+<span id="cb12-216"><a href="#cb12-216"></a>$$SE(\hat{y}(x)) = \sqrt{x^T \text{Var}(\hat{\theta}) x}$$</span>
+<span id="cb12-217"><a href="#cb12-217"></a></span>
+<span id="cb12-218"><a href="#cb12-218"></a><span class="fu">#### Probabilistic Meaning &amp; Multiples</span></span>
+<span id="cb12-219"><a href="#cb12-219"></a><span class="ss">* </span>**Single Standard Error ($\hat{y} \pm 1 \cdot SE$):** Covers approximately **$68.3\%$** of the sampling probability distribution under a Gaussian error model.</span>
+<span id="cb12-220"><a href="#cb12-220"></a><span class="ss">* </span>**Higher Coverage Multiples ($\hat{y} \pm 1.96 \cdot SE$):** To cover a larger percentage of prediction uncertainty (e.g. **$95\%$ probability coverage**), we multiply the standard error by $1.96$:</span>
+<span id="cb12-221"><a href="#cb12-221"></a></span>
+<span id="cb12-222"><a href="#cb12-222"></a>$$\text{95\% Confidence Interval} = \hat{y}(x) \pm 1.96 \cdot SE(\hat{y}(x))$$</span>
+<span id="cb12-223"><a href="#cb12-223"></a></span>
+<span id="cb12-226"><a href="#cb12-226"></a><span class="in">```{python}</span></span>
+<span id="cb12-227"><a href="#cb12-227"></a><span class="co">#| label: parameter_uncertainty_plot</span></span>
+<span id="cb12-228"><a href="#cb12-228"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb12-229"><a href="#cb12-229"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-230"><a href="#cb12-230"></a></span>
+<span id="cb12-231"><a href="#cb12-231"></a><span class="co"># Compute 95% Confidence Band across x_grid</span></span>
+<span id="cb12-232"><a href="#cb12-232"></a>X_grid <span class="op">=</span> np.column_stack([np.ones(<span class="bu">len</span>(x_grid)), x_grid])</span>
+<span id="cb12-233"><a href="#cb12-233"></a>y_pred <span class="op">=</span> X_grid <span class="op">@</span> theta_ols</span>
+<span id="cb12-234"><a href="#cb12-234"></a></span>
+<span id="cb12-235"><a href="#cb12-235"></a><span class="co"># Vectorized prediction standard error: SE(y_hat(x)) = sqrt(diag(X_grid @ cov_theta @ X_grid.T))</span></span>
+<span id="cb12-236"><a href="#cb12-236"></a>pred_se <span class="op">=</span> np.sqrt(np.<span class="bu">sum</span>((X_grid <span class="op">@</span> cov_theta) <span class="op">*</span> X_grid, axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb12-237"><a href="#cb12-237"></a></span>
+<span id="cb12-238"><a href="#cb12-238"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-239"><a href="#cb12-239"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.45</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb12-240"><a href="#cb12-240"></a>ax.plot(x_grid, y_pred, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="vs">r'OLS Fitted Line </span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{y} = X</span><span class="er">\</span><span class="vs">hat{</span><span class="ch">\t</span><span class="vs">heta}</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb12-241"><a href="#cb12-241"></a>ax.fill_between(x_grid, y_pred <span class="op">-</span> <span class="fl">1.96</span><span class="op">*</span>pred_se, y_pred <span class="op">+</span> <span class="fl">1.96</span><span class="op">*</span>pred_se, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.2</span>, label<span class="op">=</span><span class="vs">r'95% Confidence Band </span><span class="kw">(</span><span class="dv">$</span><span class="er">\</span><span class="vs">pm 1</span><span class="dv">.</span><span class="vs">96 </span><span class="er">\</span><span class="vs">cdot SE</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb12-242"><a href="#cb12-242"></a></span>
+<span id="cb12-243"><a href="#cb12-243"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-244"><a href="#cb12-244"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-245"><a href="#cb12-245"></a>ax.set_title(<span class="st">'Parameter Uncertainty &amp; 95% Confidence Band'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb12-246"><a href="#cb12-246"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb12-247"><a href="#cb12-247"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-248"><a href="#cb12-248"></a>plt.show()</span>
+<span id="cb12-249"><a href="#cb12-249"></a><span class="in">```</span></span>
+<span id="cb12-250"><a href="#cb12-250"></a></span>
+<span id="cb12-251"><a href="#cb12-251"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb12-252"><a href="#cb12-252"></a><span class="fu">### Analytical Insert: Uncertainty &amp; Error Propagation</span></span>
+<span id="cb12-253"><a href="#cb12-253"></a></span>
+<span id="cb12-254"><a href="#cb12-254"></a>How do errors and uncertainties in the data propagate analytically through parameter estimation into model predictions?</span>
+<span id="cb12-255"><a href="#cb12-255"></a></span>
+<span id="cb12-256"><a href="#cb12-256"></a><span class="ss">* </span>**Data Uncertainty (Measurement Noise):**</span>
+<span id="cb12-257"><a href="#cb12-257"></a>  Assuming observation noise is uncorrelated and homoscedastic with variance $\sigma^2$:</span>
+<span id="cb12-258"><a href="#cb12-258"></a>  $$\text{Cov}(y) = \sigma^2 I_n \in \mathbb{R}^{n \times n}$$</span>
+<span id="cb12-259"><a href="#cb12-259"></a></span>
+<span id="cb12-260"><a href="#cb12-260"></a><span class="ss">* </span>**Parameter Uncertainty Propagation:**</span>
+<span id="cb12-261"><a href="#cb12-261"></a>  Since $\hat{\theta} = (X^T X)^{-1} X^T y$ is a linear function of $y$, covariance propagation $\text{Cov}(A y) = A \text{Cov}(y) A^T$ yields:</span>
+<span id="cb12-262"><a href="#cb12-262"></a>  $$\text{Cov}(\hat{\theta}) = (X^T X)^{-1} X^T (\sigma^2 I_n) X (X^T X)^{-1} = \sigma^2 (X^T X)^{-1} \in \mathbb{R}^{p \times p}$$</span>
+<span id="cb12-263"><a href="#cb12-263"></a></span>
+<span id="cb12-264"><a href="#cb12-264"></a><span class="ss">* </span>**In-Sample Prediction Uncertainty Propagation:**</span>
+<span id="cb12-265"><a href="#cb12-265"></a>  Propagating parameter uncertainty back to in-sample predictions $\hat{y} = H y$ via the hat matrix $H = X(X^T X)^{-1} X^T$:</span>
+<span id="cb12-266"><a href="#cb12-266"></a>  $$\text{Cov}(\hat{y}) = H \text{Cov}(y) H^T = \sigma^2 H H^T = \sigma^2 H \in \mathbb{R}^{n \times n}$$</span>
+<span id="cb12-267"><a href="#cb12-267"></a>  For an individual patient $i$, the in-sample prediction variance is $\text{Var}(\hat{y}_i) = \sigma^2 h_{ii}$, where $h_{ii} = H_{ii}$ is the patient's **leverage**.</span>
+<span id="cb12-268"><a href="#cb12-268"></a>:::</span>
+<span id="cb12-269"><a href="#cb12-269"></a></span>
+<span id="cb12-270"><a href="#cb12-270"></a>---</span>
+<span id="cb12-271"><a href="#cb12-271"></a></span>
+<span id="cb12-272"><a href="#cb12-272"></a>::: {.callout-tip}</span>
+<span id="cb12-273"><a href="#cb12-273"></a><span class="fu">### Looking for Scikit-Learn?</span></span>
+<span id="cb12-274"><a href="#cb12-274"></a>The high-level library implementation, parameter extraction, and evaluation metrics using <span class="in">`scikit-learn`</span> have been consolidated into the dedicated reference guide: <span class="co">[</span><span class="ot">Scikit-Learn: Linear Regression</span><span class="co">](../../references/scikit_learn.qmd)</span>.</span>
+<span id="cb12-275"><a href="#cb12-275"></a>:::</span>
+<span id="cb12-276"><a href="#cb12-276"></a></span>
+<span id="cb12-277"><a href="#cb12-277"></a>---</span>
+<span id="cb12-278"><a href="#cb12-278"></a></span>
+<span id="cb12-279"><a href="#cb12-279"></a><span class="fu">## 5. Iterative Optimization</span></span>
+<span id="cb12-280"><a href="#cb12-280"></a></span>
+<span id="cb12-281"><a href="#cb12-281"></a><span class="fu">### Why Iterative Algorithms?</span></span>
+<span id="cb12-282"><a href="#cb12-282"></a><span class="ss">1. </span>**Computational Complexity:** Exact matrix inversion $(X^T X)^{-1}$ requires $\mathcal{O}(p^3)$ operations. When $p = 10^6$ features or streaming data $n \to \infty$, exact inversion is computationally infeasible.</span>
+<span id="cb12-283"><a href="#cb12-283"></a></span>
+<span id="cb12-284"><a href="#cb12-284"></a><span class="ss">2. </span>**Non-Linear Extensions:** In complex Machine Learning and Neural Networks, analytical closed-form solutions do not exist at all, requiring iterative algorithms to approach the optimal parameters.</span>
+<span id="cb12-285"><a href="#cb12-285"></a></span>
+<span id="cb12-286"><a href="#cb12-286"></a>---</span>
+<span id="cb12-287"><a href="#cb12-287"></a></span>
+<span id="cb12-288"><a href="#cb12-288"></a><span class="fu">### Gradient Descent Update Rule</span></span>
+<span id="cb12-289"><a href="#cb12-289"></a></span>
+<span id="cb12-290"><a href="#cb12-290"></a>We define the **Mean Squared Error (MSE) loss** $S(\theta)$ as $\frac{1}{n} \times \text{RSS}(\theta)$, taking the average squared error across all $n$ data points:</span>
+<span id="cb12-291"><a href="#cb12-291"></a></span>
+<span id="cb12-292"><a href="#cb12-292"></a>$$S(\theta) = \frac{1}{n} \text{RSS}(\theta) = \frac{1}{n} <span class="sc">\|</span>y - X\theta<span class="sc">\|</span>^2 = \frac{1}{n} \sum_{i=1}^n (y_i - x_i^T \theta)^2$$</span>
+<span id="cb12-293"><a href="#cb12-293"></a></span>
+<span id="cb12-294"><a href="#cb12-294"></a>*(Note: Dividing by $n$ normalizes the Residual Sum of Squares so the loss magnitude remains independent of dataset size $n$).*</span>
+<span id="cb12-295"><a href="#cb12-295"></a></span>
+<span id="cb12-296"><a href="#cb12-296"></a>Taking the partial derivative of $S(\theta)$ with respect to $\theta$:</span>
+<span id="cb12-297"><a href="#cb12-297"></a></span>
+<span id="cb12-298"><a href="#cb12-298"></a>$$\frac{\partial S}{\partial \theta} = -\frac{2}{n} X^T \left( y - X\theta \right)$$</span>
+<span id="cb12-299"><a href="#cb12-299"></a></span>
+<span id="cb12-300"><a href="#cb12-300"></a>Starting from an initial parameter guess $\theta^{(0)}$, we step iteratively in the direction opposite to the partial derivative:</span>
+<span id="cb12-301"><a href="#cb12-301"></a></span>
+<span id="cb12-302"><a href="#cb12-302"></a>$$\theta^{(k+1)} = \theta^{(k)} - \alpha \frac{\partial S}{\partial \theta^{(k)}} = \theta^{(k)} + \frac{2\alpha}{n} X^T \left( y - X\theta^{(k)} \right)$$</span>
+<span id="cb12-303"><a href="#cb12-303"></a></span>
+<span id="cb12-306"><a href="#cb12-306"></a><span class="in">```{python}</span></span>
+<span id="cb12-307"><a href="#cb12-307"></a><span class="co">#| label: gd_iterative_loop</span></span>
+<span id="cb12-308"><a href="#cb12-308"></a><span class="co">#| code-fold: show</span></span>
+<span id="cb12-309"><a href="#cb12-309"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-310"><a href="#cb12-310"></a></span>
+<span id="cb12-311"><a href="#cb12-311"></a><span class="co"># Gradient Descent loop tracking parameters and loss history</span></span>
+<span id="cb12-312"><a href="#cb12-312"></a>theta <span class="op">=</span> np.array([<span class="fl">75.0</span>, <span class="op">-</span><span class="fl">0.4</span>])  <span class="co"># Epoch 0: Initial random guess</span></span>
+<span id="cb12-313"><a href="#cb12-313"></a>alpha <span class="op">=</span> <span class="fl">0.0003</span>                  <span class="co"># Single scalar learning rate</span></span>
+<span id="cb12-314"><a href="#cb12-314"></a></span>
+<span id="cb12-315"><a href="#cb12-315"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb12-316"><a href="#cb12-316"></a>snapshots <span class="op">=</span> {<span class="dv">0</span>: theta.copy()}</span>
+<span id="cb12-317"><a href="#cb12-317"></a></span>
+<span id="cb12-318"><a href="#cb12-318"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4001</span>):</span>
+<span id="cb12-319"><a href="#cb12-319"></a>    err <span class="op">=</span> y <span class="op">-</span> X <span class="op">@</span> theta</span>
+<span id="cb12-320"><a href="#cb12-320"></a>    mse <span class="op">=</span> np.mean(err<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb12-321"><a href="#cb12-321"></a>    loss_history.append(mse)</span>
+<span id="cb12-322"><a href="#cb12-322"></a>    grad <span class="op">=</span> <span class="op">-</span><span class="dv">2</span><span class="op">/</span>n <span class="op">*</span> X.T <span class="op">@</span> err</span>
+<span id="cb12-323"><a href="#cb12-323"></a>    theta <span class="op">-=</span> alpha <span class="op">*</span> grad</span>
+<span id="cb12-324"><a href="#cb12-324"></a>    <span class="cf">if</span> epoch <span class="kw">in</span> [<span class="dv">100</span>, <span class="dv">4000</span>]:</span>
+<span id="cb12-325"><a href="#cb12-325"></a>        snapshots[epoch] <span class="op">=</span> theta.copy()</span>
+<span id="cb12-326"><a href="#cb12-326"></a></span>
+<span id="cb12-327"><a href="#cb12-327"></a><span class="bu">print</span>(<span class="ss">f"Gradient Descent Intercept (Epoch 4000): </span><span class="sc">{</span>theta[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL"</span>)</span>
+<span id="cb12-328"><a href="#cb12-328"></a><span class="bu">print</span>(<span class="ss">f"Gradient Descent Slope     (Epoch 4000): </span><span class="sc">{</span>theta[<span class="dv">1</span>]<span class="sc">:.2f}</span><span class="ss"> mg/dL / g"</span>)</span>
+<span id="cb12-329"><a href="#cb12-329"></a><span class="in">```</span></span>
+<span id="cb12-330"><a href="#cb12-330"></a></span>
+<span id="cb12-333"><a href="#cb12-333"></a><span class="in">```{python}</span></span>
+<span id="cb12-334"><a href="#cb12-334"></a><span class="co">#| label: gd_snapshots_plot</span></span>
+<span id="cb12-335"><a href="#cb12-335"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb12-336"><a href="#cb12-336"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-337"><a href="#cb12-337"></a><span class="co">#| fig-cap: "Gradient descent iterative line fit. Notice that this fit has not yet converged."</span></span>
+<span id="cb12-338"><a href="#cb12-338"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb12-339"><a href="#cb12-339"></a></span>
+<span id="cb12-340"><a href="#cb12-340"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.8</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-341"><a href="#cb12-341"></a>ax.scatter(x, y, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.45</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Data'</span>)</span>
+<span id="cb12-342"><a href="#cb12-342"></a></span>
+<span id="cb12-343"><a href="#cb12-343"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">10</span>, <span class="dv">80</span>, <span class="dv">200</span>)</span>
+<span id="cb12-344"><a href="#cb12-344"></a></span>
+<span id="cb12-345"><a href="#cb12-345"></a><span class="co"># Convenient 3-color scheme for Epochs 0, 100, 4000 (all solid lines)</span></span>
+<span id="cb12-346"><a href="#cb12-346"></a>colors <span class="op">=</span> [<span class="st">'#e377c2'</span>, <span class="st">'#ff7f0e'</span>, <span class="st">'#1f77b4'</span>]</span>
+<span id="cb12-347"><a href="#cb12-347"></a></span>
+<span id="cb12-348"><a href="#cb12-348"></a><span class="cf">for</span> (ep, th), col <span class="kw">in</span> <span class="bu">zip</span>(snapshots.items(), colors):</span>
+<span id="cb12-349"><a href="#cb12-349"></a>    y_line <span class="op">=</span> th[<span class="dv">0</span>] <span class="op">+</span> th[<span class="dv">1</span>] <span class="op">*</span> x_grid</span>
+<span id="cb12-350"><a href="#cb12-350"></a>    ax.plot(x_grid, y_line, color<span class="op">=</span>col, linewidth<span class="op">=</span><span class="fl">2.5</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, label<span class="op">=</span><span class="ss">f'Epoch </span><span class="sc">{</span>ep<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb12-351"><a href="#cb12-351"></a></span>
+<span id="cb12-352"><a href="#cb12-352"></a>ax.set_xlabel(<span class="st">'Carbohydrate intake [g]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-353"><a href="#cb12-353"></a>ax.set_ylabel(<span class="st">'Blood glucose response [mg/dL]'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-354"><a href="#cb12-354"></a>ax.set_title(<span class="st">'Gradient Descent Iterative Line Fit'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb12-355"><a href="#cb12-355"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb12-356"><a href="#cb12-356"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-357"><a href="#cb12-357"></a>plt.show()</span>
+<span id="cb12-358"><a href="#cb12-358"></a><span class="in">```</span></span>
+<span id="cb12-359"><a href="#cb12-359"></a></span>
+<span id="cb12-360"><a href="#cb12-360"></a><span class="fu">### Loss Curve (MSE Decline)</span></span>
+<span id="cb12-361"><a href="#cb12-361"></a></span>
+<span id="cb12-362"><a href="#cb12-362"></a>The performance of Gradient Descent is tracked by recording the Mean Squared Error loss $S(\theta)$ at each epoch:</span>
+<span id="cb12-363"><a href="#cb12-363"></a></span>
+<span id="cb12-366"><a href="#cb12-366"></a><span class="in">```{python}</span></span>
+<span id="cb12-367"><a href="#cb12-367"></a><span class="co">#| label: gd_loss_curve_plot</span></span>
+<span id="cb12-368"><a href="#cb12-368"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb12-369"><a href="#cb12-369"></a><span class="co">#| echo: true</span></span>
+<span id="cb12-370"><a href="#cb12-370"></a></span>
+<span id="cb12-371"><a href="#cb12-371"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="fl">4.2</span>), dpi<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-372"><a href="#cb12-372"></a>ax.plot(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">4001</span>), loss_history, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="vs">r'MSE Loss </span><span class="dv">$</span><span class="vs">S</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb12-373"><a href="#cb12-373"></a>ax.set_title(<span class="st">'Gradient Descent Loss Curve'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb12-374"><a href="#cb12-374"></a>ax.set_xlabel(<span class="st">'Epoch (Iteration)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-375"><a href="#cb12-375"></a>ax.set_ylabel(<span class="st">'Mean Squared Error (MSE)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb12-376"><a href="#cb12-376"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb12-377"><a href="#cb12-377"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb12-378"><a href="#cb12-378"></a>plt.show()</span>
+<span id="cb12-379"><a href="#cb12-379"></a><span class="in">```</span></span>
+<span id="cb12-380"><a href="#cb12-380"></a></span>
+<span id="cb12-381"><a href="#cb12-381"></a>---</span>
+<span id="cb12-382"><a href="#cb12-382"></a></span>
+<span id="cb12-383"><a href="#cb12-383"></a><span class="fu">## 6. Review</span></span>
+<span id="cb12-384"><a href="#cb12-384"></a></span>
+<span id="cb12-385"><a href="#cb12-385"></a><span class="ss">* </span>**Model Compression:**</span>
+<span id="cb12-386"><a href="#cb12-386"></a>  Linear models compress $n$ data points into a few scalar parameters (for example, $\theta_0$ and $\theta_1$).</span>
+<span id="cb12-387"><a href="#cb12-387"></a></span>
+<span id="cb12-388"><a href="#cb12-388"></a><span class="ss">* </span>**Model Predictions:**</span>
+<span id="cb12-389"><a href="#cb12-389"></a>  Given the parameters, we can predict expected values for any new sample—even for nonsensical input data beyond the original scope (for example, evaluating carbohydrate intake $x = -100\text{ g}$).</span>
+<span id="cb12-390"><a href="#cb12-390"></a></span>
+<span id="cb12-391"><a href="#cb12-391"></a><span class="ss">* </span>**Analytical vs. Iterative Solvers:**</span>
+<span id="cb12-392"><a href="#cb12-392"></a>  OLS provides exact closed-form solutions for small $p$, while Gradient Descent progressively rotates and shifts the line toward the optimal fit.</span>
+<span id="cb12-393"><a href="#cb12-393"></a></span>
+<span id="cb12-394"><a href="#cb12-394"></a><span class="ss">* </span>**Error Propagation:**</span>
+<span id="cb12-395"><a href="#cb12-395"></a>  Noise in data $\longrightarrow$ uncertain parameter estimates $\longrightarrow$ uncertain model predictions.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

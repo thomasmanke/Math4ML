@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-10-26">
+<meta name="description" content="Transformations and Normalizations">
+
+<title>Feature Engineering – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../references/scikit_learn.html">
+ <span class="dropdown-text">Scikit-Learn</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#dataset-preview" id="toc-dataset-preview" class="nav-link active" data-scroll-target="#dataset-preview">Dataset Preview</a></li>
+  <li><a href="#transformations-changing-shape" id="toc-transformations-changing-shape" class="nav-link" data-scroll-target="#transformations-changing-shape">1. Transformations: Changing Shape</a>
+  <ul class="collapse">
+  <li><a href="#mathematical-formulations" id="toc-mathematical-formulations" class="nav-link" data-scroll-target="#mathematical-formulations">Mathematical Formulations</a></li>
+  <li><a href="#why-transform" id="toc-why-transform" class="nav-link" data-scroll-target="#why-transform">Why Transform?</a></li>
+  <li><a href="#why-not-transform-everything" id="toc-why-not-transform-everything" class="nav-link" data-scroll-target="#why-not-transform-everything">Why Not Transform Everything?</a></li>
+  </ul></li>
+  <li><a href="#normalization-standardization-changing-scale" id="toc-normalization-standardization-changing-scale" class="nav-link" data-scroll-target="#normalization-standardization-changing-scale">2. Normalization &amp; Standardization: Changing Scale</a>
+  <ul class="collapse">
+  <li><a href="#mathematical-formulation" id="toc-mathematical-formulation" class="nav-link" data-scroll-target="#mathematical-formulation">Mathematical Formulation</a></li>
+  <li><a href="#affine-invariance-properties" id="toc-affine-invariance-properties" class="nav-link" data-scroll-target="#affine-invariance-properties">Affine Invariance &amp; Properties</a></li>
+  <li><a href="#why-standardize" id="toc-why-standardize" class="nav-link" data-scroll-target="#why-standardize">Why Standardize?</a></li>
+  </ul></li>
+  <li><a href="#comparison-across-preprocessing-stages" id="toc-comparison-across-preprocessing-stages" class="nav-link" data-scroll-target="#comparison-across-preprocessing-stages">3. Comparison Across Preprocessing Stages</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Feature Engineering</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+</div>
+
+<div>
+  <div class="description">
+    Transformations and Normalizations
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 26, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Feature engineering encompasses the mathematical preprocessing steps applied to raw features prior to fitting a statistical model. While raw observational data directly capture physical or clinical phenomena in their native measurement units, they frequently present challenges: disparate numerical scales, extreme skews, heavy tails, and heteroscedasticity.</p>
+<p>Two fundamental classes of preprocessing address these challenges in distinct ways:</p>
+<ol type="1">
+<li><strong>Transformations (Changing Shape)</strong>: Nonlinear mappings that compress or stretch relative distances, reshape distributions toward symmetry, and reduce the leverage of extreme observations.</li>
+<li><strong>Normalization &amp; Standardization (Changing Scale)</strong>: Affine linear mappings that shift the location and rescale the spread of features without altering the underlying shape of the distribution.</li>
+</ol>
+<hr>
+<div id="setup-data" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Setup and Data Load</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a>sns.set_theme(context<span class="op">=</span><span class="st">"notebook"</span>, style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">8.5</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co"># Load Diabetes Dataset (OpenML with local fallback)</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="cf">try</span>:</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    <span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_openml</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    raw_data <span class="op">=</span> fetch_openml(<span class="st">"diabetes"</span>, version<span class="op">=</span><span class="dv">1</span>, as_frame<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    df <span class="op">=</span> raw_data.frame</span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb1-17"><a href="#cb1-17"></a>    <span class="cf">for</span> p <span class="kw">in</span> [<span class="st">"../data/diabetes.csv"</span>, <span class="st">"../../data/diabetes.csv"</span>, <span class="st">"data/diabetes.csv"</span>]:</span>
+<span id="cb1-18"><a href="#cb1-18"></a>        <span class="cf">if</span> os.path.exists(p):</span>
+<span id="cb1-19"><a href="#cb1-19"></a>            df <span class="op">=</span> pd.read_csv(p)</span>
+<span id="cb1-20"><a href="#cb1-20"></a>            <span class="cf">break</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-22"><a href="#cb1-22"></a>        <span class="bu">print</span>(<span class="ss">f"Dataset could not be retrieved from OpenML or local storage: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-23"><a href="#cb1-23"></a>        sys.exit(<span class="dv">0</span>)</span>
+<span id="cb1-24"><a href="#cb1-24"></a></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co"># Filter physiologically valid observations and standardize column names</span></span>
+<span id="cb1-26"><a href="#cb1-26"></a>valid <span class="op">=</span> (df[<span class="st">"insu"</span>] <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (df[<span class="st">"plas"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb1-27"><a href="#cb1-27"></a>df_clean <span class="op">=</span> df.loc[valid].copy().rename(columns<span class="op">=</span>{</span>
+<span id="cb1-28"><a href="#cb1-28"></a>    <span class="st">"insu"</span>: <span class="st">"insulin"</span>,</span>
+<span id="cb1-29"><a href="#cb1-29"></a>    <span class="st">"plas"</span>: <span class="st">"glucose"</span>,</span>
+<span id="cb1-30"><a href="#cb1-30"></a>    <span class="st">"mass"</span>: <span class="st">"bmi"</span>,</span>
+<span id="cb1-31"><a href="#cb1-31"></a>    <span class="st">"pres"</span>: <span class="st">"blood_pressure"</span>,</span>
+<span id="cb1-32"><a href="#cb1-32"></a>    <span class="st">"skin"</span>: <span class="st">"skin_thickness"</span>,</span>
+<span id="cb1-33"><a href="#cb1-33"></a>    <span class="st">"preg"</span>: <span class="st">"pregnancies"</span>,</span>
+<span id="cb1-34"><a href="#cb1-34"></a>    <span class="st">"pedi"</span>: <span class="st">"pedigree"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35"></a>    <span class="st">"age"</span>: <span class="st">"age"</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a>})</span>
+<span id="cb1-37"><a href="#cb1-37"></a></span>
+<span id="cb1-38"><a href="#cb1-38"></a>feature_cols <span class="op">=</span> [</span>
+<span id="cb1-39"><a href="#cb1-39"></a>    <span class="st">"pregnancies"</span>, <span class="st">"glucose"</span>, <span class="st">"blood_pressure"</span>, <span class="st">"skin_thickness"</span>,</span>
+<span id="cb1-40"><a href="#cb1-40"></a>    <span class="st">"insulin"</span>, <span class="st">"bmi"</span>, <span class="st">"pedigree"</span>, <span class="st">"age"</span></span>
+<span id="cb1-41"><a href="#cb1-41"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="dataset-preview" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-preview">Dataset Preview</h2>
+<p>Before engineering features, we inspect the first 5 observations alongside the empirical distributions of all features in their original, unscaled measurement units:</p>
+<div id="cell-data-glimpse" class="cell" data-execution_count="2">
+<details open="" class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="bu">print</span>(<span class="ss">f"Dataset shape: </span><span class="sc">{</span>df_clean<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>df_clean[feature_cols].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Dataset shape: (393, 9)</code></pre>
+</div>
+<div id="data-glimpse" class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">pregnancies</th>
+<th data-quarto-table-cell-role="th">glucose</th>
+<th data-quarto-table-cell-role="th">blood_pressure</th>
+<th data-quarto-table-cell-role="th">skin_thickness</th>
+<th data-quarto-table-cell-role="th">insulin</th>
+<th data-quarto-table-cell-role="th">bmi</th>
+<th data-quarto-table-cell-role="th">pedigree</th>
+<th data-quarto-table-cell-role="th">age</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">3</th>
+<td>1</td>
+<td>89</td>
+<td>66</td>
+<td>23</td>
+<td>94</td>
+<td>28.1</td>
+<td>0.167</td>
+<td>21</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">4</th>
+<td>0</td>
+<td>137</td>
+<td>40</td>
+<td>35</td>
+<td>168</td>
+<td>43.1</td>
+<td>2.288</td>
+<td>33</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>3</td>
+<td>78</td>
+<td>50</td>
+<td>32</td>
+<td>88</td>
+<td>31.0</td>
+<td>0.248</td>
+<td>26</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">8</th>
+<td>2</td>
+<td>197</td>
+<td>70</td>
+<td>45</td>
+<td>543</td>
+<td>30.5</td>
+<td>0.158</td>
+<td>53</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">13</th>
+<td>1</td>
+<td>189</td>
+<td>60</td>
+<td>23</td>
+<td>846</td>
+<td>30.1</td>
+<td>0.398</td>
+<td>59</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="cell-fig-raw-feature-distributions" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb4-2"><a href="#cb4-2"></a>sns.violinplot(data<span class="op">=</span>df_clean[feature_cols], ax<span class="op">=</span>ax, palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>ax.set_title(<span class="st">"Raw Features (Unscaled Clinical Units)"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>ax.set_ylabel(<span class="st">"Clinical Units"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>plt.tight_layout()</span>
+<span id="cb4-6"><a href="#cb4-6"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-raw-feature-distributions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-raw-feature-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="feature_engineering_files/figure-html/fig-raw-feature-distributions-output-1.png" width="1476" height="545" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-raw-feature-distributions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Distribution of raw physiological features in original clinical units: insulin dominates the numerical scale, while count-based features (pregnancies) and biological concentrations exhibit severe right skews.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="transformations-changing-shape" class="level2">
+<h2 class="anchored" data-anchor-id="transformations-changing-shape">1. Transformations: Changing Shape</h2>
+<p>Nonlinear transformations alter the geometric shape of feature distributions. Crucially, <strong>transformations must be applied prior to standardization</strong>.</p>
+<section id="mathematical-formulations" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-formulations">Mathematical Formulations</h3>
+<ul>
+<li><strong>Square Root Transformation</strong>: <span class="math display">\[x^\prime = \sqrt{x}\]</span></li>
+<li><strong>Logarithmic Transformation</strong>: <span class="math display">\[x^\prime = \log\left(\frac{x}{u_0} + 1\right)\]</span> where <span class="math inline">\(u_0\)</span> represents the characteristic reference unit of the measurement (e.g., <span class="math inline">\(1\,\mu\text{U/ml}\)</span> for insulin), rendering the argument dimensionless.</li>
+</ul>
+</section>
+<section id="why-transform" class="level3">
+<h3 class="anchored" data-anchor-id="why-transform">Why Transform?</h3>
+<ul>
+<li><strong>Dampening Influential Outliers &amp; Leverage</strong>: In linear regression, parameter estimates <span class="math inline">\(\hat{\boldsymbol{\theta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}\)</span> are highly sensitive to observations far from the mean in feature space (high leverage points). For right-skewed variables such as <code>insulin</code>, a few extreme observations can dominate the sum of squared residuals (<span class="math inline">\(RSS\)</span>). The concave nature of <span class="math inline">\(\log(x)\)</span> compresses extreme values, pulling outliers closer to the median and stabilizing parameter estimates.</li>
+<li><strong>Stabilizing Variance (Homoscedasticity)</strong>: Standard linear regression assumes constant residual variance across all values of the predictor: <span class="math inline">\(\mathrm{Var}(\epsilon_i \mid x_i) = \sigma^2\)</span>. For Poisson-like count processes (such as <code>pregnancies</code>), the variance scales proportionally with the mean: <span class="math inline">\(\mathrm{Var}(X) \propto \mathbb{E}[X]\)</span>. The variance-stabilizing transformation for a Poisson process is the square root: <span class="math display">\[\mathrm{Var}(\sqrt{X}) \approx \frac{1}{4}\]</span></li>
+<li><strong>Linearizing Relationships</strong>: Many biological processes obey power-law or exponential kinetics (<span class="math inline">\(y \propto x^\alpha\)</span>). Log-transforming the variables converts multiplicative relationships into additive, linear equations amenable to ordinary least squares: <span class="math display">\[\log(y) = \log(c) + \alpha \log(x)\]</span></li>
+</ul>
+</section>
+<section id="why-not-transform-everything" class="level3">
+<h3 class="anchored" data-anchor-id="why-not-transform-everything">Why Not Transform Everything?</h3>
+<p>Transformations should <strong>not</strong> be applied arbitrarily across all features:</p>
+<ul>
+<li><strong>Symmetric Physiological Variables</strong>: Variables such as <code>blood_pressure</code>, <code>glucose</code>, <code>skin_thickness</code>, and <code>bmi</code> are already relatively symmetric around biological setpoints. Applying a concave logarithmic transform to an already symmetric distribution creates an artificial negative (left) skew, degrading model fit.</li>
+<li><strong>Interval Variables &amp; Demographic Metrics</strong>: Features like <code>age</code> have a uniform physical and epidemiological interpretation (e.g., risk change per year of age). Transforming age compresses the elderly age groups relative to young adults, distorting demographic comparability. The positive skew in age simply reflects the recruited cohort (younger adults in this study) rather than an unconstrained physical process.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="normalization-standardization-changing-scale" class="level2">
+<h2 class="anchored" data-anchor-id="normalization-standardization-changing-scale">2. Normalization &amp; Standardization: Changing Scale</h2>
+<p>Standardization rescales variables to a common numerical range without altering the relative distances between percentiles or the underlying distributional shape.</p>
+<section id="mathematical-formulation" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-formulation">Mathematical Formulation</h3>
+<p>The standard score (<span class="math inline">\(z\)</span>-score) is defined as:</p>
+<p><span class="math display">\[z = \frac{x - \mu}{\sigma}\]</span></p>
+<p>where <span class="math inline">\(\mu = \frac{1}{n} \sum_{i=1}^n x_i\)</span> is the sample mean and <span class="math inline">\(\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^n (x_i - \mu)^2}\)</span> is the sample standard deviation.</p>
+</section>
+<section id="affine-invariance-properties" class="level3">
+<h3 class="anchored" data-anchor-id="affine-invariance-properties">Affine Invariance &amp; Properties</h3>
+<ul>
+<li><strong>Affine Linear Transformation</strong>: Standardization is strictly an affine linear transformation of the form <span class="math inline">\(z = a x + b\)</span>, where <span class="math inline">\(a = 1/\sigma\)</span> and <span class="math inline">\(b = -\mu/\sigma\)</span>.</li>
+<li><strong>Shape Invariance</strong>: Because affine mappings preserve ratios of lengths, <strong>standardization does not alter the skewness, kurtosis, or modality</strong> of the distribution. A skewed feature remains equally skewed after standardization; only its mean (<span class="math inline">\(0\)</span>) and standard deviation (<span class="math inline">\(1\)</span>) change.</li>
+</ul>
+</section>
+<section id="why-standardize" class="level3">
+<h3 class="anchored" data-anchor-id="why-standardize">Why Standardize?</h3>
+<ul>
+<li><strong>Numerical Stability</strong>: When features differ by orders of magnitude (e.g., insulin in hundreds vs.&nbsp;pedigree in fractions of a unit), the Gram matrix <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> can become ill-conditioned, leading to numerical errors when computing inverses. Centering and scaling maintains a well-conditioned matrix.</li>
+<li><strong>Preserving Sample Distances</strong>: Distance metrics such as the Euclidean distance: <span class="math display">\[d(\mathbf{x}_i, \mathbf{x}_j) = \sqrt{\sum_{k=1}^p (x_{ik} - x_{jk})^2}\]</span> are dominated by whichever feature has the largest raw numerical variance. Standardization ensures each feature contributes proportionally to geometric distances in clustering (k-means), nearest neighbors (k-NN), and Principal Component Analysis (PCA).</li>
+<li><strong>Optimization &amp; Regularization</strong>: In gradient descent, disparate feature scales cause the loss surface to take the form of elongated, eccentric ellipsoids, forcing optimization trajectories to oscillate inefficiently. Standardization produces circular/spherical level sets, allowing gradient updates to point directly toward the minimum. Furthermore, regularized loss functions (such as Ridge <span class="math inline">\(\lambda \|\boldsymbol{\theta}\|_2^2\)</span> and Lasso <span class="math inline">\(\lambda \|\boldsymbol{\theta}\|_1\)</span>) apply an isotropic penalty to coefficients; unstandardized features would result in arbitrary, unfair penalization dictated entirely by measurement units.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="comparison-across-preprocessing-stages" class="level2">
+<h2 class="anchored" data-anchor-id="comparison-across-preprocessing-stages">3. Comparison Across Preprocessing Stages</h2>
+<p>The three-panel violin plot below illustrates the progressive impact of targeted preprocessing on the physiological features of the Pima Indians Diabetes dataset:</p>
+<ol type="1">
+<li><strong>Raw, Unscaled Features</strong>: Dynamic ranges vary dramatically across native clinical measurement units (insulin reaches nearly 800, while pedigree remains below 2.5).</li>
+<li><strong>Standardized Features (<span class="math inline">\(z\)</span>-scores)</strong>: All eight features share zero mean and unit variance, making distributions comparable on a shared scale, but skews remain unchanged.</li>
+<li><strong>Targeted Transformations &amp; Standardized Features</strong>: Targeted transformations are applied only where mathematically and clinically justified: square root for count-based <code>pregnancies</code> and logarithmic for heavy-tailed <code>insulin</code>. Naturally symmetric features (<code>blood_pressure</code>, <code>glucose</code>, <code>skin_thickness</code>, <code>bmi</code>, <code>pedigree</code>, <code>age</code>) are left untransformed, and all features are then standardized to <span class="math inline">\(z\)</span>-scores.</li>
+</ol>
+<div id="cell-fig-feature-engineering-comparison" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Stage 1: Raw features</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>df_raw <span class="op">=</span> df_clean[feature_cols]</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="co"># Stage 2: Standardized features (affine transform: preserves shape)</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>df_z <span class="op">=</span> (df_raw <span class="op">-</span> df_raw.mean()) <span class="op">/</span> df_raw.std()</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Stage 3: Targeted shape transformations, followed by standardization</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>df_targeted <span class="op">=</span> df_raw.copy()</span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="co"># Variance stabilization for Poisson count process</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>df_targeted[<span class="st">"pregnancies"</span>] <span class="op">=</span> np.sqrt(df_targeted[<span class="st">"pregnancies"</span>])</span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co"># Outlier compression for heavy-tailed biological concentration</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>df_targeted[<span class="st">"insulin"</span>] <span class="op">=</span> np.log1p(df_targeted[<span class="st">"insulin"</span>])</span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co"># Other features (glucose, blood_pressure, skin_thickness, bmi, pedigree, age) remain untransformed</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a></span>
+<span id="cb5-15"><a href="#cb5-15"></a>df_targeted_z <span class="op">=</span> (df_targeted <span class="op">-</span> df_targeted.mean()) <span class="op">/</span> df_targeted.std()</span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">8.5</span>))</span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co"># Panel 1: Raw Unscaled Features</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>sns.violinplot(data<span class="op">=</span>df_raw, ax<span class="op">=</span>axes[<span class="dv">0</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Raw features, unscaled"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-22"><a href="#cb5-22"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Clinical Units"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23"></a></span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="co"># Panel 2: Standardized Features (z-score)</span></span>
+<span id="cb5-25"><a href="#cb5-25"></a>sns.violinplot(data<span class="op">=</span>df_z, ax<span class="op">=</span>axes[<span class="dv">1</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Standardized features (z-score)"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"$z$-score"</span>)</span>
+<span id="cb5-28"><a href="#cb5-28"></a>axes[<span class="dv">1</span>].set_ylim(<span class="op">-</span><span class="fl">4.5</span>, <span class="fl">6.5</span>)</span>
+<span id="cb5-29"><a href="#cb5-29"></a></span>
+<span id="cb5-30"><a href="#cb5-30"></a><span class="co"># Panel 3: Targeted Transformations &amp; Standardized Features</span></span>
+<span id="cb5-31"><a href="#cb5-31"></a>sns.violinplot(data<span class="op">=</span>df_targeted_z, ax<span class="op">=</span>axes[<span class="dv">2</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb5-32"><a href="#cb5-32"></a>axes[<span class="dv">2</span>].set_title(<span class="st">"Transformations (sqrt for pregnancies, log for insulin) + Standardizations"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-33"><a href="#cb5-33"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">"$z$-score"</span>)</span>
+<span id="cb5-34"><a href="#cb5-34"></a>axes[<span class="dv">2</span>].set_ylim(<span class="op">-</span><span class="fl">4.5</span>, <span class="fl">6.5</span>)</span>
+<span id="cb5-35"><a href="#cb5-35"></a></span>
+<span id="cb5-36"><a href="#cb5-36"></a>plt.tight_layout()</span>
+<span id="cb5-37"><a href="#cb5-37"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-feature-engineering-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-feature-engineering-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="feature_engineering_files/figure-html/fig-feature-engineering-comparison-output-1.png" width="1476" height="1250" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-feature-engineering-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Comparison of preprocessing stages: raw clinical measurements (top), standardized features (middle), and targeted transformations (square root for count-based pregnancies, logarithm for heavy-tailed insulin) followed by standardization (bottom).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Key Insights: Targeted Transformations, Nondimensionalization, and Power Transforms
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Targeted Selection vs.&nbsp;Arbitrary Transformation</strong>: Transformations should be a targeted, domain-motivated choice rather than an automated default. Variables that are already relatively symmetric around biological setpoints (<code>blood_pressure</code>, <code>glucose</code>, <code>skin_thickness</code>, <code>bmi</code>) do not benefit from logarithmic compression; transforming them introduces an unnecessary negative skew. Similarly, interval variables such as <code>age</code> preserve chronological and epidemiological meaning in their linear form.</li>
+<li><strong>Requirement for Dimensionless Numbers</strong>: Mathematical transcendental functions (such as logarithms and exponentials) are rigorously defined only on pure, dimensionless numbers. When transforming a dimensionful physical measurement <span class="math inline">\(x\)</span> with unit <span class="math inline">\([x]\)</span> (e.g., serum insulin in <span class="math inline">\(\mu\text{U/ml}\)</span>), division by a reference unit <span class="math inline">\(u_0 = 1\,[x]\)</span> renders the quantity dimensionless (<span class="math inline">\(x^\prime = x / u_0\)</span>) before applying <span class="math inline">\(\log(x^\prime + 1)\)</span>.</li>
+<li><strong>Generalized Power Transformations (Box-Cox)</strong>: Many non-linear transformations belong to parameterized families. In particular, the <a href="https://en.wikipedia.org/wiki/Power_transform#Box%E2%80%93Cox_transformation">Box-Cox Power Transformation</a> generalizes power and logarithmic transforms for positive variables: <span class="math display">\[y^{(\lambda)} = \begin{cases} \frac{y^\lambda - 1}{\lambda} &amp; \text{if } \lambda \neq 0 \\ \ln(y) &amp; \text{if } \lambda = 0 \end{cases}\]</span> The parameter <span class="math inline">\(\lambda\)</span> smoothly bridges between square root (<span class="math inline">\(\lambda = 0.5\)</span>), natural logarithm (<span class="math inline">\(\lambda \to 0\)</span>), and an untransformed linear shift (<span class="math inline">\(\lambda = 1\)</span>). While automated optimization of <span class="math inline">\(\lambda\)</span> can be useful in exploratory modeling, targeted transformations based on physical and biological principles remain the foundation of interpretable feature engineering.</li>
+</ul>
+</div>
+</div>
+<hr>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Caution</span>Cautious Note: Parameter Interpretation with Preprocessed Features
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Interpreting regression coefficients (slopes <span class="math inline">\(\theta_1\)</span> and intercepts <span class="math inline">\(\theta_0\)</span>) in original physical or clinical units requires reversing any applied transformations and standardizations:</p>
+<ul>
+<li><strong>Standardized Features</strong>: When <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> are standardized, the slope <span class="math inline">\(\beta_1\)</span> represents a dimensionless effect size: the expected standard deviation change in <span class="math inline">\(y\)</span> per standard deviation change in <span class="math inline">\(x\)</span>.</li>
+<li><strong>Log-Transformed Features</strong>: When <span class="math inline">\(x\)</span> is log-transformed (<span class="math inline">\(x^\prime = \log x\)</span>), the slope <span class="math inline">\(\theta_1\)</span> measures relative elasticity: a 1% relative increase in <span class="math inline">\(x\)</span> corresponds to an expected change of approximately <span class="math inline">\(0.01 \times \theta_1\)</span> in <span class="math inline">\(y\)</span>.</li>
+<li><strong>Reversing Transformations</strong>: Before communicating predictive equations or baseline risks back to clinicians or decision-makers, model outputs must be mapped back to their original physical units (<span class="math inline">\(x = u_0(\exp(x^\prime) - 1)\)</span>) to restore direct clinical interpretability.</li>
+</ul>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">---</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="an">title:</span><span class="co"> "Feature Engineering"</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="an">description:</span><span class="co"> "Transformations and Normalizations"</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="an">engine:</span><span class="co"> jupyter</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="an">format:</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">  html:</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">    toc: true</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">---</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a>Feature engineering encompasses the mathematical preprocessing steps applied to raw features prior to fitting a statistical model. While raw observational data directly capture physical or clinical phenomena in their native measurement units, they frequently present challenges: disparate numerical scales, extreme skews, heavy tails, and heteroscedasticity.</span>
+<span id="cb6-16"><a href="#cb6-16"></a></span>
+<span id="cb6-17"><a href="#cb6-17"></a>Two fundamental classes of preprocessing address these challenges in distinct ways:</span>
+<span id="cb6-18"><a href="#cb6-18"></a></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="ss">1. </span>**Transformations (Changing Shape)**: Nonlinear mappings that compress or stretch relative distances, reshape distributions toward symmetry, and reduce the leverage of extreme observations.</span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="ss">2. </span>**Normalization &amp; Standardization (Changing Scale)**: Affine linear mappings that shift the location and rescale the spread of features without altering the underlying shape of the distribution.</span>
+<span id="cb6-21"><a href="#cb6-21"></a></span>
+<span id="cb6-22"><a href="#cb6-22"></a>---</span>
+<span id="cb6-23"><a href="#cb6-23"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="in">```{python}</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="co">#| label: setup-data</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="co">#| code-summary: "Setup and Data Load"</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="co">#| warning: false</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a></span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="im">import</span> os</span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="im">import</span> sys</span>
+<span id="cb6-34"><a href="#cb6-34"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-35"><a href="#cb6-35"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb6-36"><a href="#cb6-36"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-37"><a href="#cb6-37"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-38"><a href="#cb6-38"></a></span>
+<span id="cb6-39"><a href="#cb6-39"></a>sns.set_theme(context<span class="op">=</span><span class="st">"notebook"</span>, style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb6-40"><a href="#cb6-40"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">8.5</span>)</span>
+<span id="cb6-41"><a href="#cb6-41"></a></span>
+<span id="cb6-42"><a href="#cb6-42"></a><span class="co"># Load Diabetes Dataset (OpenML with local fallback)</span></span>
+<span id="cb6-43"><a href="#cb6-43"></a><span class="cf">try</span>:</span>
+<span id="cb6-44"><a href="#cb6-44"></a>    <span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_openml</span>
+<span id="cb6-45"><a href="#cb6-45"></a>    raw_data <span class="op">=</span> fetch_openml(<span class="st">"diabetes"</span>, version<span class="op">=</span><span class="dv">1</span>, as_frame<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-46"><a href="#cb6-46"></a>    df <span class="op">=</span> raw_data.frame</span>
+<span id="cb6-47"><a href="#cb6-47"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb6-48"><a href="#cb6-48"></a>    <span class="cf">for</span> p <span class="kw">in</span> [<span class="st">"../data/diabetes.csv"</span>, <span class="st">"../../data/diabetes.csv"</span>, <span class="st">"data/diabetes.csv"</span>]:</span>
+<span id="cb6-49"><a href="#cb6-49"></a>        <span class="cf">if</span> os.path.exists(p):</span>
+<span id="cb6-50"><a href="#cb6-50"></a>            df <span class="op">=</span> pd.read_csv(p)</span>
+<span id="cb6-51"><a href="#cb6-51"></a>            <span class="cf">break</span></span>
+<span id="cb6-52"><a href="#cb6-52"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-53"><a href="#cb6-53"></a>        <span class="bu">print</span>(<span class="ss">f"Dataset could not be retrieved from OpenML or local storage: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-54"><a href="#cb6-54"></a>        sys.exit(<span class="dv">0</span>)</span>
+<span id="cb6-55"><a href="#cb6-55"></a></span>
+<span id="cb6-56"><a href="#cb6-56"></a><span class="co"># Filter physiologically valid observations and standardize column names</span></span>
+<span id="cb6-57"><a href="#cb6-57"></a>valid <span class="op">=</span> (df[<span class="st">"insu"</span>] <span class="op">&gt;</span> <span class="dv">0</span>) <span class="op">&amp;</span> (df[<span class="st">"plas"</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb6-58"><a href="#cb6-58"></a>df_clean <span class="op">=</span> df.loc[valid].copy().rename(columns<span class="op">=</span>{</span>
+<span id="cb6-59"><a href="#cb6-59"></a>    <span class="st">"insu"</span>: <span class="st">"insulin"</span>,</span>
+<span id="cb6-60"><a href="#cb6-60"></a>    <span class="st">"plas"</span>: <span class="st">"glucose"</span>,</span>
+<span id="cb6-61"><a href="#cb6-61"></a>    <span class="st">"mass"</span>: <span class="st">"bmi"</span>,</span>
+<span id="cb6-62"><a href="#cb6-62"></a>    <span class="st">"pres"</span>: <span class="st">"blood_pressure"</span>,</span>
+<span id="cb6-63"><a href="#cb6-63"></a>    <span class="st">"skin"</span>: <span class="st">"skin_thickness"</span>,</span>
+<span id="cb6-64"><a href="#cb6-64"></a>    <span class="st">"preg"</span>: <span class="st">"pregnancies"</span>,</span>
+<span id="cb6-65"><a href="#cb6-65"></a>    <span class="st">"pedi"</span>: <span class="st">"pedigree"</span>,</span>
+<span id="cb6-66"><a href="#cb6-66"></a>    <span class="st">"age"</span>: <span class="st">"age"</span></span>
+<span id="cb6-67"><a href="#cb6-67"></a>})</span>
+<span id="cb6-68"><a href="#cb6-68"></a></span>
+<span id="cb6-69"><a href="#cb6-69"></a>feature_cols <span class="op">=</span> [</span>
+<span id="cb6-70"><a href="#cb6-70"></a>    <span class="st">"pregnancies"</span>, <span class="st">"glucose"</span>, <span class="st">"blood_pressure"</span>, <span class="st">"skin_thickness"</span>,</span>
+<span id="cb6-71"><a href="#cb6-71"></a>    <span class="st">"insulin"</span>, <span class="st">"bmi"</span>, <span class="st">"pedigree"</span>, <span class="st">"age"</span></span>
+<span id="cb6-72"><a href="#cb6-72"></a>]</span>
+<span id="cb6-73"><a href="#cb6-73"></a><span class="in">```</span></span>
+<span id="cb6-74"><a href="#cb6-74"></a></span>
+<span id="cb6-75"><a href="#cb6-75"></a><span class="fu">## Dataset Preview</span></span>
+<span id="cb6-76"><a href="#cb6-76"></a></span>
+<span id="cb6-77"><a href="#cb6-77"></a>Before engineering features, we inspect the first 5 observations alongside the empirical distributions of all features in their original, unscaled measurement units:</span>
+<span id="cb6-78"><a href="#cb6-78"></a></span>
+<span id="cb6-81"><a href="#cb6-81"></a><span class="in">```{python}</span></span>
+<span id="cb6-82"><a href="#cb6-82"></a><span class="co">#| label: data-glimpse</span></span>
+<span id="cb6-83"><a href="#cb6-83"></a><span class="co">#| echo: true</span></span>
+<span id="cb6-84"><a href="#cb6-84"></a></span>
+<span id="cb6-85"><a href="#cb6-85"></a><span class="bu">print</span>(<span class="ss">f"Dataset shape: </span><span class="sc">{</span>df_clean<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-86"><a href="#cb6-86"></a>df_clean[feature_cols].head()</span>
+<span id="cb6-87"><a href="#cb6-87"></a><span class="in">```</span></span>
+<span id="cb6-88"><a href="#cb6-88"></a></span>
+<span id="cb6-91"><a href="#cb6-91"></a><span class="in">```{python}</span></span>
+<span id="cb6-92"><a href="#cb6-92"></a><span class="co">#| label: fig-raw-feature-distributions</span></span>
+<span id="cb6-93"><a href="#cb6-93"></a><span class="co">#| fig-cap: "Distribution of raw physiological features in original clinical units: insulin dominates the numerical scale, while count-based features (pregnancies) and biological concentrations exhibit severe right skews."</span></span>
+<span id="cb6-94"><a href="#cb6-94"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-95"><a href="#cb6-95"></a></span>
+<span id="cb6-96"><a href="#cb6-96"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb6-97"><a href="#cb6-97"></a>sns.violinplot(data<span class="op">=</span>df_clean[feature_cols], ax<span class="op">=</span>ax, palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb6-98"><a href="#cb6-98"></a>ax.set_title(<span class="st">"Raw Features (Unscaled Clinical Units)"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-99"><a href="#cb6-99"></a>ax.set_ylabel(<span class="st">"Clinical Units"</span>)</span>
+<span id="cb6-100"><a href="#cb6-100"></a>plt.tight_layout()</span>
+<span id="cb6-101"><a href="#cb6-101"></a>plt.show()</span>
+<span id="cb6-102"><a href="#cb6-102"></a><span class="in">```</span></span>
+<span id="cb6-103"><a href="#cb6-103"></a></span>
+<span id="cb6-104"><a href="#cb6-104"></a>---</span>
+<span id="cb6-105"><a href="#cb6-105"></a></span>
+<span id="cb6-106"><a href="#cb6-106"></a><span class="fu">## 1. Transformations: Changing Shape</span></span>
+<span id="cb6-107"><a href="#cb6-107"></a></span>
+<span id="cb6-108"><a href="#cb6-108"></a>Nonlinear transformations alter the geometric shape of feature distributions. Crucially, **transformations must be applied prior to standardization**.</span>
+<span id="cb6-109"><a href="#cb6-109"></a></span>
+<span id="cb6-110"><a href="#cb6-110"></a><span class="fu">### Mathematical Formulations</span></span>
+<span id="cb6-111"><a href="#cb6-111"></a></span>
+<span id="cb6-112"><a href="#cb6-112"></a><span class="ss">* </span>**Square Root Transformation**:</span>
+<span id="cb6-113"><a href="#cb6-113"></a>  $$x^\prime = \sqrt{x}$$</span>
+<span id="cb6-114"><a href="#cb6-114"></a><span class="ss">* </span>**Logarithmic Transformation**:</span>
+<span id="cb6-115"><a href="#cb6-115"></a>  $$x^\prime = \log\left(\frac{x}{u_0} + 1\right)$$</span>
+<span id="cb6-116"><a href="#cb6-116"></a>  where $u_0$ represents the characteristic reference unit of the measurement (e.g., $1\,\mu\text{U/ml}$ for insulin), rendering the argument dimensionless.</span>
+<span id="cb6-117"><a href="#cb6-117"></a></span>
+<span id="cb6-118"><a href="#cb6-118"></a><span class="fu">### Why Transform?</span></span>
+<span id="cb6-119"><a href="#cb6-119"></a></span>
+<span id="cb6-120"><a href="#cb6-120"></a><span class="ss">* </span>**Dampening Influential Outliers &amp; Leverage**:</span>
+<span id="cb6-121"><a href="#cb6-121"></a>  In linear regression, parameter estimates $\hat{\boldsymbol{\theta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ are highly sensitive to observations far from the mean in feature space (high leverage points). For right-skewed variables such as <span class="in">`insulin`</span>, a few extreme observations can dominate the sum of squared residuals ($RSS$). The concave nature of $\log(x)$ compresses extreme values, pulling outliers closer to the median and stabilizing parameter estimates.</span>
+<span id="cb6-122"><a href="#cb6-122"></a><span class="ss">* </span>**Stabilizing Variance (Homoscedasticity)**:</span>
+<span id="cb6-123"><a href="#cb6-123"></a>  Standard linear regression assumes constant residual variance across all values of the predictor: $\mathrm{Var}(\epsilon_i \mid x_i) = \sigma^2$. For Poisson-like count processes (such as <span class="in">`pregnancies`</span>), the variance scales proportionally with the mean: $\mathrm{Var}(X) \propto \mathbb{E}<span class="co">[</span><span class="ot">X</span><span class="co">]</span>$. The variance-stabilizing transformation for a Poisson process is the square root:</span>
+<span id="cb6-124"><a href="#cb6-124"></a>  $$\mathrm{Var}(\sqrt{X}) \approx \frac{1}{4}$$</span>
+<span id="cb6-125"><a href="#cb6-125"></a><span class="ss">* </span>**Linearizing Relationships**:</span>
+<span id="cb6-126"><a href="#cb6-126"></a>  Many biological processes obey power-law or exponential kinetics ($y \propto x^\alpha$). Log-transforming the variables converts multiplicative relationships into additive, linear equations amenable to ordinary least squares:</span>
+<span id="cb6-127"><a href="#cb6-127"></a>  $$\log(y) = \log(c) + \alpha \log(x)$$</span>
+<span id="cb6-128"><a href="#cb6-128"></a></span>
+<span id="cb6-129"><a href="#cb6-129"></a><span class="fu">### Why Not Transform Everything?</span></span>
+<span id="cb6-130"><a href="#cb6-130"></a></span>
+<span id="cb6-131"><a href="#cb6-131"></a>Transformations should **not** be applied arbitrarily across all features:</span>
+<span id="cb6-132"><a href="#cb6-132"></a></span>
+<span id="cb6-133"><a href="#cb6-133"></a><span class="ss">* </span>**Symmetric Physiological Variables**: Variables such as <span class="in">`blood_pressure`</span>, <span class="in">`glucose`</span>, <span class="in">`skin_thickness`</span>, and <span class="in">`bmi`</span> are already relatively symmetric around biological setpoints. Applying a concave logarithmic transform to an already symmetric distribution creates an artificial negative (left) skew, degrading model fit.</span>
+<span id="cb6-134"><a href="#cb6-134"></a><span class="ss">* </span>**Interval Variables &amp; Demographic Metrics**: Features like <span class="in">`age`</span> have a uniform physical and epidemiological interpretation (e.g., risk change per year of age). Transforming age compresses the elderly age groups relative to young adults, distorting demographic comparability. The positive skew in age simply reflects the recruited cohort (younger adults in this study) rather than an unconstrained physical process.</span>
+<span id="cb6-135"><a href="#cb6-135"></a></span>
+<span id="cb6-136"><a href="#cb6-136"></a>---</span>
+<span id="cb6-137"><a href="#cb6-137"></a></span>
+<span id="cb6-138"><a href="#cb6-138"></a><span class="fu">## 2. Normalization &amp; Standardization: Changing Scale</span></span>
+<span id="cb6-139"><a href="#cb6-139"></a></span>
+<span id="cb6-140"><a href="#cb6-140"></a>Standardization rescales variables to a common numerical range without altering the relative distances between percentiles or the underlying distributional shape.</span>
+<span id="cb6-141"><a href="#cb6-141"></a></span>
+<span id="cb6-142"><a href="#cb6-142"></a><span class="fu">### Mathematical Formulation</span></span>
+<span id="cb6-143"><a href="#cb6-143"></a></span>
+<span id="cb6-144"><a href="#cb6-144"></a>The standard score ($z$-score) is defined as:</span>
+<span id="cb6-145"><a href="#cb6-145"></a></span>
+<span id="cb6-146"><a href="#cb6-146"></a>$$z = \frac{x - \mu}{\sigma}$$</span>
+<span id="cb6-147"><a href="#cb6-147"></a></span>
+<span id="cb6-148"><a href="#cb6-148"></a>where $\mu = \frac{1}{n} \sum_{i=1}^n x_i$ is the sample mean and $\sigma = \sqrt{\frac{1}{n-1}\sum_{i=1}^n (x_i - \mu)^2}$ is the sample standard deviation.</span>
+<span id="cb6-149"><a href="#cb6-149"></a></span>
+<span id="cb6-150"><a href="#cb6-150"></a><span class="fu">### Affine Invariance &amp; Properties</span></span>
+<span id="cb6-151"><a href="#cb6-151"></a></span>
+<span id="cb6-152"><a href="#cb6-152"></a><span class="ss">* </span>**Affine Linear Transformation**:</span>
+<span id="cb6-153"><a href="#cb6-153"></a>  Standardization is strictly an affine linear transformation of the form $z = a x + b$, where $a = 1/\sigma$ and $b = -\mu/\sigma$. </span>
+<span id="cb6-154"><a href="#cb6-154"></a><span class="ss">* </span>**Shape Invariance**:</span>
+<span id="cb6-155"><a href="#cb6-155"></a>  Because affine mappings preserve ratios of lengths, **standardization does not alter the skewness, kurtosis, or modality** of the distribution. A skewed feature remains equally skewed after standardization; only its mean ($0$) and standard deviation ($1$) change.</span>
+<span id="cb6-156"><a href="#cb6-156"></a></span>
+<span id="cb6-157"><a href="#cb6-157"></a><span class="fu">### Why Standardize?</span></span>
+<span id="cb6-158"><a href="#cb6-158"></a></span>
+<span id="cb6-159"><a href="#cb6-159"></a><span class="ss">* </span>**Numerical Stability**:</span>
+<span id="cb6-160"><a href="#cb6-160"></a>  When features differ by orders of magnitude (e.g., insulin in hundreds vs. pedigree in fractions of a unit), the Gram matrix $\mathbf{X}^T\mathbf{X}$ can become ill-conditioned, leading to numerical errors when computing inverses. Centering and scaling maintains a well-conditioned matrix.</span>
+<span id="cb6-161"><a href="#cb6-161"></a><span class="ss">* </span>**Preserving Sample Distances**:</span>
+<span id="cb6-162"><a href="#cb6-162"></a>  Distance metrics such as the Euclidean distance:</span>
+<span id="cb6-163"><a href="#cb6-163"></a>  $$d(\mathbf{x}_i, \mathbf{x}_j) = \sqrt{\sum_{k=1}^p (x_{ik} - x_{jk})^2}$$</span>
+<span id="cb6-164"><a href="#cb6-164"></a>  are dominated by whichever feature has the largest raw numerical variance. Standardization ensures each feature contributes proportionally to geometric distances in clustering (k-means), nearest neighbors (k-NN), and Principal Component Analysis (PCA).</span>
+<span id="cb6-165"><a href="#cb6-165"></a><span class="ss">* </span>**Optimization &amp; Regularization**:</span>
+<span id="cb6-166"><a href="#cb6-166"></a>  In gradient descent, disparate feature scales cause the loss surface to take the form of elongated, eccentric ellipsoids, forcing optimization trajectories to oscillate inefficiently. Standardization produces circular/spherical level sets, allowing gradient updates to point directly toward the minimum. Furthermore, regularized loss functions (such as Ridge $\lambda <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_2^2$ and Lasso $\lambda <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_1$) apply an isotropic penalty to coefficients; unstandardized features would result in arbitrary, unfair penalization dictated entirely by measurement units.</span>
+<span id="cb6-167"><a href="#cb6-167"></a></span>
+<span id="cb6-168"><a href="#cb6-168"></a>---</span>
+<span id="cb6-169"><a href="#cb6-169"></a></span>
+<span id="cb6-170"><a href="#cb6-170"></a><span class="fu">## 3. Comparison Across Preprocessing Stages</span></span>
+<span id="cb6-171"><a href="#cb6-171"></a></span>
+<span id="cb6-172"><a href="#cb6-172"></a>The three-panel violin plot below illustrates the progressive impact of targeted preprocessing on the physiological features of the Pima Indians Diabetes dataset:</span>
+<span id="cb6-173"><a href="#cb6-173"></a></span>
+<span id="cb6-174"><a href="#cb6-174"></a><span class="ss">1. </span>**Raw, Unscaled Features**: Dynamic ranges vary dramatically across native clinical measurement units (insulin reaches nearly 800, while pedigree remains below 2.5).</span>
+<span id="cb6-175"><a href="#cb6-175"></a><span class="ss">2. </span>**Standardized Features ($z$-scores)**: All eight features share zero mean and unit variance, making distributions comparable on a shared scale, but skews remain unchanged.</span>
+<span id="cb6-176"><a href="#cb6-176"></a><span class="ss">3. </span>**Targeted Transformations &amp; Standardized Features**: Targeted transformations are applied only where mathematically and clinically justified: square root for count-based <span class="in">`pregnancies`</span> and logarithmic for heavy-tailed <span class="in">`insulin`</span>. Naturally symmetric features (<span class="in">`blood_pressure`</span>, <span class="in">`glucose`</span>, <span class="in">`skin_thickness`</span>, <span class="in">`bmi`</span>, <span class="in">`pedigree`</span>, <span class="in">`age`</span>) are left untransformed, and all features are then standardized to $z$-scores.</span>
+<span id="cb6-177"><a href="#cb6-177"></a></span>
+<span id="cb6-180"><a href="#cb6-180"></a><span class="in">```{python}</span></span>
+<span id="cb6-181"><a href="#cb6-181"></a><span class="co">#| label: fig-feature-engineering-comparison</span></span>
+<span id="cb6-182"><a href="#cb6-182"></a><span class="co">#| fig-cap: "Comparison of preprocessing stages: raw clinical measurements (top), standardized features (middle), and targeted transformations (square root for count-based pregnancies, logarithm for heavy-tailed insulin) followed by standardization (bottom)."</span></span>
+<span id="cb6-183"><a href="#cb6-183"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-184"><a href="#cb6-184"></a></span>
+<span id="cb6-185"><a href="#cb6-185"></a><span class="co"># Stage 1: Raw features</span></span>
+<span id="cb6-186"><a href="#cb6-186"></a>df_raw <span class="op">=</span> df_clean[feature_cols]</span>
+<span id="cb6-187"><a href="#cb6-187"></a></span>
+<span id="cb6-188"><a href="#cb6-188"></a><span class="co"># Stage 2: Standardized features (affine transform: preserves shape)</span></span>
+<span id="cb6-189"><a href="#cb6-189"></a>df_z <span class="op">=</span> (df_raw <span class="op">-</span> df_raw.mean()) <span class="op">/</span> df_raw.std()</span>
+<span id="cb6-190"><a href="#cb6-190"></a></span>
+<span id="cb6-191"><a href="#cb6-191"></a><span class="co"># Stage 3: Targeted shape transformations, followed by standardization</span></span>
+<span id="cb6-192"><a href="#cb6-192"></a>df_targeted <span class="op">=</span> df_raw.copy()</span>
+<span id="cb6-193"><a href="#cb6-193"></a><span class="co"># Variance stabilization for Poisson count process</span></span>
+<span id="cb6-194"><a href="#cb6-194"></a>df_targeted[<span class="st">"pregnancies"</span>] <span class="op">=</span> np.sqrt(df_targeted[<span class="st">"pregnancies"</span>])</span>
+<span id="cb6-195"><a href="#cb6-195"></a><span class="co"># Outlier compression for heavy-tailed biological concentration</span></span>
+<span id="cb6-196"><a href="#cb6-196"></a>df_targeted[<span class="st">"insulin"</span>] <span class="op">=</span> np.log1p(df_targeted[<span class="st">"insulin"</span>])</span>
+<span id="cb6-197"><a href="#cb6-197"></a><span class="co"># Other features (glucose, blood_pressure, skin_thickness, bmi, pedigree, age) remain untransformed</span></span>
+<span id="cb6-198"><a href="#cb6-198"></a></span>
+<span id="cb6-199"><a href="#cb6-199"></a>df_targeted_z <span class="op">=</span> (df_targeted <span class="op">-</span> df_targeted.mean()) <span class="op">/</span> df_targeted.std()</span>
+<span id="cb6-200"><a href="#cb6-200"></a></span>
+<span id="cb6-201"><a href="#cb6-201"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">8.5</span>))</span>
+<span id="cb6-202"><a href="#cb6-202"></a></span>
+<span id="cb6-203"><a href="#cb6-203"></a><span class="co"># Panel 1: Raw Unscaled Features</span></span>
+<span id="cb6-204"><a href="#cb6-204"></a>sns.violinplot(data<span class="op">=</span>df_raw, ax<span class="op">=</span>axes[<span class="dv">0</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb6-205"><a href="#cb6-205"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Raw features, unscaled"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-206"><a href="#cb6-206"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Clinical Units"</span>)</span>
+<span id="cb6-207"><a href="#cb6-207"></a></span>
+<span id="cb6-208"><a href="#cb6-208"></a><span class="co"># Panel 2: Standardized Features (z-score)</span></span>
+<span id="cb6-209"><a href="#cb6-209"></a>sns.violinplot(data<span class="op">=</span>df_z, ax<span class="op">=</span>axes[<span class="dv">1</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb6-210"><a href="#cb6-210"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Standardized features (z-score)"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-211"><a href="#cb6-211"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"$z$-score"</span>)</span>
+<span id="cb6-212"><a href="#cb6-212"></a>axes[<span class="dv">1</span>].set_ylim(<span class="op">-</span><span class="fl">4.5</span>, <span class="fl">6.5</span>)</span>
+<span id="cb6-213"><a href="#cb6-213"></a></span>
+<span id="cb6-214"><a href="#cb6-214"></a><span class="co"># Panel 3: Targeted Transformations &amp; Standardized Features</span></span>
+<span id="cb6-215"><a href="#cb6-215"></a>sns.violinplot(data<span class="op">=</span>df_targeted_z, ax<span class="op">=</span>axes[<span class="dv">2</span>], palette<span class="op">=</span><span class="st">"Set2"</span>, cut<span class="op">=</span><span class="dv">0</span>, inner<span class="op">=</span><span class="st">"quartile"</span>)</span>
+<span id="cb6-216"><a href="#cb6-216"></a>axes[<span class="dv">2</span>].set_title(<span class="st">"Transformations (sqrt for pregnancies, log for insulin) + Standardizations"</span>, fontweight<span class="op">=</span><span class="st">"bold"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-217"><a href="#cb6-217"></a>axes[<span class="dv">2</span>].set_ylabel(<span class="st">"$z$-score"</span>)</span>
+<span id="cb6-218"><a href="#cb6-218"></a>axes[<span class="dv">2</span>].set_ylim(<span class="op">-</span><span class="fl">4.5</span>, <span class="fl">6.5</span>)</span>
+<span id="cb6-219"><a href="#cb6-219"></a></span>
+<span id="cb6-220"><a href="#cb6-220"></a>plt.tight_layout()</span>
+<span id="cb6-221"><a href="#cb6-221"></a>plt.show()</span>
+<span id="cb6-222"><a href="#cb6-222"></a><span class="in">```</span></span>
+<span id="cb6-223"><a href="#cb6-223"></a></span>
+<span id="cb6-224"><a href="#cb6-224"></a>::: {.callout-note}</span>
+<span id="cb6-225"><a href="#cb6-225"></a><span class="fu">### Key Insights: Targeted Transformations, Nondimensionalization, and Power Transforms</span></span>
+<span id="cb6-226"><a href="#cb6-226"></a></span>
+<span id="cb6-227"><a href="#cb6-227"></a><span class="ss">* </span>**Targeted Selection vs. Arbitrary Transformation**:</span>
+<span id="cb6-228"><a href="#cb6-228"></a>  Transformations should be a targeted, domain-motivated choice rather than an automated default. Variables that are already relatively symmetric around biological setpoints (<span class="in">`blood_pressure`</span>, <span class="in">`glucose`</span>, <span class="in">`skin_thickness`</span>, <span class="in">`bmi`</span>) do not benefit from logarithmic compression; transforming them introduces an unnecessary negative skew. Similarly, interval variables such as <span class="in">`age`</span> preserve chronological and epidemiological meaning in their linear form.</span>
+<span id="cb6-229"><a href="#cb6-229"></a><span class="ss">* </span>**Requirement for Dimensionless Numbers**:</span>
+<span id="cb6-230"><a href="#cb6-230"></a>  Mathematical transcendental functions (such as logarithms and exponentials) are rigorously defined only on pure, dimensionless numbers. When transforming a dimensionful physical measurement $x$ with unit $<span class="co">[</span><span class="ot">x</span><span class="co">]</span>$ (e.g., serum insulin in $\mu\text{U/ml}$), division by a reference unit $u_0 = 1\,<span class="co">[</span><span class="ot">x</span><span class="co">]</span>$ renders the quantity dimensionless ($x^\prime = x / u_0$) before applying $\log(x^\prime + 1)$.</span>
+<span id="cb6-231"><a href="#cb6-231"></a><span class="ss">* </span>**Generalized Power Transformations (Box-Cox)**:</span>
+<span id="cb6-232"><a href="#cb6-232"></a>  Many non-linear transformations belong to parameterized families. In particular, the <span class="co">[</span><span class="ot">Box-Cox Power Transformation</span><span class="co">](https://en.wikipedia.org/wiki/Power_transform#Box%E2%80%93Cox_transformation)</span> generalizes power and logarithmic transforms for positive variables:</span>
+<span id="cb6-233"><a href="#cb6-233"></a>  $$y^{(\lambda)} = \begin{cases} \frac{y^\lambda - 1}{\lambda} &amp; \text{if } \lambda \neq 0 <span class="sc">\\</span> \ln(y) &amp; \text{if } \lambda = 0 \end{cases}$$</span>
+<span id="cb6-234"><a href="#cb6-234"></a>  The parameter $\lambda$ smoothly bridges between square root ($\lambda = 0.5$), natural logarithm ($\lambda \to 0$), and an untransformed linear shift ($\lambda = 1$). While automated optimization of $\lambda$ can be useful in exploratory modeling, targeted transformations based on physical and biological principles remain the foundation of interpretable feature engineering.</span>
+<span id="cb6-235"><a href="#cb6-235"></a>:::</span>
+<span id="cb6-236"><a href="#cb6-236"></a></span>
+<span id="cb6-237"><a href="#cb6-237"></a>---</span>
+<span id="cb6-238"><a href="#cb6-238"></a></span>
+<span id="cb6-239"><a href="#cb6-239"></a>::: {.callout-caution}</span>
+<span id="cb6-240"><a href="#cb6-240"></a><span class="fu">### Cautious Note: Parameter Interpretation with Preprocessed Features</span></span>
+<span id="cb6-241"><a href="#cb6-241"></a></span>
+<span id="cb6-242"><a href="#cb6-242"></a>Interpreting regression coefficients (slopes $\theta_1$ and intercepts $\theta_0$) in original physical or clinical units requires reversing any applied transformations and standardizations:</span>
+<span id="cb6-243"><a href="#cb6-243"></a></span>
+<span id="cb6-244"><a href="#cb6-244"></a><span class="ss">* </span>**Standardized Features**: When $x$ and $y$ are standardized, the slope $\beta_1$ represents a dimensionless effect size: the expected standard deviation change in $y$ per standard deviation change in $x$.</span>
+<span id="cb6-245"><a href="#cb6-245"></a><span class="ss">* </span>**Log-Transformed Features**: When $x$ is log-transformed ($x^\prime = \log x$), the slope $\theta_1$ measures relative elasticity: a 1% relative increase in $x$ corresponds to an expected change of approximately $0.01 \times \theta_1$ in $y$.</span>
+<span id="cb6-246"><a href="#cb6-246"></a><span class="ss">* </span>**Reversing Transformations**: Before communicating predictive equations or baseline risks back to clinicians or decision-makers, model outputs must be mapped back to their original physical units ($x = u_0(\exp(x^\prime) - 1)$) to restore direct clinical interpretability.</span>
+<span id="cb6-247"><a href="#cb6-247"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
