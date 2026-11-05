@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-09-17">
+<meta name="description" content="Taming Model Flexibility">
+
+<title>05 Linear Regression: Bias-Variance &amp; Regularization – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#pre-class-preparation" id="toc-pre-class-preparation" class="nav-link active" data-scroll-target="#pre-class-preparation">0. Pre-Class Preparation</a></li>
+  <li><a href="#the-bias-variance-tradeoff-concept-formal-decomposition" id="toc-the-bias-variance-tradeoff-concept-formal-decomposition" class="nav-link" data-scroll-target="#the-bias-variance-tradeoff-concept-formal-decomposition">1. The Bias-Variance Tradeoff: Concept &amp; Formal Decomposition</a>
+  <ul class="collapse">
+  <li><a href="#the-visual-target-the-dartboard-analogy" id="toc-the-visual-target-the-dartboard-analogy" class="nav-link" data-scroll-target="#the-visual-target-the-dartboard-analogy">1.1 The Visual Target: The Dartboard Analogy</a></li>
+  <li><a href="#mathematical-derivation-of-the-bias-variance-decomposition" id="toc-mathematical-derivation-of-the-bias-variance-decomposition" class="nav-link" data-scroll-target="#mathematical-derivation-of-the-bias-variance-decomposition">1.2 Mathematical Derivation of the Bias-Variance Decomposition</a></li>
+  </ul></li>
+  <li><a href="#detecting-overfitting-empirically-validation-splits-the-u-curve" id="toc-detecting-overfitting-empirically-validation-splits-the-u-curve" class="nav-link" data-scroll-target="#detecting-overfitting-empirically-validation-splits-the-u-curve">2. Detecting Overfitting Empirically: Validation Splits &amp; The U-Curve</a>
+  <ul class="collapse">
+  <li><a href="#the-golden-rule-of-machine-learning" id="toc-the-golden-rule-of-machine-learning" class="nav-link" data-scroll-target="#the-golden-rule-of-machine-learning">2.1 The Golden Rule of Machine Learning</a></li>
+  </ul></li>
+  <li><a href="#l_2-ridge-regularization-analytical-shrinkage-invertibility-rescue" id="toc-l_2-ridge-regularization-analytical-shrinkage-invertibility-rescue" class="nav-link" data-scroll-target="#l_2-ridge-regularization-analytical-shrinkage-invertibility-rescue">3. <span class="math inline">\(L_2\)</span> Ridge Regularization: Analytical Shrinkage &amp; Invertibility Rescue</a>
+  <ul class="collapse">
+  <li><a href="#analytical-derivation-of-the-ridge-normal-equations" id="toc-analytical-derivation-of-the-ridge-normal-equations" class="nav-link" data-scroll-target="#analytical-derivation-of-the-ridge-normal-equations">3.1 Analytical Derivation of the Ridge Normal Equations</a></li>
+  <li><a href="#rescuing-the-collapsing-gram-matrix-the-eigenvalue-shift" id="toc-rescuing-the-collapsing-gram-matrix-the-eigenvalue-shift" class="nav-link" data-scroll-target="#rescuing-the-collapsing-gram-matrix-the-eigenvalue-shift">3.2 Rescuing the Collapsing Gram Matrix: The Eigenvalue Shift</a></li>
+  </ul></li>
+  <li><a href="#l_1-lasso-regularization-geometric-sparsity" id="toc-l_1-lasso-regularization-geometric-sparsity" class="nav-link" data-scroll-target="#l_1-lasso-regularization-geometric-sparsity">4. <span class="math inline">\(L_1\)</span> Lasso Regularization: Geometric Sparsity</a>
+  <ul class="collapse">
+  <li><a href="#the-geometric-diamond-argument" id="toc-the-geometric-diamond-argument" class="nav-link" data-scroll-target="#the-geometric-diamond-argument">4.1 The Geometric Diamond Argument</a></li>
+  </ul></li>
+  <li><a href="#regularization-weight-paths-ridge-vs.-lasso" id="toc-regularization-weight-paths-ridge-vs.-lasso" class="nav-link" data-scroll-target="#regularization-weight-paths-ridge-vs.-lasso">5. Regularization Weight Paths: Ridge vs.&nbsp;Lasso</a></li>
+  <li><a href="#andrew-ngs-empirical-machine-learning-diagnostics" id="toc-andrew-ngs-empirical-machine-learning-diagnostics" class="nav-link" data-scroll-target="#andrew-ngs-empirical-machine-learning-diagnostics">6. Andrew Ng’s Empirical Machine Learning Diagnostics</a>
+  <ul class="collapse">
+  <li><a href="#andrew-ngs-6-diagnostic-actions" id="toc-andrew-ngs-6-diagnostic-actions" class="nav-link" data-scroll-target="#andrew-ngs-6-diagnostic-actions">6.1 Andrew Ng’s 6 Diagnostic Actions</a></li>
+  </ul></li>
+  <li><a href="#summary-key-takeaways" id="toc-summary-key-takeaways" class="nav-link" data-scroll-target="#summary-key-takeaways">7. Summary &amp; Key Takeaways</a>
+  <ul class="collapse">
+  <li><a href="#complete-linear-regression-trajectory" id="toc-complete-linear-regression-trajectory" class="nav-link" data-scroll-target="#complete-linear-regression-trajectory">Complete Linear Regression Trajectory</a></li>
+  <li><a href="#looking-ahead-to-classification" id="toc-looking-ahead-to-classification" class="nav-link" data-scroll-target="#looking-ahead-to-classification">Looking Ahead to Classification</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">05 Linear Regression: Bias-Variance &amp; Regularization</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning</p>
+</div>
+
+<div>
+  <div class="description">
+    Taming Model Flexibility
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 17, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Visualization Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> Ridge, Lasso, LinearRegression</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PolynomialFeatures</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="pre-class-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="pre-class-preparation">0. Pre-Class Preparation</h2>
+<p><em>Before coming to this lecture, please review:</em></p>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Review Lecture 04:</strong> Model flexibility, polynomial underfitting vs.&nbsp;overfitting, exploding parameter weights, and the collapse of the Gram matrix determinant <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X}) \to 0\)</span>.</label></li>
+<li><label><input type="checkbox"><strong>Watch Video:</strong> <a href="https://www.youtube.com/watch?v=EuBBz3bI-aA" target="_blank" rel="noopener">StatQuest: Bias and Variance in Machine Learning</a></label></li>
+<li><label><input type="checkbox"><strong>Watch Video:</strong> <a href="https://www.youtube.com/watch?v=Q81RR3yKn30" target="_blank" rel="noopener">StatQuest: Ridge Regression</a></label></li>
+<li><label><input type="checkbox"><strong>Watch Video:</strong> <a href="https://www.youtube.com/watch?v=NGf0voTMlcs" target="_blank" rel="noopener">StatQuest: Lasso Regression</a></label></li>
+<li><label><input type="checkbox"><strong>Watch Video:</strong> <a href="https://www.youtube.com/watch?v=r0Ogt-yS1S0" target="_blank" rel="noopener">Andrew Ng: Advice for Applying Machine Learning (Stanford CS229)</a></label></li>
+</ul>
+<hr>
+</section>
+<section id="the-bias-variance-tradeoff-concept-formal-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="the-bias-variance-tradeoff-concept-formal-decomposition">1. The Bias-Variance Tradeoff: Concept &amp; Formal Decomposition</h2>
+<p>In Lecture 04, we witnessed the two opposing extremes of model flexibility:</p>
+<ul>
+<li><strong>Underfitting (High Bias):</strong> A rigid straight line (<span class="math inline">\(d = 1\)</span>) fails to capture the underlying biological U-shaped curve, leaving non-random parabolic patterns in the residuals.</li>
+<li><strong>Overfitting (High Variance):</strong> A high-degree polynomial (<span class="math inline">\(d = 12\)</span>) wiggles through every idiosyncrasy of the training data, exhibiting wild boundary oscillations, exploding parameter weights, and a near-singular Gram matrix.</li>
+</ul>
+<p>How do we formalize this tradeoff mathematically?</p>
+<section id="the-visual-target-the-dartboard-analogy" class="level3">
+<h3 class="anchored" data-anchor-id="the-visual-target-the-dartboard-analogy">1.1 The Visual Target: The Dartboard Analogy</h3>
+<p>To intuitively separate Bias from Variance, imagine firing arrows at a target bullseye. The center represents the true biological mechanism <span class="math inline">\(f(x)\)</span>, and each shot represents a model <span class="math inline">\(\hat{f}(x)\)</span> trained on an independent random patient cohort <span class="math inline">\(\mathcal{D}_k\)</span>:</p>
+<div id="cell-fig-dartboard-bias-variance" class="cell" data-fig-height="3.5" data-fig-width="10" data-execution_count="2">
+<details class="code-fold">
+<summary>Generate 4-Panel Dartboard Target Plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>n_shots <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>configs <span class="op">=</span> [</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    (<span class="st">"Low Bias, Low Variance</span><span class="ch">\n</span><span class="st">(Ideal Target)"</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.2</span>, <span class="st">'darkgreen'</span>),</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    (<span class="st">"High Bias, Low Variance</span><span class="ch">\n</span><span class="st">(Underfitting: Rigid)"</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.2</span>, <span class="st">'crimson'</span>),</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    (<span class="st">"Low Bias, High Variance</span><span class="ch">\n</span><span class="st">(Overfitting: Wild)"</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.7</span>, <span class="st">'darkorange'</span>),</span>
+<span id="cb2-10"><a href="#cb2-10"></a>    (<span class="st">"High Bias, High Variance</span><span class="ch">\n</span><span class="st">(Worst Case)"</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.7</span>, <span class="st">'darkred'</span>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>]</span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="cf">for</span> ax, (title, mu_x, mu_y, spread, col) <span class="kw">in</span> <span class="bu">zip</span>(axes, configs):</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    <span class="cf">for</span> r <span class="kw">in</span> [<span class="fl">1.5</span>, <span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="fl">0.15</span>]:</span>
+<span id="cb2-15"><a href="#cb2-15"></a>        circle <span class="op">=</span> plt.Circle((<span class="dv">0</span>, <span class="dv">0</span>), r, color<span class="op">=</span><span class="st">'gray'</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="st">'gold'</span>, fill<span class="op">=</span>(r <span class="op">==</span> <span class="fl">0.15</span>),</span>
+<span id="cb2-16"><a href="#cb2-16"></a>                            linestyle<span class="op">=</span><span class="st">'-'</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="st">'none'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.3</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="fl">0.8</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a>        ax.add_patch(circle)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>    </span>
+<span id="cb2-19"><a href="#cb2-19"></a>    shots_x <span class="op">=</span> np.random.normal(mu_x, spread, n_shots)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>    shots_y <span class="op">=</span> np.random.normal(mu_y, spread, n_shots)</span>
+<span id="cb2-21"><a href="#cb2-21"></a>    </span>
+<span id="cb2-22"><a href="#cb2-22"></a>    ax.scatter(shots_x, shots_y, color<span class="op">=</span>col, s<span class="op">=</span><span class="dv">25</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>, zorder<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>    ax.scatter([<span class="dv">0</span>], [<span class="dv">0</span>], color<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'+'</span>, s<span class="op">=</span><span class="dv">70</span>, lw<span class="op">=</span><span class="dv">2</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>    </span>
+<span id="cb2-25"><a href="#cb2-25"></a>    ax.set_xlim(<span class="op">-</span><span class="fl">1.8</span>, <span class="fl">1.8</span>)</span>
+<span id="cb2-26"><a href="#cb2-26"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">1.8</span>, <span class="fl">1.8</span>)</span>
+<span id="cb2-27"><a href="#cb2-27"></a>    ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="fl">8.5</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb2-29"><a href="#cb2-29"></a>    ax.set_xticks([])</span>
+<span id="cb2-30"><a href="#cb2-30"></a>    ax.set_yticks([])</span>
+<span id="cb2-31"><a href="#cb2-31"></a></span>
+<span id="cb2-32"><a href="#cb2-32"></a>plt.tight_layout()</span>
+<span id="cb2-33"><a href="#cb2-33"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-dartboard-bias-variance" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dartboard-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-dartboard-bias-variance-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="417">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dartboard-bias-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The Dartboard Analogy: Disentangling systematic error (Bias) from sample-to-sample volatility (Variance).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Bias:</strong> The distance between the average prediction <span class="math inline">\(\mathbb{E}[\hat{f}(x)]\)</span> across cohorts and the true bullseye <span class="math inline">\(f(x)\)</span>.</li>
+<li><strong>Variance:</strong> How widely dispersed predictions <span class="math inline">\(\hat{f}(x)\)</span> scatter around their own average.</li>
+</ul>
+<hr>
+</section>
+<section id="mathematical-derivation-of-the-bias-variance-decomposition" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-derivation-of-the-bias-variance-decomposition">1.2 Mathematical Derivation of the Bias-Variance Decomposition</h3>
+<p>Let us now derive why expected generalization error decomposes strictly into these two components plus irreducible noise.</p>
+<section id="mathematical-setup" class="level4">
+<h4 class="anchored" data-anchor-id="mathematical-setup">Mathematical Setup:</h4>
+<ol type="1">
+<li>True biological data-generating process: <span class="math inline">\(y = f(x) + \varepsilon\)</span>.</li>
+<li>Measurement noise <span class="math inline">\(\varepsilon\)</span> has mean <span class="math inline">\(\mathbb{E}[\varepsilon] = 0\)</span> and constant variance <span class="math inline">\(\operatorname{Var}(\varepsilon) = \sigma^2\)</span>.</li>
+<li>Noise <span class="math inline">\(\varepsilon\)</span> in a new test observation is independent of the model estimate <span class="math inline">\(\hat{f}(x)\)</span> trained on historical data.</li>
+</ol>
+<p>Let <span class="math inline">\(\hat{f}(x)\)</span> be the model learned from a random training set <span class="math inline">\(\mathcal{D}\)</span>. Because <span class="math inline">\(\mathcal{D}\)</span> is random, <span class="math inline">\(\hat{f}(x)\)</span> is a random variable. Let <span class="math inline">\(\bar{f}(x) = \mathbb{E}[\hat{f}(x)]\)</span> denote the <strong>expected model prediction</strong> averaged across all possible training cohorts.</p>
+</section>
+<section id="step-1-expand-the-expected-squared-prediction-error" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-expand-the-expected-squared-prediction-error">Step 1: Expand the Expected Squared Prediction Error</h4>
+<p><span class="math display">\[\mathbb{E}\left[(y - \hat{f}(x))^2\right] = \mathbb{E}\left[\left( (f(x) + \varepsilon) - \hat{f}(x) \right)^2\right]\]</span></p>
+<p>Regroup into model error <span class="math inline">\((f(x) - \hat{f}(x))\)</span> and noise <span class="math inline">\(\varepsilon\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+\mathbb{E}\left[(y - \hat{f}(x))^2\right] &amp;= \mathbb{E}\left[\left( (f(x) - \hat{f}(x)) + \varepsilon \right)^2\right] \\
+&amp;= \mathbb{E}\left[(f(x) - \hat{f}(x))^2\right] + 2\mathbb{E}[(f(x) - \hat{f}(x))\varepsilon] + \mathbb{E}[\varepsilon^2]
+\end{aligned}\]</span></p>
+<p>Because <span class="math inline">\(\varepsilon\)</span> is independent of <span class="math inline">\(\hat{f}(x)\)</span> and <span class="math inline">\(\mathbb{E}[\varepsilon] = 0\)</span>: <span class="math display">\[\mathbb{E}[(f(x) - \hat{f}(x))\varepsilon] = \mathbb{E}[f(x) - \hat{f}(x)] \cdot \mathbb{E}[\varepsilon] = 0\]</span> <span class="math display">\[\mathbb{E}[\varepsilon^2] = \operatorname{Var}(\varepsilon) = \sigma^2\]</span></p>
+<p>Thus, total error separates into model error plus noise: <span class="math display">\[\mathbb{E}\left[(y - \hat{f}(x))^2\right] = \mathbb{E}\left[(f(x) - \hat{f}(x))^2\right] + \sigma^2\]</span></p>
+</section>
+<section id="step-2-decompose-the-model-error" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-decompose-the-model-error">Step 2: Decompose the Model Error</h4>
+<p>Add and subtract the expected prediction <span class="math inline">\(\bar{f}(x) = \mathbb{E}[\hat{f}(x)]\)</span> inside the expectation:</p>
+<p><span class="math display">\[\begin{aligned}
+\mathbb{E}\left[(f(x) - \hat{f}(x))^2\right] &amp;= \mathbb{E}\left[\left( (f(x) - \bar{f}(x)) + (\bar{f}(x) - \hat{f}(x)) \right)^2\right] \\
+&amp;= \mathbb{E}\left[(f(x) - \bar{f}(x))^2\right] + 2\mathbb{E}\left[(f(x) - \bar{f}(x))(\bar{f}(x) - \hat{f}(x))\right] + \mathbb{E}\left[(\bar{f}(x) - \hat{f}(x))^2\right]
+\end{aligned}\]</span></p>
+<p>Notice that <span class="math inline">\((f(x) - \bar{f}(x))\)</span> is a <strong>deterministic constant</strong> (independent of the training sample <span class="math inline">\(\mathcal{D}\)</span>). Therefore: <span class="math display">\[\mathbb{E}\left[(f(x) - \bar{f}(x))(\bar{f}(x) - \hat{f}(x))\right] = (f(x) - \bar{f}(x)) \cdot \mathbb{E}[\bar{f}(x) - \hat{f}(x)]\]</span></p>
+<p>By definition of expectation, <span class="math inline">\(\mathbb{E}[\bar{f}(x) - \hat{f}(x)] = \bar{f}(x) - \mathbb{E}[\hat{f}(x)] = 0\)</span>. The cross-term vanishes completely!</p>
+</section>
+<section id="the-final-identity" class="level4">
+<h4 class="anchored" data-anchor-id="the-final-identity">The Final Identity:</h4>
+<p><span class="math display">\[\boxed{\mathbb{E}\left[(y - \hat{f}(x))^2\right] = \underbrace{(f(x) - \bar{f}(x))^2}_{\text{Bias}^2(\hat{f}(x))} + \underbrace{\mathbb{E}\left[(\hat{f}(x) - \bar{f}(x))^2\right]}_{\operatorname{Var}(\hat{f}(x))} + \underbrace{\sigma^2}_{\text{Irreducible Noise}}}\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Three Inescapable Error Components
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong><span class="math inline">\(\text{Bias}^2(\hat{f}(x))\)</span></strong>: Systematic error from oversimplified assumptions (e.g., forcing a straight line onto curved biology).</li>
+<li><strong><span class="math inline">\(\operatorname{Var}(\hat{f}(x))\)</span></strong>: Model volatility across different patient cohorts (e.g., high-degree polynomials whose weights swing wildly).</li>
+<li><strong><span class="math inline">\(\sigma^2\)</span></strong>: Irreducible noise inherent to the biological system. No algorithm can ever predict below <span class="math inline">\(\sigma^2\)</span>.</li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="detecting-overfitting-empirically-validation-splits-the-u-curve" class="level2">
+<h2 class="anchored" data-anchor-id="detecting-overfitting-empirically-validation-splits-the-u-curve">2. Detecting Overfitting Empirically: Validation Splits &amp; The U-Curve</h2>
+<p>Because we never have access to the true data-generating function <span class="math inline">\(f(x)\)</span> in practice, we cannot compute theoretical Bias or Variance directly. How do we detect whether our model is underfitting or overfitting?</p>
+<section id="the-golden-rule-of-machine-learning" class="level3">
+<h3 class="anchored" data-anchor-id="the-golden-rule-of-machine-learning">2.1 The Golden Rule of Machine Learning</h3>
+<p>We split our available data into two independent sets: 1. <strong>Training Set (<span class="math inline">\(\mathcal{D}_{\text{train}}\)</span>):</strong> Used exclusively to estimate the parameter vector <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span>. 2. <strong>Validation Set (<span class="math inline">\(\mathcal{D}_{\text{val}}\)</span>):</strong> Held out during training and used exclusively to evaluate generalization performance.</p>
+<div id="cell-fig-train-val-u-curve" class="cell" data-fig-height="4.5" data-fig-width="8.5" data-execution_count="3">
+<details class="code-fold">
+<summary>Generate Empirical Validation U-Curve</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>n_total <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>x_all <span class="op">=</span> np.random.uniform(<span class="fl">16.0</span>, <span class="fl">45.0</span>, n_total)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>y_all <span class="op">=</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">0.040</span> <span class="op">*</span> (x_all <span class="op">-</span> <span class="fl">22.5</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">1.2</span>, n_total)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>y_all <span class="op">=</span> np.clip(y_all, <span class="fl">0.5</span>, <span class="va">None</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a>x_tr, x_val, y_tr, y_val <span class="op">=</span> train_test_split(x_all, y_all, test_size<span class="op">=</span><span class="fl">0.30</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a>poly_range <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>))</span>
+<span id="cb3-10"><a href="#cb3-10"></a>train_losses <span class="op">=</span> []</span>
+<span id="cb3-11"><a href="#cb3-11"></a>val_losses <span class="op">=</span> []</span>
+<span id="cb3-12"><a href="#cb3-12"></a></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="cf">for</span> d <span class="kw">in</span> poly_range:</span>
+<span id="cb3-14"><a href="#cb3-14"></a>    model <span class="op">=</span> make_pipeline(PolynomialFeatures(d), LinearRegression())</span>
+<span id="cb3-15"><a href="#cb3-15"></a>    model.fit(x_tr.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_tr)</span>
+<span id="cb3-16"><a href="#cb3-16"></a>    train_losses.append(np.mean((y_tr <span class="op">-</span> model.predict(x_tr.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    val_losses.append(np.mean((y_val <span class="op">-</span> model.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb3-18"><a href="#cb3-18"></a></span>
+<span id="cb3-19"><a href="#cb3-19"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb3-20"><a href="#cb3-20"></a>ax.plot(poly_range, train_losses, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss (MSE)'</span>)</span>
+<span id="cb3-21"><a href="#cb3-21"></a>ax.plot(poly_range, val_losses, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, label<span class="op">=</span><span class="st">'Validation Loss (MSE)'</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>ax.set_title(<span class="st">'Model Complexity: Training vs. Validation Loss (The U-Curve)'</span>)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>ax.set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>ax.set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>ax.set_xticks(poly_range)</span>
+<span id="cb3-26"><a href="#cb3-26"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb3-27"><a href="#cb3-27"></a>ax.axvline(<span class="dv">2</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Optimal Complexity ($d=2$)'</span>)</span>
+<span id="cb3-28"><a href="#cb3-28"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb3-29"><a href="#cb3-29"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb3-30"><a href="#cb3-30"></a></span>
+<span id="cb3-31"><a href="#cb3-31"></a>plt.tight_layout()</span>
+<span id="cb3-32"><a href="#cb3-32"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-train-val-u-curve" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-train-val-u-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-train-val-u-curve-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1251" height="650">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-train-val-u-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The Empirical Validation U-Curve: Training error drops monotonically with complexity, while validation error reaches a minimum and rebounds sharply.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="l_2-ridge-regularization-analytical-shrinkage-invertibility-rescue" class="level2">
+<h2 class="anchored" data-anchor-id="l_2-ridge-regularization-analytical-shrinkage-invertibility-rescue">3. <span class="math inline">\(L_2\)</span> Ridge Regularization: Analytical Shrinkage &amp; Invertibility Rescue</h2>
+<p>In Lecture 04, we discovered that as polynomial degree increases, two severe breakdowns occur: 1. Parameter weights explode to massive opposing magnitudes (<span class="math inline">\(\pm 10^6\)</span>). 2. The Gram matrix determinant <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X}) \to 0\)</span> collapses exponentially toward zero, making <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> practically or strictly non-invertible.</p>
+<p>Rather than manually pruning features, <strong>Ridge Regression (<span class="math inline">\(L_2\)</span> Regularization)</strong> adds a penalty on the squared Euclidean norm of the parameter vector to the cost function:</p>
+<p><span class="math display">\[J_{\text{Ridge}}(\boldsymbol{\theta}) = \|\mathbf{y} - \mathbf{X}\boldsymbol{\theta}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_2^2 = (\mathbf{y} - \mathbf{X}\boldsymbol{\theta})^T(\mathbf{y} - \mathbf{X}\boldsymbol{\theta}) + \lambda \boldsymbol{\theta}^T\boldsymbol{\theta}\]</span></p>
+<p>where <span class="math inline">\(\lambda \ge 0\)</span> is the <strong>regularization hyperparameter</strong>: * <span class="math inline">\(\lambda = 0\)</span>: Recovers standard Ordinary Least Squares. * <span class="math inline">\(\lambda \to \infty\)</span>: Drives all weights toward zero (<span class="math inline">\(\hat{\boldsymbol{\theta}} \to \mathbf{0}\)</span>).</p>
+<section id="analytical-derivation-of-the-ridge-normal-equations" class="level3">
+<h3 class="anchored" data-anchor-id="analytical-derivation-of-the-ridge-normal-equations">3.1 Analytical Derivation of the Ridge Normal Equations</h3>
+<p>Because the <span class="math inline">\(L_2\)</span> penalty is quadratic and continuously differentiable everywhere, we can solve for <span class="math inline">\(\hat{\boldsymbol{\theta}}_{\text{Ridge}}\)</span> in closed form:</p>
+<ol type="1">
+<li><p>Expand the objective function: <span class="math display">\[J(\boldsymbol{\theta}) = \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\theta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\theta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\theta} + \lambda \boldsymbol{\theta}^T\boldsymbol{\theta}\]</span></p></li>
+<li><p>Take the vector gradient with respect to <span class="math inline">\(\boldsymbol{\theta}\)</span>: <span class="math display">\[\nabla_{\boldsymbol{\theta}} J = -2\mathbf{X}^T\mathbf{y} + 2\mathbf{X}^T\mathbf{X}\boldsymbol{\theta} + 2\lambda\boldsymbol{\theta}\]</span></p></li>
+<li><p>Set the gradient to zero for optimality: <span class="math display">\[\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\theta}} + \lambda\hat{\boldsymbol{\theta}} = \mathbf{X}^T\mathbf{y} \implies (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})\hat{\boldsymbol{\theta}} = \mathbf{X}^T\mathbf{y}\]</span></p></li>
+<li><p>Closed-form analytical solution: <span class="math display">\[\boxed{\hat{\boldsymbol{\theta}}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}}\]</span></p></li>
+</ol>
+</section>
+<section id="rescuing-the-collapsing-gram-matrix-the-eigenvalue-shift" class="level3">
+<h3 class="anchored" data-anchor-id="rescuing-the-collapsing-gram-matrix-the-eigenvalue-shift">3.2 Rescuing the Collapsing Gram Matrix: The Eigenvalue Shift</h3>
+<p>Notice what adding <span class="math inline">\(\lambda\mathbf{I}\)</span> accomplishes algebraically:</p>
+<p>In Lecture 04, we saw that as columns of <span class="math inline">\(\mathbf{X}\)</span> become collinear, the smallest eigenvalues of <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> plunge toward zero: <span class="math inline">\(\lambda_{\min} \to 0\)</span>.</p>
+<p>If <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> has eigenvalues <span class="math inline">\(\lambda_i \ge 0\)</span>, then the regularized matrix <span class="math inline">\(\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I}\)</span> has eigenvalues: <span class="math display">\[\tilde{\lambda}_i = \lambda_i + \lambda \ge \lambda &gt; 0 \qquad \text{for all } i\]</span></p>
+<p>Its determinant is strictly positive: <span class="math display">\[\det(\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I}) = \prod_{i=1}^p (\lambda_i + \lambda) \ge \lambda^p &gt; 0\]</span></p>
+<p><strong>The Fundamental Mathematical Guarantee:</strong> For any <span class="math inline">\(\lambda &gt; 0\)</span>, the regularized matrix <span class="math inline">\((\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})\)</span> is <strong>guaranteed to be strictly positive-definite and non-singular</strong>, even when <span class="math inline">\(p &gt; n\)</span> or when features are perfectly collinear! Ridge regression completely eliminates the numerical instability observed in Lecture 04.</p>
+<hr>
+</section>
+</section>
+<section id="l_1-lasso-regularization-geometric-sparsity" class="level2">
+<h2 class="anchored" data-anchor-id="l_1-lasso-regularization-geometric-sparsity">4. <span class="math inline">\(L_1\)</span> Lasso Regularization: Geometric Sparsity</h2>
+<p>While Ridge shrinks coefficients continuously toward zero, it never sets any weight <em>exactly</em> to zero.</p>
+<p><strong>Lasso Regression (<span class="math inline">\(L_1\)</span> Regularization)</strong> replaces the squared <span class="math inline">\(L_2\)</span> penalty with the sum of absolute values:</p>
+<p><span class="math display">\[J_{\text{Lasso}}(\boldsymbol{\theta}) = \|\mathbf{y} - \mathbf{X}\boldsymbol{\theta}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_1 = \sum_{i=1}^n (y_i - \mathbf{x}_i^T\boldsymbol{\theta})^2 + \lambda \sum_{j=1}^p |\theta_j|\]</span></p>
+<p>Because the absolute value function <span class="math inline">\(|\theta_j|\)</span> is non-differentiable at <span class="math inline">\(\theta_j = 0\)</span>, Lasso has no closed-form solution and is solved numerically via coordinate descent.</p>
+<section id="the-geometric-diamond-argument" class="level3">
+<h3 class="anchored" data-anchor-id="the-geometric-diamond-argument">4.1 The Geometric Diamond Argument</h3>
+<p>To understand why Lasso produces exact zeros (sparsity), consider the equivalent constrained optimization formulations:</p>
+<p><span class="math display">\[\min_{\boldsymbol{\theta}} \text{RSS}(\boldsymbol{\theta}) \quad \text{subject to} \quad \begin{cases} \|\boldsymbol{\theta}\|_2^2 \le C &amp; \text{(Ridge)} \\ \|\boldsymbol{\theta}\|_1 \le C &amp; \text{(Lasso)} \end{cases}\]</span></p>
+<ul>
+<li><strong>Ridge (<span class="math inline">\(L_2\)</span> Ball):</strong> The constraint boundary is a smooth sphere/circle. The elliptical contours of the RSS objective contact the circle at arbitrary smooth points, where neither coordinate is zero.</li>
+<li><strong>Lasso (<span class="math inline">\(L_1\)</span> Diamond):</strong> The constraint boundary has sharp corners located precisely on the coordinate axes (<span class="math inline">\(\theta_1 = 0\)</span> or <span class="math inline">\(\theta_2 = 0\)</span>). An expanding elliptical RSS contour contacts these sharp corners first with high probability.</li>
+</ul>
+<p>Thus, Lasso performs <strong>automatic feature selection</strong>, driving irrelevant or redundant feature weights strictly to zero!</p>
+<hr>
+</section>
+</section>
+<section id="regularization-weight-paths-ridge-vs.-lasso" class="level2">
+<h2 class="anchored" data-anchor-id="regularization-weight-paths-ridge-vs.-lasso">5. Regularization Weight Paths: Ridge vs.&nbsp;Lasso</h2>
+<p>Let us compare how the estimated polynomial coefficients behave as the regularization penalty <span class="math inline">\(\lambda\)</span> increases:</p>
+<div id="cell-fig-regularization-paths" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="4">
+<details class="code-fold">
+<summary>Generate Ridge vs.&nbsp;Lasso Weight Paths</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># Degree 6 polynomial features on normalized BMI</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>x_norm <span class="op">=</span> (x_all <span class="op">-</span> x_all.<span class="bu">min</span>()) <span class="op">/</span> (x_all.<span class="bu">max</span>() <span class="op">-</span> x_all.<span class="bu">min</span>())</span>
+<span id="cb4-5"><a href="#cb4-5"></a>y_data <span class="op">=</span> y_all</span>
+<span id="cb4-6"><a href="#cb4-6"></a>deg_path <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>X_poly_raw <span class="op">=</span> np.column_stack([x_norm<span class="op">**</span>k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, deg_path <span class="op">+</span> <span class="dv">1</span>)])</span>
+<span id="cb4-8"><a href="#cb4-8"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb4-9"><a href="#cb4-9"></a>X_poly_scaled <span class="op">=</span> scaler.fit_transform(X_poly_raw)</span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a>alphas <span class="op">=</span> np.logspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">100</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>ridge_coefs <span class="op">=</span> []</span>
+<span id="cb4-13"><a href="#cb4-13"></a>lasso_coefs <span class="op">=</span> []</span>
+<span id="cb4-14"><a href="#cb4-14"></a></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="cf">for</span> a <span class="kw">in</span> alphas:</span>
+<span id="cb4-16"><a href="#cb4-16"></a>    r <span class="op">=</span> Ridge(alpha<span class="op">=</span>a, fit_intercept<span class="op">=</span><span class="va">True</span>).fit(X_poly_scaled, y_data)</span>
+<span id="cb4-17"><a href="#cb4-17"></a>    l <span class="op">=</span> Lasso(alpha<span class="op">=</span>a, max_iter<span class="op">=</span><span class="dv">10000</span>, fit_intercept<span class="op">=</span><span class="va">True</span>).fit(X_poly_scaled, y_data)</span>
+<span id="cb4-18"><a href="#cb4-18"></a>    ridge_coefs.append(r.coef_)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>    lasso_coefs.append(l.coef_)</span>
+<span id="cb4-20"><a href="#cb4-20"></a></span>
+<span id="cb4-21"><a href="#cb4-21"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb4-22"><a href="#cb4-22"></a></span>
+<span id="cb4-23"><a href="#cb4-23"></a>axes[<span class="dv">0</span>].plot(alphas, ridge_coefs, lw<span class="op">=</span><span class="fl">1.8</span>)</span>
+<span id="cb4-24"><a href="#cb4-24"></a>axes[<span class="dv">0</span>].set_xscale(<span class="st">'log'</span>)</span>
+<span id="cb4-25"><a href="#cb4-25"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Ridge ($L_2$): Asymptotic Shrinkage'</span>)</span>
+<span id="cb4-26"><a href="#cb4-26"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="vs">r'Regularization Strength </span><span class="dv">$</span><span class="er">\</span><span class="vs">lambda</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Standardized Coefficients'</span>)</span>
+<span id="cb4-28"><a href="#cb4-28"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb4-29"><a href="#cb4-29"></a></span>
+<span id="cb4-30"><a href="#cb4-30"></a>axes[<span class="dv">1</span>].plot(alphas, lasso_coefs, lw<span class="op">=</span><span class="fl">1.8</span>)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">'log'</span>)</span>
+<span id="cb4-32"><a href="#cb4-32"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Lasso ($L_1$): Exact Threshold Sparsity'</span>)</span>
+<span id="cb4-33"><a href="#cb4-33"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="vs">r'Regularization Strength </span><span class="dv">$</span><span class="er">\</span><span class="vs">lambda</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb4-34"><a href="#cb4-34"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Standardized Coefficients'</span>)</span>
+<span id="cb4-35"><a href="#cb4-35"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb4-36"><a href="#cb4-36"></a></span>
+<span id="cb4-37"><a href="#cb4-37"></a>plt.tight_layout()</span>
+<span id="cb4-38"><a href="#cb4-38"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-regularization-paths" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regularization-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-regularization-paths-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1477" height="650">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regularization-paths-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Regularization Weight Paths: Ridge (left) shrinks coefficients asymptotically toward zero, while Lasso (right) truncates coefficients exactly to zero at finite thresholds.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="andrew-ngs-empirical-machine-learning-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="andrew-ngs-empirical-machine-learning-diagnostics">6. Andrew Ng’s Empirical Machine Learning Diagnostics</h2>
+<p>When an applied machine learning model performs poorly on unseen test patients, what concrete action should an engineer take?</p>
+<p>In Stanford CS229, Andrew Ng formalized a rigorous diagnostic methodology based on <strong>Learning Curves</strong> (plotting training and validation error as a function of training sample size <span class="math inline">\(m\)</span>).</p>
+<div id="cell-fig-learning-curves" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="5">
+<details class="code-fold">
+<summary>Generate Andrew Ng Learning Curves</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>m_sizes <span class="op">=</span> np.linspace(<span class="dv">20</span>, <span class="dv">200</span>, <span class="dv">10</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>train_err_bias, val_err_bias <span class="op">=</span> [], []</span>
+<span id="cb5-3"><a href="#cb5-3"></a>train_err_var, val_err_var <span class="op">=</span> [], []</span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="cf">for</span> m <span class="kw">in</span> m_sizes:</span>
+<span id="cb5-6"><a href="#cb5-6"></a>    x_sub <span class="op">=</span> x_all[:m]</span>
+<span id="cb5-7"><a href="#cb5-7"></a>    y_sub <span class="op">=</span> y_all[:m]</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    </span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="co"># High Bias Model (Degree 1)</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a>    m_bias <span class="op">=</span> LinearRegression().fit(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_sub)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    train_err_bias.append(np.mean((y_sub <span class="op">-</span> m_bias.predict(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    val_err_bias.append(np.mean((y_val <span class="op">-</span> m_bias.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="co"># High Variance Model (Degree 8, unregularized)</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>    m_var <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">8</span>), LinearRegression()).fit(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_sub)</span>
+<span id="cb5-16"><a href="#cb5-16"></a>    train_err_var.append(np.mean((y_sub <span class="op">-</span> m_var.predict(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb5-17"><a href="#cb5-17"></a>    val_err_var.append(np.mean((y_val <span class="op">-</span> m_var.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb5-20"><a href="#cb5-20"></a></span>
+<span id="cb5-21"><a href="#cb5-21"></a>axes[<span class="dv">0</span>].plot(m_sizes, train_err_bias, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss'</span>)</span>
+<span id="cb5-22"><a href="#cb5-22"></a>axes[<span class="dv">0</span>].plot(m_sizes, val_err_bias, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Validation Loss'</span>)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>axes[<span class="dv">0</span>].axhline(<span class="fl">2.8</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'High Error Plateau'</span>)</span>
+<span id="cb5-24"><a href="#cb5-24"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'High Bias (Underfitting): More Data Will NOT Help'</span>)</span>
+<span id="cb5-25"><a href="#cb5-25"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'Training Sample Size $m$'</span>)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'center right'</span>)</span>
+<span id="cb5-28"><a href="#cb5-28"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-29"><a href="#cb5-29"></a></span>
+<span id="cb5-30"><a href="#cb5-30"></a>axes[<span class="dv">1</span>].plot(m_sizes, train_err_var, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss'</span>)</span>
+<span id="cb5-31"><a href="#cb5-31"></a>axes[<span class="dv">1</span>].plot(m_sizes, val_err_var, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Validation Loss'</span>)</span>
+<span id="cb5-32"><a href="#cb5-32"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'High Variance (Overfitting): More Data Helps'</span>)</span>
+<span id="cb5-33"><a href="#cb5-33"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Training Sample Size $m$'</span>)</span>
+<span id="cb5-34"><a href="#cb5-34"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb5-35"><a href="#cb5-35"></a>axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb5-36"><a href="#cb5-36"></a>axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'upper right'</span>)</span>
+<span id="cb5-37"><a href="#cb5-37"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-38"><a href="#cb5-38"></a></span>
+<span id="cb5-39"><a href="#cb5-39"></a>plt.tight_layout()</span>
+<span id="cb5-40"><a href="#cb5-40"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-learning-curves" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-learning-curves-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="650">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-learning-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Andrew Ng’s Diagnostic Learning Curves: High Bias (left) exhibits an early high-error plateau where adding data fails; High Variance (right) exhibits a large generalization gap that narrows as training size grows.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="andrew-ngs-6-diagnostic-actions" class="level3">
+<h3 class="anchored" data-anchor-id="andrew-ngs-6-diagnostic-actions">6.1 Andrew Ng’s 6 Diagnostic Actions</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Diagnostic Finding</th>
+<th style="text-align: left;">Root Pathology</th>
+<th style="text-align: left;">Recommended Corrective Action</th>
+<th style="text-align: left;">Why it Works</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Large Gap</strong> (<span class="math inline">\(J_{\text{val}} \gg J_{\text{train}}\)</span>)</td>
+<td style="text-align: left;"><strong>High Variance</strong></td>
+<td style="text-align: left;"><strong>Collect more training data (<span class="math inline">\(m \uparrow\)</span>)</strong></td>
+<td style="text-align: left;">Constrains high-degree flexibility</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Large Gap</strong> (<span class="math inline">\(J_{\text{val}} \gg J_{\text{train}}\)</span>)</td>
+<td style="text-align: left;"><strong>High Variance</strong></td>
+<td style="text-align: left;"><strong>Reduce number of features (<span class="math inline">\(p \downarrow\)</span>)</strong></td>
+<td style="text-align: left;">Reduces model degrees of freedom</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Large Gap</strong> (<span class="math inline">\(J_{\text{val}} \gg J_{\text{train}}\)</span>)</td>
+<td style="text-align: left;"><strong>High Variance</strong></td>
+<td style="text-align: left;"><strong>Increase regularization (<span class="math inline">\(\lambda \uparrow\)</span>)</strong></td>
+<td style="text-align: left;">Shrinks weights and conditions Gram matrix</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>High Plateau</strong> (<span class="math inline">\(J_{\text{train}} \approx J_{\text{val}}\)</span> both high)</td>
+<td style="text-align: left;"><strong>High Bias</strong></td>
+<td style="text-align: left;"><strong>Engineer polynomial / interaction features</strong></td>
+<td style="text-align: left;">Enriches hypothesis space</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>High Plateau</strong> (<span class="math inline">\(J_{\text{train}} \approx J_{\text{val}}\)</span> both high)</td>
+<td style="text-align: left;"><strong>High Bias</strong></td>
+<td style="text-align: left;"><strong>Add new clinical predictors</strong></td>
+<td style="text-align: left;">Provides unobserved physical signal</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>High Plateau</strong> (<span class="math inline">\(J_{\text{train}} \approx J_{\text{val}}\)</span> both high)</td>
+<td style="text-align: left;"><strong>High Bias</strong></td>
+<td style="text-align: left;"><strong>Decrease regularization (<span class="math inline">\(\lambda \downarrow\)</span>)</strong></td>
+<td style="text-align: left;">Relieves artificial constraints on weights</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="summary-key-takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="summary-key-takeaways">7. Summary &amp; Key Takeaways</h2>
+<section id="complete-linear-regression-trajectory" class="level3">
+<h3 class="anchored" data-anchor-id="complete-linear-regression-trajectory">Complete Linear Regression Trajectory</h3>
+<ol type="1">
+<li><strong>Lecture 01:</strong> Ordinary Least Squares foundations and normal equations.</li>
+<li><strong>Lecture 02:</strong> Geometric duality between Observation Space <span class="math inline">\((x, y)\)</span> and Parameter Space <span class="math inline">\((\theta_0, \theta_1)\)</span>.</li>
+<li><strong>Lecture 03:</strong> Parameter uncertainties <span class="math inline">\(\operatorname{Cov}(\hat{\boldsymbol{\theta}}) = \hat{\sigma}^2(\mathbf{X}^T\mathbf{X})^{-1}\)</span> and confidence intervals.</li>
+<li><strong>Lecture 04:</strong> Feature engineering, qualitative one-hot encoding, non-linear curvature, and the collapse of the Gram determinant <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X}) \to 0\)</span>.</li>
+<li><strong>Lecture 05:</strong> The Bias-Variance Tradeoff, empirical validation splits, Ridge eigenvalue rescue, Lasso sparsity, and Andrew Ng ML system diagnostics.</li>
+</ol>
+</section>
+<section id="looking-ahead-to-classification" class="level3">
+<h3 class="anchored" data-anchor-id="looking-ahead-to-classification">Looking Ahead to Classification</h3>
+<p>Throughout Lectures 01–05, our target variable <span class="math inline">\(y \in \mathbb{R}\)</span> has been continuous (e.g.&nbsp;glucose levels, hospital days, blood pressure).</p>
+<p>What happens when our target is qualitative and discrete—such as classifying whether a patient is <strong>healthy (<span class="math inline">\(y=0\)</span>)</strong> or <strong>diseased (<span class="math inline">\(y=1\)</span>)</strong>? In the next module, we move beyond regression to <strong>Classification and Logistic Regression</strong>.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">---</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="an">title:</span><span class="co"> "05 Linear Regression: Bias-Variance &amp; Regularization"</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="an">description:</span><span class="co"> "Taming Model Flexibility"</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="an">date:</span><span class="co"> "2026-09-17"</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="an">format:</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">  html:</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">    toc: true</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="co">---</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="in">```{python}</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="co">#| code-summary: "Imports &amp; Visualization Setup"</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> Ridge, Lasso, LinearRegression</span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PolynomialFeatures</span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb6-33"><a href="#cb6-33"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
+<span id="cb6-34"><a href="#cb6-34"></a></span>
+<span id="cb6-35"><a href="#cb6-35"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb6-36"><a href="#cb6-36"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb6-37"><a href="#cb6-37"></a><span class="in">```</span></span>
+<span id="cb6-38"><a href="#cb6-38"></a></span>
+<span id="cb6-39"><a href="#cb6-39"></a><span class="fu">## 0. Pre-Class Preparation</span></span>
+<span id="cb6-40"><a href="#cb6-40"></a></span>
+<span id="cb6-41"><a href="#cb6-41"></a>*Before coming to this lecture, please review:*</span>
+<span id="cb6-42"><a href="#cb6-42"></a></span>
+<span id="cb6-43"><a href="#cb6-43"></a><span class="ss">- </span><span class="va">[ ]</span> **Review Lecture 04:** Model flexibility, polynomial underfitting vs. overfitting, exploding parameter weights, and the collapse of the Gram matrix determinant $\det(\mathbf{X}^T\mathbf{X}) \to 0$.</span>
+<span id="cb6-44"><a href="#cb6-44"></a><span class="ss">- </span><span class="va">[ ]</span> **Watch Video:** <span class="co">[</span><span class="ot">StatQuest: Bias and Variance in Machine Learning</span><span class="co">](https://www.youtube.com/watch?v=EuBBz3bI-aA)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb6-45"><a href="#cb6-45"></a><span class="ss">- </span><span class="va">[ ]</span> **Watch Video:** <span class="co">[</span><span class="ot">StatQuest: Ridge Regression</span><span class="co">](https://www.youtube.com/watch?v=Q81RR3yKn30)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb6-46"><a href="#cb6-46"></a><span class="ss">- </span><span class="va">[ ]</span> **Watch Video:** <span class="co">[</span><span class="ot">StatQuest: Lasso Regression</span><span class="co">](https://www.youtube.com/watch?v=NGf0voTMlcs)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb6-47"><a href="#cb6-47"></a><span class="ss">- </span><span class="va">[ ]</span> **Watch Video:** <span class="co">[</span><span class="ot">Andrew Ng: Advice for Applying Machine Learning (Stanford CS229)</span><span class="co">](https://www.youtube.com/watch?v=r0Ogt-yS1S0)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb6-48"><a href="#cb6-48"></a></span>
+<span id="cb6-49"><a href="#cb6-49"></a>---</span>
+<span id="cb6-50"><a href="#cb6-50"></a></span>
+<span id="cb6-51"><a href="#cb6-51"></a><span class="fu">## 1. The Bias-Variance Tradeoff: Concept &amp; Formal Decomposition</span></span>
+<span id="cb6-52"><a href="#cb6-52"></a></span>
+<span id="cb6-53"><a href="#cb6-53"></a>In Lecture 04, we witnessed the two opposing extremes of model flexibility:</span>
+<span id="cb6-54"><a href="#cb6-54"></a></span>
+<span id="cb6-55"><a href="#cb6-55"></a><span class="ss">* </span>**Underfitting (High Bias):** A rigid straight line ($d = 1$) fails to capture the underlying biological U-shaped curve, leaving non-random parabolic patterns in the residuals.</span>
+<span id="cb6-56"><a href="#cb6-56"></a><span class="ss">* </span>**Overfitting (High Variance):** A high-degree polynomial ($d = 12$) wiggles through every idiosyncrasy of the training data, exhibiting wild boundary oscillations, exploding parameter weights, and a near-singular Gram matrix.</span>
+<span id="cb6-57"><a href="#cb6-57"></a></span>
+<span id="cb6-58"><a href="#cb6-58"></a>How do we formalize this tradeoff mathematically?</span>
+<span id="cb6-59"><a href="#cb6-59"></a></span>
+<span id="cb6-60"><a href="#cb6-60"></a><span class="fu">### 1.1 The Visual Target: The Dartboard Analogy</span></span>
+<span id="cb6-61"><a href="#cb6-61"></a></span>
+<span id="cb6-62"><a href="#cb6-62"></a>To intuitively separate Bias from Variance, imagine firing arrows at a target bullseye. The center represents the true biological mechanism $f(x)$, and each shot represents a model $\hat{f}(x)$ trained on an independent random patient cohort $\mathcal{D}_k$:</span>
+<span id="cb6-63"><a href="#cb6-63"></a></span>
+<span id="cb6-66"><a href="#cb6-66"></a><span class="in">```{python}</span></span>
+<span id="cb6-67"><a href="#cb6-67"></a><span class="co">#| label: fig-dartboard-bias-variance</span></span>
+<span id="cb6-68"><a href="#cb6-68"></a><span class="co">#| fig-cap: "The Dartboard Analogy: Disentangling systematic error (Bias) from sample-to-sample volatility (Variance)."</span></span>
+<span id="cb6-69"><a href="#cb6-69"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-70"><a href="#cb6-70"></a><span class="co">#| code-summary: "Generate 4-Panel Dartboard Target Plot"</span></span>
+<span id="cb6-71"><a href="#cb6-71"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-72"><a href="#cb6-72"></a><span class="co">#| fig-height: 3.5</span></span>
+<span id="cb6-73"><a href="#cb6-73"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-74"><a href="#cb6-74"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-75"><a href="#cb6-75"></a></span>
+<span id="cb6-76"><a href="#cb6-76"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.5</span>))</span>
+<span id="cb6-77"><a href="#cb6-77"></a></span>
+<span id="cb6-78"><a href="#cb6-78"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-79"><a href="#cb6-79"></a>n_shots <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb6-80"><a href="#cb6-80"></a></span>
+<span id="cb6-81"><a href="#cb6-81"></a>configs <span class="op">=</span> [</span>
+<span id="cb6-82"><a href="#cb6-82"></a>    (<span class="st">"Low Bias, Low Variance</span><span class="ch">\n</span><span class="st">(Ideal Target)"</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.2</span>, <span class="st">'darkgreen'</span>),</span>
+<span id="cb6-83"><a href="#cb6-83"></a>    (<span class="st">"High Bias, Low Variance</span><span class="ch">\n</span><span class="st">(Underfitting: Rigid)"</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.2</span>, <span class="st">'crimson'</span>),</span>
+<span id="cb6-84"><a href="#cb6-84"></a>    (<span class="st">"Low Bias, High Variance</span><span class="ch">\n</span><span class="st">(Overfitting: Wild)"</span>, <span class="fl">0.0</span>, <span class="fl">0.0</span>, <span class="fl">0.7</span>, <span class="st">'darkorange'</span>),</span>
+<span id="cb6-85"><a href="#cb6-85"></a>    (<span class="st">"High Bias, High Variance</span><span class="ch">\n</span><span class="st">(Worst Case)"</span>, <span class="fl">0.9</span>, <span class="fl">0.9</span>, <span class="fl">0.7</span>, <span class="st">'darkred'</span>)</span>
+<span id="cb6-86"><a href="#cb6-86"></a>]</span>
+<span id="cb6-87"><a href="#cb6-87"></a></span>
+<span id="cb6-88"><a href="#cb6-88"></a><span class="cf">for</span> ax, (title, mu_x, mu_y, spread, col) <span class="kw">in</span> <span class="bu">zip</span>(axes, configs):</span>
+<span id="cb6-89"><a href="#cb6-89"></a>    <span class="cf">for</span> r <span class="kw">in</span> [<span class="fl">1.5</span>, <span class="fl">1.0</span>, <span class="fl">0.5</span>, <span class="fl">0.15</span>]:</span>
+<span id="cb6-90"><a href="#cb6-90"></a>        circle <span class="op">=</span> plt.Circle((<span class="dv">0</span>, <span class="dv">0</span>), r, color<span class="op">=</span><span class="st">'gray'</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="st">'gold'</span>, fill<span class="op">=</span>(r <span class="op">==</span> <span class="fl">0.15</span>),</span>
+<span id="cb6-91"><a href="#cb6-91"></a>                            linestyle<span class="op">=</span><span class="st">'-'</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="st">'none'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.3</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="fl">0.15</span> <span class="cf">else</span> <span class="fl">0.8</span>)</span>
+<span id="cb6-92"><a href="#cb6-92"></a>        ax.add_patch(circle)</span>
+<span id="cb6-93"><a href="#cb6-93"></a>    </span>
+<span id="cb6-94"><a href="#cb6-94"></a>    shots_x <span class="op">=</span> np.random.normal(mu_x, spread, n_shots)</span>
+<span id="cb6-95"><a href="#cb6-95"></a>    shots_y <span class="op">=</span> np.random.normal(mu_y, spread, n_shots)</span>
+<span id="cb6-96"><a href="#cb6-96"></a>    </span>
+<span id="cb6-97"><a href="#cb6-97"></a>    ax.scatter(shots_x, shots_y, color<span class="op">=</span>col, s<span class="op">=</span><span class="dv">25</span>, edgecolors<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>, zorder<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb6-98"><a href="#cb6-98"></a>    ax.scatter([<span class="dv">0</span>], [<span class="dv">0</span>], color<span class="op">=</span><span class="st">'red'</span>, marker<span class="op">=</span><span class="st">'+'</span>, s<span class="op">=</span><span class="dv">70</span>, lw<span class="op">=</span><span class="dv">2</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb6-99"><a href="#cb6-99"></a>    </span>
+<span id="cb6-100"><a href="#cb6-100"></a>    ax.set_xlim(<span class="op">-</span><span class="fl">1.8</span>, <span class="fl">1.8</span>)</span>
+<span id="cb6-101"><a href="#cb6-101"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">1.8</span>, <span class="fl">1.8</span>)</span>
+<span id="cb6-102"><a href="#cb6-102"></a>    ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb6-103"><a href="#cb6-103"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="fl">8.5</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb6-104"><a href="#cb6-104"></a>    ax.set_xticks([])</span>
+<span id="cb6-105"><a href="#cb6-105"></a>    ax.set_yticks([])</span>
+<span id="cb6-106"><a href="#cb6-106"></a></span>
+<span id="cb6-107"><a href="#cb6-107"></a>plt.tight_layout()</span>
+<span id="cb6-108"><a href="#cb6-108"></a>plt.show()</span>
+<span id="cb6-109"><a href="#cb6-109"></a><span class="in">```</span></span>
+<span id="cb6-110"><a href="#cb6-110"></a></span>
+<span id="cb6-111"><a href="#cb6-111"></a><span class="ss">* </span>**Bias:** The distance between the average prediction $\mathbb{E}<span class="co">[</span><span class="ot">\hat{f}(x)</span><span class="co">]</span>$ across cohorts and the true bullseye $f(x)$.</span>
+<span id="cb6-112"><a href="#cb6-112"></a><span class="ss">* </span>**Variance:** How widely dispersed predictions $\hat{f}(x)$ scatter around their own average.</span>
+<span id="cb6-113"><a href="#cb6-113"></a></span>
+<span id="cb6-114"><a href="#cb6-114"></a>---</span>
+<span id="cb6-115"><a href="#cb6-115"></a></span>
+<span id="cb6-116"><a href="#cb6-116"></a><span class="fu">### 1.2 Mathematical Derivation of the Bias-Variance Decomposition</span></span>
+<span id="cb6-117"><a href="#cb6-117"></a></span>
+<span id="cb6-118"><a href="#cb6-118"></a>Let us now derive why expected generalization error decomposes strictly into these two components plus irreducible noise.</span>
+<span id="cb6-119"><a href="#cb6-119"></a></span>
+<span id="cb6-120"><a href="#cb6-120"></a><span class="fu">#### Mathematical Setup:</span></span>
+<span id="cb6-121"><a href="#cb6-121"></a><span class="ss">1. </span>True biological data-generating process: $y = f(x) + \varepsilon$.</span>
+<span id="cb6-122"><a href="#cb6-122"></a><span class="ss">2. </span>Measurement noise $\varepsilon$ has mean $\mathbb{E}<span class="co">[</span><span class="ot">\varepsilon</span><span class="co">]</span> = 0$ and constant variance $\operatorname{Var}(\varepsilon) = \sigma^2$.</span>
+<span id="cb6-123"><a href="#cb6-123"></a><span class="ss">3. </span>Noise $\varepsilon$ in a new test observation is independent of the model estimate $\hat{f}(x)$ trained on historical data.</span>
+<span id="cb6-124"><a href="#cb6-124"></a></span>
+<span id="cb6-125"><a href="#cb6-125"></a>Let $\hat{f}(x)$ be the model learned from a random training set $\mathcal{D}$. Because $\mathcal{D}$ is random, $\hat{f}(x)$ is a random variable.</span>
+<span id="cb6-126"><a href="#cb6-126"></a>Let $\bar{f}(x) = \mathbb{E}<span class="co">[</span><span class="ot">\hat{f}(x)</span><span class="co">]</span>$ denote the **expected model prediction** averaged across all possible training cohorts.</span>
+<span id="cb6-127"><a href="#cb6-127"></a></span>
+<span id="cb6-128"><a href="#cb6-128"></a><span class="fu">#### Step 1: Expand the Expected Squared Prediction Error</span></span>
+<span id="cb6-129"><a href="#cb6-129"></a></span>
+<span id="cb6-130"><a href="#cb6-130"></a>$$\mathbb{E}\left<span class="co">[</span><span class="ot">(y - \hat{f}(x))^2\right</span><span class="co">]</span> = \mathbb{E}\left<span class="co">[</span><span class="ot">\left( (f(x) + \varepsilon) - \hat{f}(x) \right)^2\right</span><span class="co">]</span>$$</span>
+<span id="cb6-131"><a href="#cb6-131"></a></span>
+<span id="cb6-132"><a href="#cb6-132"></a>Regroup into model error $(f(x) - \hat{f}(x))$ and noise $\varepsilon$:</span>
+<span id="cb6-133"><a href="#cb6-133"></a></span>
+<span id="cb6-134"><a href="#cb6-134"></a>$$\begin{aligned}</span>
+<span id="cb6-135"><a href="#cb6-135"></a>\mathbb{E}\left<span class="co">[</span><span class="ot">(y - \hat{f}(x))^2\right</span><span class="co">]</span> &amp;= \mathbb{E}\left<span class="co">[</span><span class="ot">\left( (f(x) - \hat{f}(x)) + \varepsilon \right)^2\right</span><span class="co">]</span> <span class="sc">\\</span></span>
+<span id="cb6-136"><a href="#cb6-136"></a>&amp;= \mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \hat{f}(x))^2\right</span><span class="co">]</span> + 2\mathbb{E}<span class="co">[</span><span class="ot">(f(x) - \hat{f}(x))\varepsilon</span><span class="co">]</span> + \mathbb{E}<span class="co">[</span><span class="ot">\varepsilon^2</span><span class="co">]</span></span>
+<span id="cb6-137"><a href="#cb6-137"></a>\end{aligned}$$</span>
+<span id="cb6-138"><a href="#cb6-138"></a></span>
+<span id="cb6-139"><a href="#cb6-139"></a>Because $\varepsilon$ is independent of $\hat{f}(x)$ and $\mathbb{E}<span class="co">[</span><span class="ot">\varepsilon</span><span class="co">]</span> = 0$:</span>
+<span id="cb6-140"><a href="#cb6-140"></a>$$\mathbb{E}<span class="co">[</span><span class="ot">(f(x) - \hat{f}(x))\varepsilon</span><span class="co">]</span> = \mathbb{E}<span class="co">[</span><span class="ot">f(x) - \hat{f}(x)</span><span class="co">]</span> \cdot \mathbb{E}<span class="co">[</span><span class="ot">\varepsilon</span><span class="co">]</span> = 0$$</span>
+<span id="cb6-141"><a href="#cb6-141"></a>$$\mathbb{E}<span class="co">[</span><span class="ot">\varepsilon^2</span><span class="co">]</span> = \operatorname{Var}(\varepsilon) = \sigma^2$$</span>
+<span id="cb6-142"><a href="#cb6-142"></a></span>
+<span id="cb6-143"><a href="#cb6-143"></a>Thus, total error separates into model error plus noise:</span>
+<span id="cb6-144"><a href="#cb6-144"></a>$$\mathbb{E}\left<span class="co">[</span><span class="ot">(y - \hat{f}(x))^2\right</span><span class="co">]</span> = \mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \hat{f}(x))^2\right</span><span class="co">]</span> + \sigma^2$$</span>
+<span id="cb6-145"><a href="#cb6-145"></a></span>
+<span id="cb6-146"><a href="#cb6-146"></a><span class="fu">#### Step 2: Decompose the Model Error</span></span>
+<span id="cb6-147"><a href="#cb6-147"></a></span>
+<span id="cb6-148"><a href="#cb6-148"></a>Add and subtract the expected prediction $\bar{f}(x) = \mathbb{E}<span class="co">[</span><span class="ot">\hat{f}(x)</span><span class="co">]</span>$ inside the expectation:</span>
+<span id="cb6-149"><a href="#cb6-149"></a></span>
+<span id="cb6-150"><a href="#cb6-150"></a>$$\begin{aligned}</span>
+<span id="cb6-151"><a href="#cb6-151"></a>\mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \hat{f}(x))^2\right</span><span class="co">]</span> &amp;= \mathbb{E}\left<span class="co">[</span><span class="ot">\left( (f(x) - \bar{f}(x)) + (\bar{f}(x) - \hat{f}(x)) \right)^2\right</span><span class="co">]</span> <span class="sc">\\</span></span>
+<span id="cb6-152"><a href="#cb6-152"></a>&amp;= \mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \bar{f}(x))^2\right</span><span class="co">]</span> + 2\mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \bar{f}(x))(\bar{f}(x) - \hat{f}(x))\right</span><span class="co">]</span> + \mathbb{E}\left<span class="co">[</span><span class="ot">(\bar{f}(x) - \hat{f}(x))^2\right</span><span class="co">]</span></span>
+<span id="cb6-153"><a href="#cb6-153"></a>\end{aligned}$$</span>
+<span id="cb6-154"><a href="#cb6-154"></a></span>
+<span id="cb6-155"><a href="#cb6-155"></a>Notice that $(f(x) - \bar{f}(x))$ is a **deterministic constant** (independent of the training sample $\mathcal{D}$). Therefore:</span>
+<span id="cb6-156"><a href="#cb6-156"></a>$$\mathbb{E}\left<span class="co">[</span><span class="ot">(f(x) - \bar{f}(x))(\bar{f}(x) - \hat{f}(x))\right</span><span class="co">]</span> = (f(x) - \bar{f}(x)) \cdot \mathbb{E}<span class="co">[</span><span class="ot">\bar{f}(x) - \hat{f}(x)</span><span class="co">]</span>$$</span>
+<span id="cb6-157"><a href="#cb6-157"></a></span>
+<span id="cb6-158"><a href="#cb6-158"></a>By definition of expectation, $\mathbb{E}<span class="co">[</span><span class="ot">\bar{f}(x) - \hat{f}(x)</span><span class="co">]</span> = \bar{f}(x) - \mathbb{E}<span class="co">[</span><span class="ot">\hat{f}(x)</span><span class="co">]</span> = 0$. The cross-term vanishes completely!</span>
+<span id="cb6-159"><a href="#cb6-159"></a></span>
+<span id="cb6-160"><a href="#cb6-160"></a><span class="fu">#### The Final Identity:</span></span>
+<span id="cb6-161"><a href="#cb6-161"></a></span>
+<span id="cb6-162"><a href="#cb6-162"></a>$$\boxed{\mathbb{E}\left<span class="co">[</span><span class="ot">(y - \hat{f}(x))^2\right</span><span class="co">]</span> = \underbrace{(f(x) - \bar{f}(x))^2}_{\text{Bias}^2(\hat{f}(x))} + \underbrace{\mathbb{E}\left[(\hat{f}(x) - \bar{f}(x))^2\right]}_{\operatorname{Var}(\hat{f}(x))} + \underbrace{\sigma^2}_{\text{Irreducible Noise}}}$$</span>
+<span id="cb6-163"><a href="#cb6-163"></a></span>
+<span id="cb6-164"><a href="#cb6-164"></a>::: {.callout-note}</span>
+<span id="cb6-165"><a href="#cb6-165"></a><span class="fu">### The Three Inescapable Error Components</span></span>
+<span id="cb6-166"><a href="#cb6-166"></a><span class="ss">1. </span>**$\text{Bias}^2(\hat{f}(x))$**: Systematic error from oversimplified assumptions (e.g., forcing a straight line onto curved biology).</span>
+<span id="cb6-167"><a href="#cb6-167"></a><span class="ss">2. </span>**$\operatorname{Var}(\hat{f}(x))$**: Model volatility across different patient cohorts (e.g., high-degree polynomials whose weights swing wildly).</span>
+<span id="cb6-168"><a href="#cb6-168"></a><span class="ss">3. </span>**$\sigma^2$**: Irreducible noise inherent to the biological system. No algorithm can ever predict below $\sigma^2$.</span>
+<span id="cb6-169"><a href="#cb6-169"></a>:::</span>
+<span id="cb6-170"><a href="#cb6-170"></a></span>
+<span id="cb6-171"><a href="#cb6-171"></a>---</span>
+<span id="cb6-172"><a href="#cb6-172"></a></span>
+<span id="cb6-173"><a href="#cb6-173"></a><span class="fu">## 2. Detecting Overfitting Empirically: Validation Splits &amp; The U-Curve</span></span>
+<span id="cb6-174"><a href="#cb6-174"></a></span>
+<span id="cb6-175"><a href="#cb6-175"></a>Because we never have access to the true data-generating function $f(x)$ in practice, we cannot compute theoretical Bias or Variance directly. How do we detect whether our model is underfitting or overfitting?</span>
+<span id="cb6-176"><a href="#cb6-176"></a></span>
+<span id="cb6-177"><a href="#cb6-177"></a><span class="fu">### 2.1 The Golden Rule of Machine Learning</span></span>
+<span id="cb6-178"><a href="#cb6-178"></a></span>
+<span id="cb6-179"><a href="#cb6-179"></a>We split our available data into two independent sets:</span>
+<span id="cb6-180"><a href="#cb6-180"></a><span class="ss">1. </span>**Training Set ($\mathcal{D}_{\text{train}}$):** Used exclusively to estimate the parameter vector $\hat{\boldsymbol{\theta}}$.</span>
+<span id="cb6-181"><a href="#cb6-181"></a><span class="ss">2. </span>**Validation Set ($\mathcal{D}_{\text{val}}$):** Held out during training and used exclusively to evaluate generalization performance.</span>
+<span id="cb6-182"><a href="#cb6-182"></a></span>
+<span id="cb6-185"><a href="#cb6-185"></a><span class="in">```{python}</span></span>
+<span id="cb6-186"><a href="#cb6-186"></a><span class="co">#| label: fig-train-val-u-curve</span></span>
+<span id="cb6-187"><a href="#cb6-187"></a><span class="co">#| fig-cap: "The Empirical Validation U-Curve: Training error drops monotonically with complexity, while validation error reaches a minimum and rebounds sharply."</span></span>
+<span id="cb6-188"><a href="#cb6-188"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-189"><a href="#cb6-189"></a><span class="co">#| code-summary: "Generate Empirical Validation U-Curve"</span></span>
+<span id="cb6-190"><a href="#cb6-190"></a><span class="co">#| fig-width: 8.5</span></span>
+<span id="cb6-191"><a href="#cb6-191"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-192"><a href="#cb6-192"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-193"><a href="#cb6-193"></a><span class="co">#| out-width: "85%"</span></span>
+<span id="cb6-194"><a href="#cb6-194"></a></span>
+<span id="cb6-195"><a href="#cb6-195"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-196"><a href="#cb6-196"></a>n_total <span class="op">=</span> <span class="dv">200</span></span>
+<span id="cb6-197"><a href="#cb6-197"></a>x_all <span class="op">=</span> np.random.uniform(<span class="fl">16.0</span>, <span class="fl">45.0</span>, n_total)</span>
+<span id="cb6-198"><a href="#cb6-198"></a>y_all <span class="op">=</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">0.040</span> <span class="op">*</span> (x_all <span class="op">-</span> <span class="fl">22.5</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">1.2</span>, n_total)</span>
+<span id="cb6-199"><a href="#cb6-199"></a>y_all <span class="op">=</span> np.clip(y_all, <span class="fl">0.5</span>, <span class="va">None</span>)</span>
+<span id="cb6-200"><a href="#cb6-200"></a></span>
+<span id="cb6-201"><a href="#cb6-201"></a>x_tr, x_val, y_tr, y_val <span class="op">=</span> train_test_split(x_all, y_all, test_size<span class="op">=</span><span class="fl">0.30</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb6-202"><a href="#cb6-202"></a></span>
+<span id="cb6-203"><a href="#cb6-203"></a>poly_range <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">11</span>))</span>
+<span id="cb6-204"><a href="#cb6-204"></a>train_losses <span class="op">=</span> []</span>
+<span id="cb6-205"><a href="#cb6-205"></a>val_losses <span class="op">=</span> []</span>
+<span id="cb6-206"><a href="#cb6-206"></a></span>
+<span id="cb6-207"><a href="#cb6-207"></a><span class="cf">for</span> d <span class="kw">in</span> poly_range:</span>
+<span id="cb6-208"><a href="#cb6-208"></a>    model <span class="op">=</span> make_pipeline(PolynomialFeatures(d), LinearRegression())</span>
+<span id="cb6-209"><a href="#cb6-209"></a>    model.fit(x_tr.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_tr)</span>
+<span id="cb6-210"><a href="#cb6-210"></a>    train_losses.append(np.mean((y_tr <span class="op">-</span> model.predict(x_tr.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-211"><a href="#cb6-211"></a>    val_losses.append(np.mean((y_val <span class="op">-</span> model.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-212"><a href="#cb6-212"></a></span>
+<span id="cb6-213"><a href="#cb6-213"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-214"><a href="#cb6-214"></a>ax.plot(poly_range, train_losses, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss (MSE)'</span>)</span>
+<span id="cb6-215"><a href="#cb6-215"></a>ax.plot(poly_range, val_losses, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, label<span class="op">=</span><span class="st">'Validation Loss (MSE)'</span>)</span>
+<span id="cb6-216"><a href="#cb6-216"></a>ax.set_title(<span class="st">'Model Complexity: Training vs. Validation Loss (The U-Curve)'</span>)</span>
+<span id="cb6-217"><a href="#cb6-217"></a>ax.set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb6-218"><a href="#cb6-218"></a>ax.set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb6-219"><a href="#cb6-219"></a>ax.set_xticks(poly_range)</span>
+<span id="cb6-220"><a href="#cb6-220"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb6-221"><a href="#cb6-221"></a>ax.axvline(<span class="dv">2</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Optimal Complexity ($d=2$)'</span>)</span>
+<span id="cb6-222"><a href="#cb6-222"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb6-223"><a href="#cb6-223"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-224"><a href="#cb6-224"></a></span>
+<span id="cb6-225"><a href="#cb6-225"></a>plt.tight_layout()</span>
+<span id="cb6-226"><a href="#cb6-226"></a>plt.show()</span>
+<span id="cb6-227"><a href="#cb6-227"></a><span class="in">```</span></span>
+<span id="cb6-228"><a href="#cb6-228"></a></span>
+<span id="cb6-229"><a href="#cb6-229"></a>---</span>
+<span id="cb6-230"><a href="#cb6-230"></a></span>
+<span id="cb6-231"><a href="#cb6-231"></a><span class="fu">## 3. $L_2$ Ridge Regularization: Analytical Shrinkage &amp; Invertibility Rescue</span></span>
+<span id="cb6-232"><a href="#cb6-232"></a></span>
+<span id="cb6-233"><a href="#cb6-233"></a>In Lecture 04, we discovered that as polynomial degree increases, two severe breakdowns occur:</span>
+<span id="cb6-234"><a href="#cb6-234"></a><span class="ss">1. </span>Parameter weights explode to massive opposing magnitudes ($\pm 10^6$).</span>
+<span id="cb6-235"><a href="#cb6-235"></a><span class="ss">2. </span>The Gram matrix determinant $\det(\mathbf{X}^T\mathbf{X}) \to 0$ collapses exponentially toward zero, making $\mathbf{X}^T\mathbf{X}$ practically or strictly non-invertible.</span>
+<span id="cb6-236"><a href="#cb6-236"></a></span>
+<span id="cb6-237"><a href="#cb6-237"></a>Rather than manually pruning features, **Ridge Regression ($L_2$ Regularization)** adds a penalty on the squared Euclidean norm of the parameter vector to the cost function:</span>
+<span id="cb6-238"><a href="#cb6-238"></a></span>
+<span id="cb6-239"><a href="#cb6-239"></a>$$J_{\text{Ridge}}(\boldsymbol{\theta}) = <span class="sc">\|</span>\mathbf{y} - \mathbf{X}\boldsymbol{\theta}<span class="sc">\|</span>_2^2 + \lambda <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_2^2 = (\mathbf{y} - \mathbf{X}\boldsymbol{\theta})^T(\mathbf{y} - \mathbf{X}\boldsymbol{\theta}) + \lambda \boldsymbol{\theta}^T\boldsymbol{\theta}$$</span>
+<span id="cb6-240"><a href="#cb6-240"></a></span>
+<span id="cb6-241"><a href="#cb6-241"></a>where $\lambda \ge 0$ is the **regularization hyperparameter**:</span>
+<span id="cb6-242"><a href="#cb6-242"></a><span class="ss">* </span>$\lambda = 0$: Recovers standard Ordinary Least Squares.</span>
+<span id="cb6-243"><a href="#cb6-243"></a><span class="ss">* </span>$\lambda \to \infty$: Drives all weights toward zero ($\hat{\boldsymbol{\theta}} \to \mathbf{0}$).</span>
+<span id="cb6-244"><a href="#cb6-244"></a></span>
+<span id="cb6-245"><a href="#cb6-245"></a><span class="fu">### 3.1 Analytical Derivation of the Ridge Normal Equations</span></span>
+<span id="cb6-246"><a href="#cb6-246"></a></span>
+<span id="cb6-247"><a href="#cb6-247"></a>Because the $L_2$ penalty is quadratic and continuously differentiable everywhere, we can solve for $\hat{\boldsymbol{\theta}}_{\text{Ridge}}$ in closed form:</span>
+<span id="cb6-248"><a href="#cb6-248"></a></span>
+<span id="cb6-249"><a href="#cb6-249"></a><span class="ss">1. </span>Expand the objective function:</span>
+<span id="cb6-250"><a href="#cb6-250"></a>   $$J(\boldsymbol{\theta}) = \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\theta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\theta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\theta} + \lambda \boldsymbol{\theta}^T\boldsymbol{\theta}$$</span>
+<span id="cb6-251"><a href="#cb6-251"></a></span>
+<span id="cb6-252"><a href="#cb6-252"></a><span class="ss">2. </span>Take the vector gradient with respect to $\boldsymbol{\theta}$:</span>
+<span id="cb6-253"><a href="#cb6-253"></a>   $$\nabla_{\boldsymbol{\theta}} J = -2\mathbf{X}^T\mathbf{y} + 2\mathbf{X}^T\mathbf{X}\boldsymbol{\theta} + 2\lambda\boldsymbol{\theta}$$</span>
+<span id="cb6-254"><a href="#cb6-254"></a></span>
+<span id="cb6-255"><a href="#cb6-255"></a><span class="ss">3. </span>Set the gradient to zero for optimality:</span>
+<span id="cb6-256"><a href="#cb6-256"></a>   $$\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\theta}} + \lambda\hat{\boldsymbol{\theta}} = \mathbf{X}^T\mathbf{y} \implies (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})\hat{\boldsymbol{\theta}} = \mathbf{X}^T\mathbf{y}$$</span>
+<span id="cb6-257"><a href="#cb6-257"></a></span>
+<span id="cb6-258"><a href="#cb6-258"></a><span class="ss">4. </span>Closed-form analytical solution:</span>
+<span id="cb6-259"><a href="#cb6-259"></a>   $$\boxed{\hat{\boldsymbol{\theta}}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}}$$</span>
+<span id="cb6-260"><a href="#cb6-260"></a></span>
+<span id="cb6-261"><a href="#cb6-261"></a><span class="fu">### 3.2 Rescuing the Collapsing Gram Matrix: The Eigenvalue Shift</span></span>
+<span id="cb6-262"><a href="#cb6-262"></a></span>
+<span id="cb6-263"><a href="#cb6-263"></a>Notice what adding $\lambda\mathbf{I}$ accomplishes algebraically:</span>
+<span id="cb6-264"><a href="#cb6-264"></a></span>
+<span id="cb6-265"><a href="#cb6-265"></a>In Lecture 04, we saw that as columns of $\mathbf{X}$ become collinear, the smallest eigenvalues of $\mathbf{X}^T\mathbf{X}$ plunge toward zero: $\lambda_{\min} \to 0$.</span>
+<span id="cb6-266"><a href="#cb6-266"></a></span>
+<span id="cb6-267"><a href="#cb6-267"></a>If $\mathbf{X}^T\mathbf{X}$ has eigenvalues $\lambda_i \ge 0$, then the regularized matrix $\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I}$ has eigenvalues:</span>
+<span id="cb6-268"><a href="#cb6-268"></a>$$\tilde{\lambda}_i = \lambda_i + \lambda \ge \lambda &gt; 0 \qquad \text{for all } i$$</span>
+<span id="cb6-269"><a href="#cb6-269"></a></span>
+<span id="cb6-270"><a href="#cb6-270"></a>Its determinant is strictly positive:</span>
+<span id="cb6-271"><a href="#cb6-271"></a>$$\det(\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I}) = \prod_{i=1}^p (\lambda_i + \lambda) \ge \lambda^p &gt; 0$$</span>
+<span id="cb6-272"><a href="#cb6-272"></a></span>
+<span id="cb6-273"><a href="#cb6-273"></a>**The Fundamental Mathematical Guarantee:** For any $\lambda &gt; 0$, the regularized matrix $(\mathbf{X}^T\mathbf{X} + \lambda\mathbf{I})$ is **guaranteed to be strictly positive-definite and non-singular**, even when $p &gt; n$ or when features are perfectly collinear! Ridge regression completely eliminates the numerical instability observed in Lecture 04.</span>
+<span id="cb6-274"><a href="#cb6-274"></a></span>
+<span id="cb6-275"><a href="#cb6-275"></a>---</span>
+<span id="cb6-276"><a href="#cb6-276"></a></span>
+<span id="cb6-277"><a href="#cb6-277"></a><span class="fu">## 4. $L_1$ Lasso Regularization: Geometric Sparsity</span></span>
+<span id="cb6-278"><a href="#cb6-278"></a></span>
+<span id="cb6-279"><a href="#cb6-279"></a>While Ridge shrinks coefficients continuously toward zero, it never sets any weight *exactly* to zero.</span>
+<span id="cb6-280"><a href="#cb6-280"></a></span>
+<span id="cb6-281"><a href="#cb6-281"></a>**Lasso Regression ($L_1$ Regularization)** replaces the squared $L_2$ penalty with the sum of absolute values:</span>
+<span id="cb6-282"><a href="#cb6-282"></a></span>
+<span id="cb6-283"><a href="#cb6-283"></a>$$J_{\text{Lasso}}(\boldsymbol{\theta}) = <span class="sc">\|</span>\mathbf{y} - \mathbf{X}\boldsymbol{\theta}<span class="sc">\|</span>_2^2 + \lambda \|\boldsymbol{\theta}\|_1 = \sum_{i=1}^n (y_i - \mathbf{x}_i^T\boldsymbol{\theta})^2 + \lambda \sum_{j=1}^p |\theta_j|$$</span>
+<span id="cb6-284"><a href="#cb6-284"></a></span>
+<span id="cb6-285"><a href="#cb6-285"></a>Because the absolute value function $|\theta_j|$ is non-differentiable at $\theta_j = 0$, Lasso has no closed-form solution and is solved numerically via coordinate descent.</span>
+<span id="cb6-286"><a href="#cb6-286"></a></span>
+<span id="cb6-287"><a href="#cb6-287"></a><span class="fu">### 4.1 The Geometric Diamond Argument</span></span>
+<span id="cb6-288"><a href="#cb6-288"></a></span>
+<span id="cb6-289"><a href="#cb6-289"></a>To understand why Lasso produces exact zeros (sparsity), consider the equivalent constrained optimization formulations:</span>
+<span id="cb6-290"><a href="#cb6-290"></a></span>
+<span id="cb6-291"><a href="#cb6-291"></a>$$\min_{\boldsymbol{\theta}} \text{RSS}(\boldsymbol{\theta}) \quad \text{subject to} \quad \begin{cases} <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_2^2 \le C &amp; \text{(Ridge)} <span class="sc">\\</span> <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_1 \le C &amp; \text{(Lasso)} \end{cases}$$</span>
+<span id="cb6-292"><a href="#cb6-292"></a></span>
+<span id="cb6-293"><a href="#cb6-293"></a><span class="ss">* </span>**Ridge ($L_2$ Ball):** The constraint boundary is a smooth sphere/circle. The elliptical contours of the RSS objective contact the circle at arbitrary smooth points, where neither coordinate is zero.</span>
+<span id="cb6-294"><a href="#cb6-294"></a><span class="ss">* </span>**Lasso ($L_1$ Diamond):** The constraint boundary has sharp corners located precisely on the coordinate axes ($\theta_1 = 0$ or $\theta_2 = 0$). An expanding elliptical RSS contour contacts these sharp corners first with high probability.</span>
+<span id="cb6-295"><a href="#cb6-295"></a></span>
+<span id="cb6-296"><a href="#cb6-296"></a>Thus, Lasso performs **automatic feature selection**, driving irrelevant or redundant feature weights strictly to zero!</span>
+<span id="cb6-297"><a href="#cb6-297"></a></span>
+<span id="cb6-298"><a href="#cb6-298"></a>---</span>
+<span id="cb6-299"><a href="#cb6-299"></a></span>
+<span id="cb6-300"><a href="#cb6-300"></a><span class="fu">## 5. Regularization Weight Paths: Ridge vs. Lasso</span></span>
+<span id="cb6-301"><a href="#cb6-301"></a></span>
+<span id="cb6-302"><a href="#cb6-302"></a>Let us compare how the estimated polynomial coefficients behave as the regularization penalty $\lambda$ increases:</span>
+<span id="cb6-303"><a href="#cb6-303"></a></span>
+<span id="cb6-306"><a href="#cb6-306"></a><span class="in">```{python}</span></span>
+<span id="cb6-307"><a href="#cb6-307"></a><span class="co">#| label: fig-regularization-paths</span></span>
+<span id="cb6-308"><a href="#cb6-308"></a><span class="co">#| fig-cap: "Regularization Weight Paths: Ridge (left) shrinks coefficients asymptotically toward zero, while Lasso (right) truncates coefficients exactly to zero at finite thresholds."</span></span>
+<span id="cb6-309"><a href="#cb6-309"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-310"><a href="#cb6-310"></a><span class="co">#| code-summary: "Generate Ridge vs. Lasso Weight Paths"</span></span>
+<span id="cb6-311"><a href="#cb6-311"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-312"><a href="#cb6-312"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-313"><a href="#cb6-313"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-314"><a href="#cb6-314"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-315"><a href="#cb6-315"></a></span>
+<span id="cb6-316"><a href="#cb6-316"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb6-317"><a href="#cb6-317"></a></span>
+<span id="cb6-318"><a href="#cb6-318"></a><span class="co"># Degree 6 polynomial features on normalized BMI</span></span>
+<span id="cb6-319"><a href="#cb6-319"></a>x_norm <span class="op">=</span> (x_all <span class="op">-</span> x_all.<span class="bu">min</span>()) <span class="op">/</span> (x_all.<span class="bu">max</span>() <span class="op">-</span> x_all.<span class="bu">min</span>())</span>
+<span id="cb6-320"><a href="#cb6-320"></a>y_data <span class="op">=</span> y_all</span>
+<span id="cb6-321"><a href="#cb6-321"></a>deg_path <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb6-322"><a href="#cb6-322"></a>X_poly_raw <span class="op">=</span> np.column_stack([x_norm<span class="op">**</span>k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, deg_path <span class="op">+</span> <span class="dv">1</span>)])</span>
+<span id="cb6-323"><a href="#cb6-323"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb6-324"><a href="#cb6-324"></a>X_poly_scaled <span class="op">=</span> scaler.fit_transform(X_poly_raw)</span>
+<span id="cb6-325"><a href="#cb6-325"></a></span>
+<span id="cb6-326"><a href="#cb6-326"></a>alphas <span class="op">=</span> np.logspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">100</span>)</span>
+<span id="cb6-327"><a href="#cb6-327"></a>ridge_coefs <span class="op">=</span> []</span>
+<span id="cb6-328"><a href="#cb6-328"></a>lasso_coefs <span class="op">=</span> []</span>
+<span id="cb6-329"><a href="#cb6-329"></a></span>
+<span id="cb6-330"><a href="#cb6-330"></a><span class="cf">for</span> a <span class="kw">in</span> alphas:</span>
+<span id="cb6-331"><a href="#cb6-331"></a>    r <span class="op">=</span> Ridge(alpha<span class="op">=</span>a, fit_intercept<span class="op">=</span><span class="va">True</span>).fit(X_poly_scaled, y_data)</span>
+<span id="cb6-332"><a href="#cb6-332"></a>    l <span class="op">=</span> Lasso(alpha<span class="op">=</span>a, max_iter<span class="op">=</span><span class="dv">10000</span>, fit_intercept<span class="op">=</span><span class="va">True</span>).fit(X_poly_scaled, y_data)</span>
+<span id="cb6-333"><a href="#cb6-333"></a>    ridge_coefs.append(r.coef_)</span>
+<span id="cb6-334"><a href="#cb6-334"></a>    lasso_coefs.append(l.coef_)</span>
+<span id="cb6-335"><a href="#cb6-335"></a></span>
+<span id="cb6-336"><a href="#cb6-336"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-337"><a href="#cb6-337"></a></span>
+<span id="cb6-338"><a href="#cb6-338"></a>axes[<span class="dv">0</span>].plot(alphas, ridge_coefs, lw<span class="op">=</span><span class="fl">1.8</span>)</span>
+<span id="cb6-339"><a href="#cb6-339"></a>axes[<span class="dv">0</span>].set_xscale(<span class="st">'log'</span>)</span>
+<span id="cb6-340"><a href="#cb6-340"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Ridge ($L_2$): Asymptotic Shrinkage'</span>)</span>
+<span id="cb6-341"><a href="#cb6-341"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="vs">r'Regularization Strength </span><span class="dv">$</span><span class="er">\</span><span class="vs">lambda</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb6-342"><a href="#cb6-342"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Standardized Coefficients'</span>)</span>
+<span id="cb6-343"><a href="#cb6-343"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-344"><a href="#cb6-344"></a></span>
+<span id="cb6-345"><a href="#cb6-345"></a>axes[<span class="dv">1</span>].plot(alphas, lasso_coefs, lw<span class="op">=</span><span class="fl">1.8</span>)</span>
+<span id="cb6-346"><a href="#cb6-346"></a>axes[<span class="dv">1</span>].set_xscale(<span class="st">'log'</span>)</span>
+<span id="cb6-347"><a href="#cb6-347"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Lasso ($L_1$): Exact Threshold Sparsity'</span>)</span>
+<span id="cb6-348"><a href="#cb6-348"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="vs">r'Regularization Strength </span><span class="dv">$</span><span class="er">\</span><span class="vs">lambda</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb6-349"><a href="#cb6-349"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Standardized Coefficients'</span>)</span>
+<span id="cb6-350"><a href="#cb6-350"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-351"><a href="#cb6-351"></a></span>
+<span id="cb6-352"><a href="#cb6-352"></a>plt.tight_layout()</span>
+<span id="cb6-353"><a href="#cb6-353"></a>plt.show()</span>
+<span id="cb6-354"><a href="#cb6-354"></a><span class="in">```</span></span>
+<span id="cb6-355"><a href="#cb6-355"></a></span>
+<span id="cb6-356"><a href="#cb6-356"></a>---</span>
+<span id="cb6-357"><a href="#cb6-357"></a></span>
+<span id="cb6-358"><a href="#cb6-358"></a><span class="fu">## 6. Andrew Ng's Empirical Machine Learning Diagnostics</span></span>
+<span id="cb6-359"><a href="#cb6-359"></a></span>
+<span id="cb6-360"><a href="#cb6-360"></a>When an applied machine learning model performs poorly on unseen test patients, what concrete action should an engineer take?</span>
+<span id="cb6-361"><a href="#cb6-361"></a></span>
+<span id="cb6-362"><a href="#cb6-362"></a>In Stanford CS229, Andrew Ng formalized a rigorous diagnostic methodology based on **Learning Curves** (plotting training and validation error as a function of training sample size $m$).</span>
+<span id="cb6-363"><a href="#cb6-363"></a></span>
+<span id="cb6-366"><a href="#cb6-366"></a><span class="in">```{python}</span></span>
+<span id="cb6-367"><a href="#cb6-367"></a><span class="co">#| label: fig-learning-curves</span></span>
+<span id="cb6-368"><a href="#cb6-368"></a><span class="co">#| fig-cap: "Andrew Ng's Diagnostic Learning Curves: High Bias (left) exhibits an early high-error plateau where adding data fails; High Variance (right) exhibits a large generalization gap that narrows as training size grows."</span></span>
+<span id="cb6-369"><a href="#cb6-369"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-370"><a href="#cb6-370"></a><span class="co">#| code-summary: "Generate Andrew Ng Learning Curves"</span></span>
+<span id="cb6-371"><a href="#cb6-371"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-372"><a href="#cb6-372"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-373"><a href="#cb6-373"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-374"><a href="#cb6-374"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-375"><a href="#cb6-375"></a></span>
+<span id="cb6-376"><a href="#cb6-376"></a>m_sizes <span class="op">=</span> np.linspace(<span class="dv">20</span>, <span class="dv">200</span>, <span class="dv">10</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb6-377"><a href="#cb6-377"></a>train_err_bias, val_err_bias <span class="op">=</span> [], []</span>
+<span id="cb6-378"><a href="#cb6-378"></a>train_err_var, val_err_var <span class="op">=</span> [], []</span>
+<span id="cb6-379"><a href="#cb6-379"></a></span>
+<span id="cb6-380"><a href="#cb6-380"></a><span class="cf">for</span> m <span class="kw">in</span> m_sizes:</span>
+<span id="cb6-381"><a href="#cb6-381"></a>    x_sub <span class="op">=</span> x_all[:m]</span>
+<span id="cb6-382"><a href="#cb6-382"></a>    y_sub <span class="op">=</span> y_all[:m]</span>
+<span id="cb6-383"><a href="#cb6-383"></a>    </span>
+<span id="cb6-384"><a href="#cb6-384"></a>    <span class="co"># High Bias Model (Degree 1)</span></span>
+<span id="cb6-385"><a href="#cb6-385"></a>    m_bias <span class="op">=</span> LinearRegression().fit(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_sub)</span>
+<span id="cb6-386"><a href="#cb6-386"></a>    train_err_bias.append(np.mean((y_sub <span class="op">-</span> m_bias.predict(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-387"><a href="#cb6-387"></a>    val_err_bias.append(np.mean((y_val <span class="op">-</span> m_bias.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-388"><a href="#cb6-388"></a>    </span>
+<span id="cb6-389"><a href="#cb6-389"></a>    <span class="co"># High Variance Model (Degree 8, unregularized)</span></span>
+<span id="cb6-390"><a href="#cb6-390"></a>    m_var <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">8</span>), LinearRegression()).fit(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_sub)</span>
+<span id="cb6-391"><a href="#cb6-391"></a>    train_err_var.append(np.mean((y_sub <span class="op">-</span> m_var.predict(x_sub.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-392"><a href="#cb6-392"></a>    val_err_var.append(np.mean((y_val <span class="op">-</span> m_var.predict(x_val.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-393"><a href="#cb6-393"></a></span>
+<span id="cb6-394"><a href="#cb6-394"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-395"><a href="#cb6-395"></a></span>
+<span id="cb6-396"><a href="#cb6-396"></a>axes[<span class="dv">0</span>].plot(m_sizes, train_err_bias, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss'</span>)</span>
+<span id="cb6-397"><a href="#cb6-397"></a>axes[<span class="dv">0</span>].plot(m_sizes, val_err_bias, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Validation Loss'</span>)</span>
+<span id="cb6-398"><a href="#cb6-398"></a>axes[<span class="dv">0</span>].axhline(<span class="fl">2.8</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, label<span class="op">=</span><span class="st">'High Error Plateau'</span>)</span>
+<span id="cb6-399"><a href="#cb6-399"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'High Bias (Underfitting): More Data Will NOT Help'</span>)</span>
+<span id="cb6-400"><a href="#cb6-400"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'Training Sample Size $m$'</span>)</span>
+<span id="cb6-401"><a href="#cb6-401"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb6-402"><a href="#cb6-402"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'center right'</span>)</span>
+<span id="cb6-403"><a href="#cb6-403"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-404"><a href="#cb6-404"></a></span>
+<span id="cb6-405"><a href="#cb6-405"></a>axes[<span class="dv">1</span>].plot(m_sizes, train_err_var, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Loss'</span>)</span>
+<span id="cb6-406"><a href="#cb6-406"></a>axes[<span class="dv">1</span>].plot(m_sizes, val_err_var, <span class="st">'s--'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Validation Loss'</span>)</span>
+<span id="cb6-407"><a href="#cb6-407"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'High Variance (Overfitting): More Data Helps'</span>)</span>
+<span id="cb6-408"><a href="#cb6-408"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Training Sample Size $m$'</span>)</span>
+<span id="cb6-409"><a href="#cb6-409"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Mean Squared Error'</span>)</span>
+<span id="cb6-410"><a href="#cb6-410"></a>axes[<span class="dv">1</span>].set_ylim(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb6-411"><a href="#cb6-411"></a>axes[<span class="dv">1</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'upper right'</span>)</span>
+<span id="cb6-412"><a href="#cb6-412"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-413"><a href="#cb6-413"></a></span>
+<span id="cb6-414"><a href="#cb6-414"></a>plt.tight_layout()</span>
+<span id="cb6-415"><a href="#cb6-415"></a>plt.show()</span>
+<span id="cb6-416"><a href="#cb6-416"></a><span class="in">```</span></span>
+<span id="cb6-417"><a href="#cb6-417"></a></span>
+<span id="cb6-418"><a href="#cb6-418"></a><span class="fu">### 6.1 Andrew Ng's 6 Diagnostic Actions</span></span>
+<span id="cb6-419"><a href="#cb6-419"></a></span>
+<span id="cb6-420"><a href="#cb6-420"></a><span class="pp">|</span> Diagnostic Finding <span class="pp">|</span> Root Pathology <span class="pp">|</span> Recommended Corrective Action <span class="pp">|</span> Why it Works <span class="pp">|</span></span>
+<span id="cb6-421"><a href="#cb6-421"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb6-422"><a href="#cb6-422"></a><span class="pp">|</span> **Large Gap** ($J_{\text{val}} \gg J_{\text{train}}$) | **High Variance** | **Collect more training data ($m \uparrow$)** <span class="pp">|</span> Constrains high-degree flexibility <span class="pp">|</span></span>
+<span id="cb6-423"><a href="#cb6-423"></a><span class="pp">|</span> **Large Gap** ($J_{\text{val}} \gg J_{\text{train}}$) | **High Variance** | **Reduce number of features ($p \downarrow$)** <span class="pp">|</span> Reduces model degrees of freedom <span class="pp">|</span></span>
+<span id="cb6-424"><a href="#cb6-424"></a><span class="pp">|</span> **Large Gap** ($J_{\text{val}} \gg J_{\text{train}}$) | **High Variance** | **Increase regularization ($\lambda \uparrow$)** <span class="pp">|</span> Shrinks weights and conditions Gram matrix <span class="pp">|</span></span>
+<span id="cb6-425"><a href="#cb6-425"></a><span class="pp">|</span> **High Plateau** ($J_{\text{train}} \approx J_{\text{val}}$ both high) | **High Bias** | **Engineer polynomial / interaction features** <span class="pp">|</span> Enriches hypothesis space <span class="pp">|</span></span>
+<span id="cb6-426"><a href="#cb6-426"></a><span class="pp">|</span> **High Plateau** ($J_{\text{train}} \approx J_{\text{val}}$ both high) | **High Bias** | **Add new clinical predictors** <span class="pp">|</span> Provides unobserved physical signal <span class="pp">|</span></span>
+<span id="cb6-427"><a href="#cb6-427"></a><span class="pp">|</span> **High Plateau** ($J_{\text{train}} \approx J_{\text{val}}$ both high) | **High Bias** | **Decrease regularization ($\lambda \downarrow$)** <span class="pp">|</span> Relieves artificial constraints on weights <span class="pp">|</span></span>
+<span id="cb6-428"><a href="#cb6-428"></a></span>
+<span id="cb6-429"><a href="#cb6-429"></a>---</span>
+<span id="cb6-430"><a href="#cb6-430"></a></span>
+<span id="cb6-431"><a href="#cb6-431"></a><span class="fu">## 7. Summary &amp; Key Takeaways</span></span>
+<span id="cb6-432"><a href="#cb6-432"></a></span>
+<span id="cb6-433"><a href="#cb6-433"></a><span class="fu">### Complete Linear Regression Trajectory</span></span>
+<span id="cb6-434"><a href="#cb6-434"></a></span>
+<span id="cb6-435"><a href="#cb6-435"></a><span class="ss">1. </span>**Lecture 01:** Ordinary Least Squares foundations and normal equations.</span>
+<span id="cb6-436"><a href="#cb6-436"></a><span class="ss">2. </span>**Lecture 02:** Geometric duality between Observation Space $(x, y)$ and Parameter Space $(\theta_0, \theta_1)$.</span>
+<span id="cb6-437"><a href="#cb6-437"></a><span class="ss">3. </span>**Lecture 03:** Parameter uncertainties $\operatorname{Cov}(\hat{\boldsymbol{\theta}}) = \hat{\sigma}^2(\mathbf{X}^T\mathbf{X})^{-1}$ and confidence intervals.</span>
+<span id="cb6-438"><a href="#cb6-438"></a><span class="ss">4. </span>**Lecture 04:** Feature engineering, qualitative one-hot encoding, non-linear curvature, and the collapse of the Gram determinant $\det(\mathbf{X}^T\mathbf{X}) \to 0$.</span>
+<span id="cb6-439"><a href="#cb6-439"></a><span class="ss">5. </span>**Lecture 05:** The Bias-Variance Tradeoff, empirical validation splits, Ridge eigenvalue rescue, Lasso sparsity, and Andrew Ng ML system diagnostics.</span>
+<span id="cb6-440"><a href="#cb6-440"></a></span>
+<span id="cb6-441"><a href="#cb6-441"></a><span class="fu">### Looking Ahead to Classification</span></span>
+<span id="cb6-442"><a href="#cb6-442"></a></span>
+<span id="cb6-443"><a href="#cb6-443"></a>Throughout Lectures 01–05, our target variable $y \in \mathbb{R}$ has been continuous (e.g. glucose levels, hospital days, blood pressure).</span>
+<span id="cb6-444"><a href="#cb6-444"></a></span>
+<span id="cb6-445"><a href="#cb6-445"></a>What happens when our target is qualitative and discrete—such as classifying whether a patient is **healthy ($y=0$)** or **diseased ($y=1$)**? In the next module, we move beyond regression to **Classification and Logistic Regression**.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

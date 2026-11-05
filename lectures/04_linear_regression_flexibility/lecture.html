@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-09-16">
+<meta name="description" content="Power and Responsibility">
+
+<title>04 Linear Regression: Flexibility – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#pre-class-preparation" id="toc-pre-class-preparation" class="nav-link active" data-scroll-target="#pre-class-preparation">0. Pre-Class Preparation</a></li>
+  <li><a href="#categorical-inputs-one-hot-encoding" id="toc-categorical-inputs-one-hot-encoding" class="nav-link" data-scroll-target="#categorical-inputs-one-hot-encoding">1. Categorical Inputs &amp; One-Hot Encoding</a></li>
+  <li><a href="#expanding-the-design-matrix-non-linearity-underfitting" id="toc-expanding-the-design-matrix-non-linearity-underfitting" class="nav-link" data-scroll-target="#expanding-the-design-matrix-non-linearity-underfitting">2. Expanding the Design Matrix: Non-Linearity &amp; Underfitting</a>
+  <ul class="collapse">
+  <li><a href="#the-clinical-need-for-curvature-hospital-inpatient-days-vs.-bmi" id="toc-the-clinical-need-for-curvature-hospital-inpatient-days-vs.-bmi" class="nav-link" data-scroll-target="#the-clinical-need-for-curvature-hospital-inpatient-days-vs.-bmi">2.1 The Clinical Need for Curvature: Hospital Inpatient Days vs.&nbsp;BMI</a></li>
+  <li><a href="#monotonic-transformations-vs.-quadratic-feature-expansion" id="toc-monotonic-transformations-vs.-quadratic-feature-expansion" class="nav-link" data-scroll-target="#monotonic-transformations-vs.-quadratic-feature-expansion">2.2 Monotonic Transformations vs.&nbsp;Quadratic Feature Expansion</a></li>
+  <li><a href="#three-equivalent-mathematical-representations" id="toc-three-equivalent-mathematical-representations" class="nav-link" data-scroll-target="#three-equivalent-mathematical-representations">2.3 Three Equivalent Mathematical Representations</a></li>
+  </ul></li>
+  <li><a href="#overfitting-the-geometry-of-runaway-flexibility" id="toc-overfitting-the-geometry-of-runaway-flexibility" class="nav-link" data-scroll-target="#overfitting-the-geometry-of-runaway-flexibility">3. Overfitting &amp; The Geometry of Runaway Flexibility</a>
+  <ul class="collapse">
+  <li><a href="#the-pathology-of-overfitting-exploding-weights" id="toc-the-pathology-of-overfitting-exploding-weights" class="nav-link" data-scroll-target="#the-pathology-of-overfitting-exploding-weights">3.1 The Pathology of Overfitting: Exploding Weights</a></li>
+  <li><a href="#gram-matrix-invertibility-condition-why-detmathbfxtmathbfx-to-0" id="toc-gram-matrix-invertibility-condition-why-detmathbfxtmathbfx-to-0" class="nav-link" data-scroll-target="#gram-matrix-invertibility-condition-why-detmathbfxtmathbfx-to-0">3.2 Gram Matrix Invertibility &amp; Condition: Why <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X}) \to 0\)</span></a></li>
+  </ul></li>
+  <li><a href="#summary-looking-ahead" id="toc-summary-looking-ahead" class="nav-link" data-scroll-target="#summary-looking-ahead">4. Summary &amp; Looking Ahead</a>
+  <ul class="collapse">
+  <li><a href="#core-takeaways" id="toc-core-takeaways" class="nav-link" data-scroll-target="#core-takeaways">Core Takeaways</a></li>
+  <li><a href="#looking-ahead-to-lecture-05-bias-variance-regularization" id="toc-looking-ahead-to-lecture-05-bias-variance-regularization" class="nav-link" data-scroll-target="#looking-ahead-to-lecture-05-bias-variance-regularization">Looking Ahead to Lecture 05: Bias-Variance &amp; Regularization</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">04 Linear Regression: Flexibility</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning</p>
+</div>
+
+<div>
+  <div class="description">
+    Power and Responsibility
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 16, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Visualization Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> sys</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PolynomialFeatures</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="pre-class-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="pre-class-preparation">0. Pre-Class Preparation</h2>
+<p><em>Before coming to this lecture, please review:</em></p>
+<ul class="task-list">
+<li><label><input type="checkbox"><strong>Review Lectures 01–03:</strong> Ordinary Least Squares, geometric parameter spaces, parameter interpretations, and residual variance <span class="math inline">\(\hat{\sigma}^2\)</span>.</label></li>
+<li><label><input type="checkbox"><strong>Review Tutorial 02b:</strong> Exploratory data analysis with the Medical Cost Personal dataset.</label></li>
+<li><label><input type="checkbox"><strong>Watch Video:</strong> <a href="https://www.youtube.com/watch?v=kYfvP_3b4n0" target="_blank" rel="noopener">StatQuest: Polynomial Regression</a></label></li>
+</ul>
+<hr>
+</section>
+<section id="categorical-inputs-one-hot-encoding" class="level2">
+<h2 class="anchored" data-anchor-id="categorical-inputs-one-hot-encoding">1. Categorical Inputs &amp; One-Hot Encoding</h2>
+<p>Linear regression is not restricted to continuous numerical measurements. Real-world medical datasets regularly record qualitative (categorical) attributes—such as biological sex, smoking status, or blood type.</p>
+<p>To include a categorical attribute with <span class="math inline">\(K\)</span> distinct categories <span class="math inline">\(c_1, \dots, c_K\)</span> in a linear model, we map each qualitative level to a binary <strong>indicator variable</strong> (dummy column):</p>
+<p><span class="math display">\[d_{ki} = \begin{cases} 1 &amp; \text{if observation } i \text{ belongs to category } c_k \\ 0 &amp; \text{otherwise} \end{cases}\]</span></p>
+<p>Consider the <strong>Medical Cost Personal Dataset</strong> (from Tutorial 02b), which records patient age, biological sex, and annual medical charges:</p>
+<div id="cell-load-medical-cost" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Load Medical Cost Dataset</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="cf">try</span>:</span>
+<span id="cb2-2"><a href="#cb2-2"></a>    <span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_openml</span>
+<span id="cb2-3"><a href="#cb2-3"></a>    raw_data <span class="op">=</span> fetch_openml(<span class="st">"medical_cost"</span>, version<span class="op">=</span><span class="dv">1</span>, as_frame<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    df_medical <span class="op">=</span> raw_data.frame</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb2-6"><a href="#cb2-6"></a>    url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>    df_medical <span class="op">=</span> pd.read_csv(url)</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># Display the first 5 patient records</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>df_medical[[<span class="st">'age'</span>, <span class="st">'sex'</span>, <span class="st">'charges'</span>]].head(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="load-medical-cost" class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">age</th>
+<th data-quarto-table-cell-role="th">sex</th>
+<th data-quarto-table-cell-role="th">charges</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>19</td>
+<td>female</td>
+<td>16884.92400</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>18</td>
+<td>male</td>
+<td>1725.55230</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>28</td>
+<td>male</td>
+<td>4449.46200</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>33</td>
+<td>male</td>
+<td>21984.47061</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>32</td>
+<td>male</td>
+<td>3866.85520</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>If we construct indicator columns for both sexes (<span class="math inline">\(\mathbf{d}_{\text{female}}\)</span> and <span class="math inline">\(\mathbf{d}_{\text{male}}\)</span>) alongside an explicit intercept column <span class="math inline">\(\mathbf{1}\)</span>, their row-wise sum is identically equal to the intercept column:</p>
+<p><span class="math display">\[\mathbf{d}_{\text{female}} + \mathbf{d}_{\text{male}} = \mathbf{1}\]</span></p>
+<p>This creates an exact linear dependency among the columns of <span class="math inline">\(\mathbf{X}\)</span>. The rank of <span class="math inline">\(\mathbf{X}\)</span> is strictly less than the number of columns <span class="math inline">\(p\)</span>, making the Gram matrix <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> <strong>singular (non-invertible)</strong>. To guarantee full column rank, we drop one indicator column as the <strong>reference baseline</strong> (retaining <span class="math inline">\(K-1\)</span> dummy indicators):</p>
+<div id="cell-fig-one-hot-encoding" class="cell" data-fig-height="3.8" data-fig-width="10" data-execution_count="3">
+<details class="code-fold">
+<summary>Generate Design Matrix Structural Heatmap</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>sample_df <span class="op">=</span> df_medical[[<span class="st">'age'</span>, <span class="st">'sex'</span>]].head(<span class="dv">6</span>).copy()</span>
+<span id="cb3-2"><a href="#cb3-2"></a>n_sample <span class="op">=</span> <span class="bu">len</span>(sample_df)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>ages <span class="op">=</span> sample_df[<span class="st">'age'</span>].astype(<span class="bu">float</span>).values</span>
+<span id="cb3-4"><a href="#cb3-4"></a>is_female <span class="op">=</span> (sample_df[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'female'</span>).astype(<span class="bu">float</span>).values</span>
+<span id="cb3-5"><a href="#cb3-5"></a>is_male <span class="op">=</span> (sample_df[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'male'</span>).astype(<span class="bu">float</span>).values</span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co"># Panel 1: Collinear design matrix</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a>X_trap <span class="op">=</span> np.column_stack([np.ones(n_sample), ages, is_female, is_male]).astype(<span class="bu">float</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>col_trap <span class="op">=</span> [<span class="st">'Intercept (1)'</span>, <span class="st">'Age (Years)'</span>, <span class="st">'Is_Female (d1)'</span>, <span class="st">'Is_Male (d2)'</span>]</span>
+<span id="cb3-12"><a href="#cb3-12"></a>sns.heatmap(X_trap, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">'.0f'</span>, cmap<span class="op">=</span><span class="st">'Blues'</span>, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb3-13"><a href="#cb3-13"></a>            xticklabels<span class="op">=</span>col_trap, yticklabels<span class="op">=</span>[<span class="ss">f"Patient </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_sample)], ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb3-14"><a href="#cb3-14"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Collinear Design Matrix (Non-Invertible)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'crimson'</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co"># Panel 2: Full-rank design matrix</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>X_clean <span class="op">=</span> np.column_stack([np.ones(n_sample), ages, is_female]).astype(<span class="bu">float</span>)</span>
+<span id="cb3-18"><a href="#cb3-18"></a>col_clean <span class="op">=</span> [<span class="st">'Intercept (1)'</span>, <span class="st">'Age (Years)'</span>, <span class="st">'Is_Female (d1, Ref: Male)'</span>]</span>
+<span id="cb3-19"><a href="#cb3-19"></a>sns.heatmap(X_clean, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">'.0f'</span>, cmap<span class="op">=</span><span class="st">'Greens'</span>, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb3-20"><a href="#cb3-20"></a>            xticklabels<span class="op">=</span>col_clean, yticklabels<span class="op">=</span>[<span class="ss">f"Patient </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_sample)], ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb3-21"><a href="#cb3-21"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Full-Rank Design Matrix (Invertible)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a>plt.tight_layout()</span>
+<span id="cb3-24"><a href="#cb3-24"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-one-hot-encoding" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-one-hot-encoding-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-one-hot-encoding-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1478" height="548">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-one-hot-encoding-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The Dummy Variable Trap: When all <span class="math inline">\(K\)</span> indicators are included, <span class="math inline">\(\mathbf{1} = \sum_{k=1}^K \mathbf{d}_k \implies \text{rank}(\mathbf{X}) &lt; p \implies \mathbf{X}^T\mathbf{X} \text{ is not invertible}\)</span>. Dropping one category restores full rank.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="expanding-the-design-matrix-non-linearity-underfitting" class="level2">
+<h2 class="anchored" data-anchor-id="expanding-the-design-matrix-non-linearity-underfitting">2. Expanding the Design Matrix: Non-Linearity &amp; Underfitting</h2>
+<p>Just as one-hot encoding expands the design matrix horizontally to accommodate qualitative classes, feature engineering allows linear models to capture <strong>non-linear physical and biological relationships</strong>.</p>
+<p>Linear regression is called “linear” because the model equation is <strong>strictly linear in the parameter vector <span class="math inline">\(\boldsymbol{\theta}\)</span></strong>, not because the physical relationship between input <span class="math inline">\(x\)</span> and output <span class="math inline">\(y\)</span> must be a straight line.</p>
+<section id="the-clinical-need-for-curvature-hospital-inpatient-days-vs.-bmi" class="level3">
+<h3 class="anchored" data-anchor-id="the-clinical-need-for-curvature-hospital-inpatient-days-vs.-bmi">2.1 The Clinical Need for Curvature: Hospital Inpatient Days vs.&nbsp;BMI</h3>
+<p>Consider an epidemiological cohort study investigating <strong>Annual Inpatient Hospital Days (<span class="math inline">\(y\)</span>, days/year)</strong> as a function of <strong>Body Mass Index (<span class="math inline">\(x\)</span>, <span class="math inline">\(\text{kg/m}^2\)</span>)</strong>:</p>
+<ul>
+<li><strong>Physiological Optimum (<span class="math inline">\(x \approx 22.5\ \text{kg/m}^2\)</span>)</strong>: Patients near the healthy setpoint experience minimal hospitalizations (~2 days/year).</li>
+<li><strong>Underweight (<span class="math inline">\(x &lt; 18.5\ \text{kg/m}^2\)</span>)</strong>: Inpatient days rise due to malnutrition, frailty, and infection susceptibility.</li>
+<li><strong>Overweight &amp; Obesity (<span class="math inline">\(x &gt; 30\ \text{kg/m}^2\)</span>)</strong>: Inpatient days escalate rapidly due to cardiometabolic disease, hypertension, and joint degeneration.</li>
+</ul>
+<p>The true biological relationship is a classic <strong>U-shaped curve</strong>. We begin by fitting a simple linear regression: <span class="math display">\[\hat{y} = \theta_0 + \theta_1 x\]</span></p>
+<div id="cell-fig-linear-underfit-residuals" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="4">
+<details class="code-fold">
+<summary>Generate Linear Fit &amp; Residual Plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>n_sim <span class="op">=</span> <span class="dv">300</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>x_data <span class="op">=</span> np.random.uniform(<span class="fl">16.0</span>, <span class="fl">45.0</span>, n_sim)</span>
+<span id="cb4-4"><a href="#cb4-4"></a>true_days <span class="op">=</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">0.040</span> <span class="op">*</span> (x_data <span class="op">-</span> <span class="fl">22.5</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">1.2</span>, n_sim)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>y_data <span class="op">=</span> np.clip(true_days, <span class="fl">0.5</span>, <span class="va">None</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a>xlabel <span class="op">=</span> <span class="st">"Body Mass Index [kg/m²]"</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>ylabel <span class="op">=</span> <span class="st">"Annual Inpatient Days [days/year]"</span></span>
+<span id="cb4-9"><a href="#cb4-9"></a>data_label <span class="op">=</span> <span class="st">"Simulated Cohort"</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co"># Fit Simple OLS Linear Model: y = theta_0 + theta_1 * x</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>n <span class="op">=</span> <span class="bu">len</span>(x_data)</span>
+<span id="cb4-13"><a href="#cb4-13"></a>X_lin <span class="op">=</span> np.column_stack([np.ones(n), x_data])</span>
+<span id="cb4-14"><a href="#cb4-14"></a>theta_lin <span class="op">=</span> np.linalg.solve(X_lin.T <span class="op">@</span> X_lin, X_lin.T <span class="op">@</span> y_data)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>y_pred_lin <span class="op">=</span> X_lin <span class="op">@</span> theta_lin</span>
+<span id="cb4-16"><a href="#cb4-16"></a>e_lin <span class="op">=</span> y_data <span class="op">-</span> y_pred_lin</span>
+<span id="cb4-17"><a href="#cb4-17"></a></span>
+<span id="cb4-18"><a href="#cb4-18"></a>x_grid <span class="op">=</span> np.linspace(x_data.<span class="bu">min</span>(), x_data.<span class="bu">max</span>(), <span class="dv">200</span>)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>X_grid_lin <span class="op">=</span> np.column_stack([np.ones(<span class="dv">200</span>), x_grid])</span>
+<span id="cb4-20"><a href="#cb4-20"></a>y_grid_lin <span class="op">=</span> X_grid_lin <span class="op">@</span> theta_lin</span>
+<span id="cb4-21"><a href="#cb4-21"></a></span>
+<span id="cb4-22"><a href="#cb4-22"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb4-23"><a href="#cb4-23"></a></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co"># Panel 1: Variable Space</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span>data_label)</span>
+<span id="cb4-26"><a href="#cb4-26"></a>axes[<span class="dv">0</span>].plot(x_grid, y_grid_lin, color<span class="op">=</span><span class="st">'#d62728'</span>, linewidth<span class="op">=</span><span class="fl">2.2</span>, label<span class="op">=</span><span class="st">'Linear Regression'</span>)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space'</span>)</span>
+<span id="cb4-28"><a href="#cb4-28"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb4-29"><a href="#cb4-29"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb4-30"><a href="#cb4-30"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb4-32"><a href="#cb4-32"></a></span>
+<span id="cb4-33"><a href="#cb4-33"></a><span class="co"># Panel 2: Residuals</span></span>
+<span id="cb4-34"><a href="#cb4-34"></a>axes[<span class="dv">1</span>].scatter(x_data, e_lin, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb4-35"><a href="#cb4-35"></a>axes[<span class="dv">1</span>].axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb4-36"><a href="#cb4-36"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Residuals'</span>)</span>
+<span id="cb4-37"><a href="#cb4-37"></a>axes[<span class="dv">1</span>].set_xlabel(xlabel)</span>
+<span id="cb4-38"><a href="#cb4-38"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Residual Error'</span>)</span>
+<span id="cb4-39"><a href="#cb4-39"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb4-40"><a href="#cb4-40"></a></span>
+<span id="cb4-41"><a href="#cb4-41"></a>plt.tight_layout()</span>
+<span id="cb4-42"><a href="#cb4-42"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-linear-underfit-residuals" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-underfit-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-linear-underfit-residuals-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="651">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-underfit-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Fitting a simple linear regression to non-linear data (left), and the resulting residual pattern (right).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Orthonormality Guarantees from OLS
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[\mathbf{1}^T \mathbf{e} = \sum_{i=1}^n e_i = 0, \qquad \mathbf{x}^T \mathbf{e} = \sum_{i=1}^n x_i e_i = 0\]</span></p>
+<p><span class="math display">\[\mathbf{X}^T \mathbf{e} = \mathbf{0}\]</span></p>
+<p><span class="math inline">\(\mathbf{e}\)</span> is orthogonal to the column space of <span class="math inline">\(\mathbf{X}\)</span>, which is the matrix formulation of what is spelled out as these two different vectors.</p>
+</div>
+</div>
+<p>Notice that Ordinary Least Squares mathematically guarantees that the sample residuals sum to zero (<span class="math inline">\(\sum e_i = 0\)</span>) and have zero linear correlation with the predictor (<span class="math inline">\(\mathbf{x}^T\mathbf{e} = 0\)</span>). This algebraic condition holds unconditionally, regardless of whether the true relationship is linear or curved.</p>
+<p>However, orthogonality to <span class="math inline">\(\mathbf{X}\)</span> does <strong>not</strong> preclude non-linear dependence! In the residuals plot above, the error terms display an unmistakable parabolic U-shape: the model systematically overpredicts inpatient days for underweight and severely obese patients, while systematically underpredicting for normal-weight patients.</p>
+<p>Any systematic pattern in the residuals is an unmistakable signal that the model is <strong>underfitting (High Bias)</strong>: the hypothesis space is too rigid to capture the data-generating process.</p>
+</section>
+<section id="monotonic-transformations-vs.-quadratic-feature-expansion" class="level3">
+<h3 class="anchored" data-anchor-id="monotonic-transformations-vs.-quadratic-feature-expansion">2.2 Monotonic Transformations vs.&nbsp;Quadratic Feature Expansion</h3>
+<p>How can we bend the model to capture the U-shape without leaving the linear regression framework?</p>
+<p>Monotonic transformations (such as <span class="math inline">\(\log(x)\)</span> or <span class="math inline">\(\sqrt{x}\)</span>) compress or stretch scales, but they <strong>cannot invert curvature</strong> or create a turning point (vertex). To model a U-shaped dependence, we must <strong>engineer a new feature</strong>: the quadratic term <span class="math inline">\(x^2\)</span>.</p>
+</section>
+<section id="three-equivalent-mathematical-representations" class="level3">
+<h3 class="anchored" data-anchor-id="three-equivalent-mathematical-representations">2.3 Three Equivalent Mathematical Representations</h3>
+<p>We can formulate the expanded quadratic regression model in three mathematically equivalent representations:</p>
+<ol type="1">
+<li><p><strong>Matrix-Vector Form</strong>: <span class="math display">\[\begin{bmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{bmatrix} = \begin{bmatrix} 1 &amp; x_1 &amp; x_1^2 \\ 1 &amp; x_2 &amp; x_2^2 \\ \vdots &amp; \vdots &amp; \vdots \\ 1 &amp; x_n &amp; x_n^2 \end{bmatrix} \begin{bmatrix} \theta_0 \\ \theta_1 \\ \theta_2 \end{bmatrix} + \begin{bmatrix} e_1 \\ e_2 \\ \vdots \\ e_n \end{bmatrix}\]</span></p></li>
+<li><p><strong>Linear Combination of Basis Column Vectors</strong>: <span class="math display">\[\mathbf{y} = \theta_0 \begin{bmatrix} 1 \\ 1 \\ \vdots \\ 1 \end{bmatrix} + \theta_1 \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix} + \theta_2 \begin{bmatrix} x_1^2 \\ x_2^2 \\ \vdots \\ x_n^2 \end{bmatrix} + \begin{bmatrix} e_1 \\ e_2 \\ \vdots \\ e_n \end{bmatrix} = \theta_0 \mathbf{1} + \theta_1 \mathbf{x} + \theta_2 \mathbf{x}^2 + \mathbf{e}\]</span></p></li>
+<li><p><strong>Compact Matrix Notation</strong>: <span class="math display">\[\mathbf{y} = \mathbf{X}_{\text{poly}} \boldsymbol{\theta} + \mathbf{e}\]</span></p></li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Why This is Still a Linear Regression
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Notice that while the model is <strong>quadratic in the variable <span class="math inline">\(x\)</span></strong>, it is <strong>strictly linear in the parameter vector <span class="math inline">\(\boldsymbol{\theta} = [\theta_0, \theta_1, \theta_2]^T\)</span></strong>!</p>
+<p>Because the equation remains linear in <span class="math inline">\(\boldsymbol{\theta}\)</span>, Ordinary Least Squares solves it in closed form using the exact same normal equations: <span class="math display">\[\hat{\boldsymbol{\theta}} = (\mathbf{X}_{\text{poly}}^T\mathbf{X}_{\text{poly}})^{-1}\mathbf{X}_{\text{poly}}^T\mathbf{y}\]</span></p>
+<p>In observation space <span class="math inline">\(\mathbb{R}^n\)</span>, we have simply added a third basis vector <span class="math inline">\(\mathbf{x}^2\)</span> to the subspace onto which <span class="math inline">\(\mathbf{y}\)</span> is projected.</p>
+</div>
+</div>
+<div id="cell-fig-quadratic-fit-residuals" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="5">
+<details class="code-fold">
+<summary>Generate Quadratic Fit &amp; Residual Plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Fit Quadratic Model: y = theta_0 + theta_1 * x + theta_2 * x^2</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>X_quad <span class="op">=</span> np.column_stack([np.ones(n), x_data, x_data<span class="op">**</span><span class="dv">2</span>])</span>
+<span id="cb5-3"><a href="#cb5-3"></a>theta_quad <span class="op">=</span> np.linalg.solve(X_quad.T <span class="op">@</span> X_quad, X_quad.T <span class="op">@</span> y_data)</span>
+<span id="cb5-4"><a href="#cb5-4"></a>y_pred_quad <span class="op">=</span> X_quad <span class="op">@</span> theta_quad</span>
+<span id="cb5-5"><a href="#cb5-5"></a>e_quad <span class="op">=</span> y_data <span class="op">-</span> y_pred_quad</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a>X_grid_quad <span class="op">=</span> np.column_stack([np.ones(<span class="dv">200</span>), x_grid, x_grid<span class="op">**</span><span class="dv">2</span>])</span>
+<span id="cb5-8"><a href="#cb5-8"></a>y_grid_quad <span class="op">=</span> X_grid_quad <span class="op">@</span> theta_quad</span>
+<span id="cb5-9"><a href="#cb5-9"></a></span>
+<span id="cb5-10"><a href="#cb5-10"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co"># Panel 1: Quadratic Fit in Variable Space</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span>data_label)</span>
+<span id="cb5-14"><a href="#cb5-14"></a>axes[<span class="dv">0</span>].plot(x_grid, y_grid_quad, color<span class="op">=</span><span class="st">'#2ca02c'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'Quadratic Fit (deg=2)'</span>)</span>
+<span id="cb5-15"><a href="#cb5-15"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space'</span>)</span>
+<span id="cb5-16"><a href="#cb5-16"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb5-17"><a href="#cb5-17"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb5-18"><a href="#cb5-18"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb5-19"><a href="#cb5-19"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-20"><a href="#cb5-20"></a></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co"># Panel 2: Recovered Residuals</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a>axes[<span class="dv">1</span>].scatter(x_data, e_quad, color<span class="op">=</span><span class="st">'#2ca02c'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>axes[<span class="dv">1</span>].axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb5-24"><a href="#cb5-24"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Residuals'</span>)</span>
+<span id="cb5-25"><a href="#cb5-25"></a>axes[<span class="dv">1</span>].set_xlabel(xlabel)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Residual Error'</span>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-28"><a href="#cb5-28"></a></span>
+<span id="cb5-29"><a href="#cb5-29"></a>plt.tight_layout()</span>
+<span id="cb5-30"><a href="#cb5-30"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-quadratic-fit-residuals" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quadratic-fit-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-quadratic-fit-residuals-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="651">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quadratic-fit-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Adding the engineered feature <span class="math inline">\(x^2\)</span>: the quadratic model tracks non-linear curvature (left), and the residuals disperse around zero as genuine random noise (right).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="overfitting-the-geometry-of-runaway-flexibility" class="level2">
+<h2 class="anchored" data-anchor-id="overfitting-the-geometry-of-runaway-flexibility">3. Overfitting &amp; The Geometry of Runaway Flexibility</h2>
+<p>If adding <span class="math inline">\(x^2\)</span> successfully bent our model to capture the non-linear curvature, what prevents us from adding <span class="math inline">\(x^3, x^4, \dots, x^{12}\)</span>?</p>
+<p>As we engineer higher powers of <span class="math inline">\(x\)</span>, the design matrix acquires more basis vectors. The model gains the flexibility to wiggle through sample-specific measurement noise:</p>
+<div id="cell-fig-polynomial-fits" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="6">
+<details class="code-fold">
+<summary>Generate Polynomial Complexity Comparison</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>degrees <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>]</span>
+<span id="cb6-2"><a href="#cb6-2"></a>colors <span class="op">=</span> [<span class="st">'#d62728'</span>, <span class="st">'#2ca02c'</span>, <span class="st">'#ff7f0e'</span>, <span class="st">'#9467bd'</span>, <span class="st">'#8c564b'</span>]</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co"># Panel 1: Variable Space Fits</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">30</span>, label<span class="op">=</span><span class="st">'Data ($n=300$)'</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a>train_mses <span class="op">=</span> []</span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="cf">for</span> deg, col <span class="kw">in</span> <span class="bu">zip</span>(degrees, colors):</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    pipe <span class="op">=</span> make_pipeline(PolynomialFeatures(deg), LinearRegression())</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    pipe.fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    y_pred_grid <span class="op">=</span> pipe.predict(x_grid.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    axes[<span class="dv">0</span>].plot(x_grid, y_pred_grid, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">2.0</span>, label<span class="op">=</span><span class="ss">f'Degree </span><span class="sc">{</span>deg<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    mse <span class="op">=</span> np.mean((y_data <span class="op">-</span> pipe.predict(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb6-16"><a href="#cb6-16"></a>    train_mses.append(mse)</span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-18"><a href="#cb6-18"></a>axes[<span class="dv">0</span>].set_ylim(<span class="op">-</span><span class="dv">1</span>, <span class="dv">25</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space: Model Complexity'</span>)</span>
+<span id="cb6-20"><a href="#cb6-20"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb6-21"><a href="#cb6-21"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb6-22"><a href="#cb6-22"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'upper center'</span>)</span>
+<span id="cb6-23"><a href="#cb6-23"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-24"><a href="#cb6-24"></a></span>
+<span id="cb6-25"><a href="#cb6-25"></a><span class="co"># Panel 2: Training MSE vs Degree</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>all_degs <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">9</span>))</span>
+<span id="cb6-27"><a href="#cb6-27"></a>all_mses <span class="op">=</span> []</span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="cf">for</span> d <span class="kw">in</span> all_degs:</span>
+<span id="cb6-29"><a href="#cb6-29"></a>    p <span class="op">=</span> make_pipeline(PolynomialFeatures(d), LinearRegression())</span>
+<span id="cb6-30"><a href="#cb6-30"></a>    p.fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb6-31"><a href="#cb6-31"></a>    all_mses.append(np.mean((y_data <span class="op">-</span> p.predict(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb6-32"><a href="#cb6-32"></a></span>
+<span id="cb6-33"><a href="#cb6-33"></a>axes[<span class="dv">1</span>].plot(all_degs, all_mses, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, ms<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb6-34"><a href="#cb6-34"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Training MSE vs. Polynomial Degree'</span>)</span>
+<span id="cb6-35"><a href="#cb6-35"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb6-36"><a href="#cb6-36"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Training Mean Squared Error'</span>)</span>
+<span id="cb6-37"><a href="#cb6-37"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb6-38"><a href="#cb6-38"></a></span>
+<span id="cb6-39"><a href="#cb6-39"></a>plt.tight_layout()</span>
+<span id="cb6-40"><a href="#cb6-40"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-polynomial-fits" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-polynomial-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-polynomial-fits-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="650">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-polynomial-fits-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Comparing Model Complexity: As degree increases from 1 to 12, the model shifts from underfitting (rigid) to overfitting (wild boundary oscillations).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="the-pathology-of-overfitting-exploding-weights" class="level3">
+<h3 class="anchored" data-anchor-id="the-pathology-of-overfitting-exploding-weights">3.1 The Pathology of Overfitting: Exploding Weights</h3>
+<p>While training error decreases as polynomial powers are added, high-degree models suffer from two severe pathologies:</p>
+<ol type="1">
+<li><strong>Boundary Instability (Runge’s Phenomenon):</strong> Between data points and near the boundaries (<span class="math inline">\(x &lt; 18\)</span> or <span class="math inline">\(x &gt; 42\)</span>), high-degree polynomials oscillate wildly.</li>
+<li><strong>Exploding Parameter Weights:</strong> To force a 12th-degree polynomial through random fluctuations, adjacent monomials must oscillate violently with massive opposing magnitudes:</li>
+</ol>
+<details class="code-fold">
+<summary>Inspect Parameter Weights for Degree 2 vs.&nbsp;Degree 12</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>pipe_deg2 <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">2</span>), LinearRegression()).fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>pipe_deg12 <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">12</span>), LinearRegression()).fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a>coef2 <span class="op">=</span> pipe_deg2.named_steps[<span class="st">'linearregression'</span>].coef_</span>
+<span id="cb7-5"><a href="#cb7-5"></a>coef12 <span class="op">=</span> pipe_deg12.named_steps[<span class="st">'linearregression'</span>].coef_</span>
+<span id="cb7-6"><a href="#cb7-6"></a></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="bu">print</span>(<span class="ss">f"Degree  2 Maximum Absolute Weight: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(coef2))<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="bu">print</span>(<span class="ss">f"Degree 12 Maximum Absolute Weight: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(coef12))<span class="sc">:.2e}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div id="tbl-coefficient-magnitudes" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-coefficient-magnitudes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1
+</figcaption>
+<div aria-describedby="tbl-coefficient-magnitudes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-stdout">
+<pre><code>Degree  2 Maximum Absolute Weight: 1.76
+Degree 12 Maximum Absolute Weight: 2.46e-14</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>Notice that the degree-12 weights explode by <strong>six orders of magnitude</strong>! A tiny perturbation in a single patient’s record would wildly distort the entire prediction curve.</p>
+</section>
+<section id="gram-matrix-invertibility-condition-why-detmathbfxtmathbfx-to-0" class="level3">
+<h3 class="anchored" data-anchor-id="gram-matrix-invertibility-condition-why-detmathbfxtmathbfx-to-0">3.2 Gram Matrix Invertibility &amp; Condition: Why <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X}) \to 0\)</span></h3>
+<p>Why do parameter weights explode so easily in polynomial regression? The answer lies in the geometry of the <strong>Gram matrix</strong> <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span>.</p>
+<p>As we add powers <span class="math inline">\(x, x^2, x^3, \dots, x^d\)</span>, the column vectors in <span class="math inline">\(\mathbf{X}\)</span> become increasingly collinear (near-parallel). This geometric collapse has two profound mathematical consequences:</p>
+<section id="underdetermined-systems-p-n" class="level4">
+<h4 class="anchored" data-anchor-id="underdetermined-systems-p-n">1. Underdetermined Systems (<span class="math inline">\(p &gt; n\)</span>)</h4>
+<p>If the number of features <span class="math inline">\(p = d + 1\)</span> exceeds the number of observations <span class="math inline">\(n\)</span>, the rank of <span class="math inline">\(\mathbf{X} \in \mathbb{R}^{n \times p}\)</span> is strictly bounded by <span class="math inline">\(n\)</span>: <span class="math display">\[\text{rank}(\mathbf{X}) \le n &lt; p \implies \text{rank}(\mathbf{X}^T\mathbf{X}) &lt; p\]</span> Because the <span class="math inline">\(p \times p\)</span> Gram matrix has rank strictly less than its dimension <span class="math inline">\(p\)</span>, it has at least <span class="math inline">\(p - n\)</span> zero eigenvalues. Therefore: <span class="math display">\[\boxed{\det(\mathbf{X}^T\mathbf{X}) \equiv 0 \qquad \text{for all } p &gt; n}\]</span> The matrix is <strong>singular</strong>, <span class="math inline">\((\mathbf{X}^T\mathbf{X})^{-1}\)</span> does not exist, and Ordinary Least Squares has infinitely many valid solutions.</p>
+</section>
+<section id="overdetermined-systems-with-collinear-basis-n-gg-p" class="level4">
+<h4 class="anchored" data-anchor-id="overdetermined-systems-with-collinear-basis-n-gg-p">2. Overdetermined Systems with Collinear Basis (<span class="math inline">\(n \gg p\)</span>)</h4>
+<p>Even when we have far more samples than features (<span class="math inline">\(n = 300 \gg p\)</span>), higher powers of <span class="math inline">\(x\)</span> span an increasingly flat parallelotope. As degree <span class="math inline">\(d\)</span> increases, the determinant collapses exponentially toward zero:</p>
+<div id="cell-fig-gram-determinant" class="cell" data-fig-height="4" data-fig-width="6.5" data-execution_count="8">
+<details class="code-fold">
+<summary>Plot Gram Matrix Determinant vs.&nbsp;Degree</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>x_norm <span class="op">=</span> (x_data <span class="op">-</span> x_data.<span class="bu">min</span>()) <span class="op">/</span> (x_data.<span class="bu">max</span>() <span class="op">-</span> x_data.<span class="bu">min</span>())</span>
+<span id="cb9-2"><a href="#cb9-2"></a>poly_range <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb9-3"><a href="#cb9-3"></a>gram_dets <span class="op">=</span> []</span>
+<span id="cb9-4"><a href="#cb9-4"></a></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="cf">for</span> d <span class="kw">in</span> poly_range:</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    X_poly_d <span class="op">=</span> np.column_stack([x_norm<span class="op">**</span>k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(d <span class="op">+</span> <span class="dv">1</span>)])</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    G <span class="op">=</span> X_poly_d.T <span class="op">@</span> X_poly_d</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    det <span class="op">=</span> np.linalg.det(G)</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    gram_dets.append(det)</span>
+<span id="cb9-10"><a href="#cb9-10"></a></span>
+<span id="cb9-11"><a href="#cb9-11"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>, <span class="fl">4.0</span>))</span>
+<span id="cb9-12"><a href="#cb9-12"></a>ax.plot(poly_range, gram_dets, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, ms<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb9-13"><a href="#cb9-13"></a>ax.set_yscale(<span class="st">'log'</span>)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>ax.set_title(<span class="st">'Gram Matrix Determinant vs. Polynomial Degree'</span>)</span>
+<span id="cb9-15"><a href="#cb9-15"></a>ax.set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb9-16"><a href="#cb9-16"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$\d</span><span class="vs">et</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athbf{X}</span><span class="dv">^</span><span class="vs">T</span><span class="dv">\m</span><span class="vs">athbf{X}</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Log Scale</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb9-17"><a href="#cb9-17"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, which<span class="op">=</span><span class="st">'both'</span>)</span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>plt.tight_layout()</span>
+<span id="cb9-20"><a href="#cb9-20"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-gram-determinant" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gram-determinant-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-gram-determinant-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="950" height="575">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gram-determinant-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Gram Matrix Invertibility: The determinant <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X})\)</span> plunges exponentially toward zero as polynomial degree increases, making the matrix near-singular.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Numerical Instability in Finite Precision
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Mathematically, in the continuous infinite-precision limit, adding more polynomial features to an unconstrained least-squares regression can never increase training error: <span class="math inline">\(\text{MSE}_{\text{train}}(d) \le \text{MSE}_{\text{train}}(d-1)\)</span>.</p>
+<p>However, on physical digital computers operating with finite 64-bit floating point precision (<span class="math inline">\(\varepsilon_{\text{mach}} \approx 10^{-16}\)</span>), inverting a near-singular matrix whose determinant approaches zero triggers <strong>catastrophic roundoff error</strong>. Standard LAPACK solvers lose precision, which can cause computed training errors to plateau or fluctuate erratically at very high degrees (<span class="math inline">\(d \ge 12\)</span>).</p>
+<p>This numerical instability is not a failure of linear regression theory—it is a direct reminder that unconstrained polynomial expansions require <strong>regularization</strong>!</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+</section>
+<section id="summary-looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="summary-looking-ahead">4. Summary &amp; Looking Ahead</h2>
+<section id="core-takeaways" class="level3">
+<h3 class="anchored" data-anchor-id="core-takeaways">Core Takeaways</h3>
+<ol type="1">
+<li><strong>Feature Engineering Unlocks Flexibility:</strong> Ordinary Least Squares can fit qualitative groups (via one-hot dummy variables) and complex non-linear curves (via polynomial basis expansion) while remaining strictly linear in the parameters <span class="math inline">\(\boldsymbol{\theta}\)</span>.</li>
+<li><strong>OLS Orthogonality vs.&nbsp;Non-Linear Residuals:</strong> The OLS normal equations strictly guarantee that <span class="math inline">\(\mathbf{X}^T\mathbf{e} = \mathbf{0}\)</span>. However, zero <em>linear</em> correlation does not eliminate non-linear curvature: any pattern in the residuals is an unmistakable signal of <strong>Underfitting (High Bias)</strong>.</li>
+<li><strong>The Danger of Unchecked Flexibility:</strong> Higher polynomial degrees drive training error down, but cause parameter weights <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span> to explode and the Gram matrix determinant <span class="math inline">\(\det(\mathbf{X}^T\mathbf{X})\)</span> to collapse toward zero, creating wild boundary oscillations (<strong>Overfitting / High Variance</strong>).</li>
+<li><strong>The Power &amp; Responsibility Principle:</strong> Model flexibility gives us the power to capture complex biology, but imposes the responsibility to constrain variance.</li>
+</ol>
+</section>
+<section id="looking-ahead-to-lecture-05-bias-variance-regularization" class="level3">
+<h3 class="anchored" data-anchor-id="looking-ahead-to-lecture-05-bias-variance-regularization">Looking Ahead to Lecture 05: Bias-Variance &amp; Regularization</h3>
+<p>How do we tame this runaway flexibility? In <strong>Lecture 05: Linear Regression: Bias-Variance &amp; Regularization</strong>, we address:</p>
+<ol type="1">
+<li><strong>The Bias-Variance Tradeoff:</strong> Formally proving why generalization error decomposes into <span class="math inline">\(\text{Bias}^2 + \text{Variance} + \text{Noise}\)</span>.</li>
+<li><strong>Empirical Validation Splits:</strong> Detecting overfitting using independent holdout sets and the empirical U-curve.</li>
+<li><strong>Loss Function Regularization (Ridge &amp; Lasso):</strong> How adding an analytical penalty rescues the collapsing Gram matrix and shrinks exploding weights back to stable magnitudes.</li>
+</ol>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="an">title:</span><span class="co"> "04 Linear Regression: Flexibility"</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="an">description:</span><span class="co"> "Power and Responsibility"</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="an">date:</span><span class="co"> "2026-09-16"</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="an">format:</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">  html:</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">    toc: true</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">---</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="in">```{python}</span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#| code-summary: "Imports &amp; Visualization Setup"</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="im">import</span> os</span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="im">import</span> sys</span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> PolynomialFeatures</span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> make_pipeline</span>
+<span id="cb10-35"><a href="#cb10-35"></a></span>
+<span id="cb10-36"><a href="#cb10-36"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb10-37"><a href="#cb10-37"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb10-38"><a href="#cb10-38"></a><span class="in">```</span></span>
+<span id="cb10-39"><a href="#cb10-39"></a></span>
+<span id="cb10-40"><a href="#cb10-40"></a><span class="fu">## 0. Pre-Class Preparation</span></span>
+<span id="cb10-41"><a href="#cb10-41"></a></span>
+<span id="cb10-42"><a href="#cb10-42"></a>*Before coming to this lecture, please review:*</span>
+<span id="cb10-43"><a href="#cb10-43"></a></span>
+<span id="cb10-44"><a href="#cb10-44"></a><span class="ss">- </span><span class="va">[ ]</span> **Review Lectures 01–03:** Ordinary Least Squares, geometric parameter spaces, parameter interpretations, and residual variance $\hat{\sigma}^2$.</span>
+<span id="cb10-45"><a href="#cb10-45"></a><span class="ss">- </span><span class="va">[ ]</span> **Review Tutorial 02b:** Exploratory data analysis with the Medical Cost Personal dataset.</span>
+<span id="cb10-46"><a href="#cb10-46"></a><span class="ss">- </span><span class="va">[ ]</span> **Watch Video:** <span class="co">[</span><span class="ot">StatQuest: Polynomial Regression</span><span class="co">](https://www.youtube.com/watch?v=kYfvP_3b4n0)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb10-47"><a href="#cb10-47"></a></span>
+<span id="cb10-48"><a href="#cb10-48"></a>---</span>
+<span id="cb10-49"><a href="#cb10-49"></a></span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="fu">## 1. Categorical Inputs &amp; One-Hot Encoding</span></span>
+<span id="cb10-51"><a href="#cb10-51"></a></span>
+<span id="cb10-52"><a href="#cb10-52"></a>Linear regression is not restricted to continuous numerical measurements. Real-world medical datasets regularly record qualitative (categorical) attributes—such as biological sex, smoking status, or blood type.</span>
+<span id="cb10-53"><a href="#cb10-53"></a></span>
+<span id="cb10-54"><a href="#cb10-54"></a>To include a categorical attribute with $K$ distinct categories $c_1, \dots, c_K$ in a linear model, we map each qualitative level to a binary **indicator variable** (dummy column):</span>
+<span id="cb10-55"><a href="#cb10-55"></a></span>
+<span id="cb10-56"><a href="#cb10-56"></a>$$d_{ki} = \begin{cases} 1 &amp; \text{if observation } i \text{ belongs to category } c_k <span class="sc">\\</span> 0 &amp; \text{otherwise} \end{cases}$$</span>
+<span id="cb10-57"><a href="#cb10-57"></a></span>
+<span id="cb10-58"><a href="#cb10-58"></a>Consider the **Medical Cost Personal Dataset** (from Tutorial 02b), which records patient age, biological sex, and annual medical charges:</span>
+<span id="cb10-59"><a href="#cb10-59"></a></span>
+<span id="cb10-62"><a href="#cb10-62"></a><span class="in">```{python}</span></span>
+<span id="cb10-63"><a href="#cb10-63"></a><span class="co">#| label: load-medical-cost</span></span>
+<span id="cb10-64"><a href="#cb10-64"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-65"><a href="#cb10-65"></a><span class="co">#| code-summary: "Load Medical Cost Dataset"</span></span>
+<span id="cb10-66"><a href="#cb10-66"></a></span>
+<span id="cb10-67"><a href="#cb10-67"></a><span class="cf">try</span>:</span>
+<span id="cb10-68"><a href="#cb10-68"></a>    <span class="im">from</span> sklearn.datasets <span class="im">import</span> fetch_openml</span>
+<span id="cb10-69"><a href="#cb10-69"></a>    raw_data <span class="op">=</span> fetch_openml(<span class="st">"medical_cost"</span>, version<span class="op">=</span><span class="dv">1</span>, as_frame<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-70"><a href="#cb10-70"></a>    df_medical <span class="op">=</span> raw_data.frame</span>
+<span id="cb10-71"><a href="#cb10-71"></a><span class="cf">except</span> <span class="pp">Exception</span>:</span>
+<span id="cb10-72"><a href="#cb10-72"></a>    url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"</span></span>
+<span id="cb10-73"><a href="#cb10-73"></a>    df_medical <span class="op">=</span> pd.read_csv(url)</span>
+<span id="cb10-74"><a href="#cb10-74"></a></span>
+<span id="cb10-75"><a href="#cb10-75"></a><span class="co"># Display the first 5 patient records</span></span>
+<span id="cb10-76"><a href="#cb10-76"></a>df_medical[[<span class="st">'age'</span>, <span class="st">'sex'</span>, <span class="st">'charges'</span>]].head(<span class="dv">5</span>)</span>
+<span id="cb10-77"><a href="#cb10-77"></a><span class="in">```</span></span>
+<span id="cb10-78"><a href="#cb10-78"></a></span>
+<span id="cb10-79"><a href="#cb10-79"></a>If we construct indicator columns for both sexes ($\mathbf{d}_{\text{female}}$ and $\mathbf{d}_{\text{male}}$) alongside an explicit intercept column $\mathbf{1}$, their row-wise sum is identically equal to the intercept column:</span>
+<span id="cb10-80"><a href="#cb10-80"></a></span>
+<span id="cb10-81"><a href="#cb10-81"></a>$$\mathbf{d}_{\text{female}} + \mathbf{d}_{\text{male}} = \mathbf{1}$$</span>
+<span id="cb10-82"><a href="#cb10-82"></a></span>
+<span id="cb10-83"><a href="#cb10-83"></a>This creates an exact linear dependency among the columns of $\mathbf{X}$. The rank of $\mathbf{X}$ is strictly less than the number of columns $p$, making the Gram matrix $\mathbf{X}^T\mathbf{X}$ **singular (non-invertible)**. To guarantee full column rank, we drop one indicator column as the **reference baseline** (retaining $K-1$ dummy indicators):</span>
+<span id="cb10-84"><a href="#cb10-84"></a></span>
+<span id="cb10-87"><a href="#cb10-87"></a><span class="in">```{python}</span></span>
+<span id="cb10-88"><a href="#cb10-88"></a><span class="co">#| label: fig-one-hot-encoding</span></span>
+<span id="cb10-89"><a href="#cb10-89"></a><span class="co">#| fig-cap: "The Dummy Variable Trap: When all $K$ indicators are included, $\\mathbf{1} = \\sum_{k=1}^K \\mathbf{d}_k \\implies \\text{rank}(\\mathbf{X}) &lt; p \\implies \\mathbf{X}^T\\mathbf{X} \\text{ is not invertible}$. Dropping one category restores full rank."</span></span>
+<span id="cb10-90"><a href="#cb10-90"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-91"><a href="#cb10-91"></a><span class="co">#| code-summary: "Generate Design Matrix Structural Heatmap"</span></span>
+<span id="cb10-92"><a href="#cb10-92"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb10-93"><a href="#cb10-93"></a><span class="co">#| fig-height: 3.8</span></span>
+<span id="cb10-94"><a href="#cb10-94"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-95"><a href="#cb10-95"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-96"><a href="#cb10-96"></a></span>
+<span id="cb10-97"><a href="#cb10-97"></a>sample_df <span class="op">=</span> df_medical[[<span class="st">'age'</span>, <span class="st">'sex'</span>]].head(<span class="dv">6</span>).copy()</span>
+<span id="cb10-98"><a href="#cb10-98"></a>n_sample <span class="op">=</span> <span class="bu">len</span>(sample_df)</span>
+<span id="cb10-99"><a href="#cb10-99"></a>ages <span class="op">=</span> sample_df[<span class="st">'age'</span>].astype(<span class="bu">float</span>).values</span>
+<span id="cb10-100"><a href="#cb10-100"></a>is_female <span class="op">=</span> (sample_df[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'female'</span>).astype(<span class="bu">float</span>).values</span>
+<span id="cb10-101"><a href="#cb10-101"></a>is_male <span class="op">=</span> (sample_df[<span class="st">'sex'</span>] <span class="op">==</span> <span class="st">'male'</span>).astype(<span class="bu">float</span>).values</span>
+<span id="cb10-102"><a href="#cb10-102"></a></span>
+<span id="cb10-103"><a href="#cb10-103"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb10-104"><a href="#cb10-104"></a></span>
+<span id="cb10-105"><a href="#cb10-105"></a><span class="co"># Panel 1: Collinear design matrix</span></span>
+<span id="cb10-106"><a href="#cb10-106"></a>X_trap <span class="op">=</span> np.column_stack([np.ones(n_sample), ages, is_female, is_male]).astype(<span class="bu">float</span>)</span>
+<span id="cb10-107"><a href="#cb10-107"></a>col_trap <span class="op">=</span> [<span class="st">'Intercept (1)'</span>, <span class="st">'Age (Years)'</span>, <span class="st">'Is_Female (d1)'</span>, <span class="st">'Is_Male (d2)'</span>]</span>
+<span id="cb10-108"><a href="#cb10-108"></a>sns.heatmap(X_trap, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">'.0f'</span>, cmap<span class="op">=</span><span class="st">'Blues'</span>, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb10-109"><a href="#cb10-109"></a>            xticklabels<span class="op">=</span>col_trap, yticklabels<span class="op">=</span>[<span class="ss">f"Patient </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_sample)], ax<span class="op">=</span>axes[<span class="dv">0</span>])</span>
+<span id="cb10-110"><a href="#cb10-110"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Collinear Design Matrix (Non-Invertible)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'crimson'</span>)</span>
+<span id="cb10-111"><a href="#cb10-111"></a></span>
+<span id="cb10-112"><a href="#cb10-112"></a><span class="co"># Panel 2: Full-rank design matrix</span></span>
+<span id="cb10-113"><a href="#cb10-113"></a>X_clean <span class="op">=</span> np.column_stack([np.ones(n_sample), ages, is_female]).astype(<span class="bu">float</span>)</span>
+<span id="cb10-114"><a href="#cb10-114"></a>col_clean <span class="op">=</span> [<span class="st">'Intercept (1)'</span>, <span class="st">'Age (Years)'</span>, <span class="st">'Is_Female (d1, Ref: Male)'</span>]</span>
+<span id="cb10-115"><a href="#cb10-115"></a>sns.heatmap(X_clean, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">'.0f'</span>, cmap<span class="op">=</span><span class="st">'Greens'</span>, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb10-116"><a href="#cb10-116"></a>            xticklabels<span class="op">=</span>col_clean, yticklabels<span class="op">=</span>[<span class="ss">f"Patient </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_sample)], ax<span class="op">=</span>axes[<span class="dv">1</span>])</span>
+<span id="cb10-117"><a href="#cb10-117"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Full-Rank Design Matrix (Invertible)'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'darkgreen'</span>)</span>
+<span id="cb10-118"><a href="#cb10-118"></a></span>
+<span id="cb10-119"><a href="#cb10-119"></a>plt.tight_layout()</span>
+<span id="cb10-120"><a href="#cb10-120"></a>plt.show()</span>
+<span id="cb10-121"><a href="#cb10-121"></a><span class="in">```</span></span>
+<span id="cb10-122"><a href="#cb10-122"></a></span>
+<span id="cb10-123"><a href="#cb10-123"></a>---</span>
+<span id="cb10-124"><a href="#cb10-124"></a></span>
+<span id="cb10-125"><a href="#cb10-125"></a><span class="fu">## 2. Expanding the Design Matrix: Non-Linearity &amp; Underfitting</span></span>
+<span id="cb10-126"><a href="#cb10-126"></a></span>
+<span id="cb10-127"><a href="#cb10-127"></a>Just as one-hot encoding expands the design matrix horizontally to accommodate qualitative classes, feature engineering allows linear models to capture **non-linear physical and biological relationships**.</span>
+<span id="cb10-128"><a href="#cb10-128"></a></span>
+<span id="cb10-129"><a href="#cb10-129"></a>Linear regression is called "linear" because the model equation is **strictly linear in the parameter vector $\boldsymbol{\theta}$**, not because the physical relationship between input $x$ and output $y$ must be a straight line.</span>
+<span id="cb10-130"><a href="#cb10-130"></a></span>
+<span id="cb10-131"><a href="#cb10-131"></a><span class="fu">### 2.1 The Clinical Need for Curvature: Hospital Inpatient Days vs. BMI</span></span>
+<span id="cb10-132"><a href="#cb10-132"></a></span>
+<span id="cb10-133"><a href="#cb10-133"></a>Consider an epidemiological cohort study investigating **Annual Inpatient Hospital Days ($y$, days/year)** as a function of **Body Mass Index ($x$, $\text{kg/m}^2$)**:</span>
+<span id="cb10-134"><a href="#cb10-134"></a></span>
+<span id="cb10-135"><a href="#cb10-135"></a><span class="ss">* </span>**Physiological Optimum ($x \approx 22.5\ \text{kg/m}^2$)**: Patients near the healthy setpoint experience minimal hospitalizations (~2 days/year).</span>
+<span id="cb10-136"><a href="#cb10-136"></a><span class="ss">* </span>**Underweight ($x &lt; 18.5\ \text{kg/m}^2$)**: Inpatient days rise due to malnutrition, frailty, and infection susceptibility.</span>
+<span id="cb10-137"><a href="#cb10-137"></a><span class="ss">* </span>**Overweight &amp; Obesity ($x &gt; 30\ \text{kg/m}^2$)**: Inpatient days escalate rapidly due to cardiometabolic disease, hypertension, and joint degeneration.</span>
+<span id="cb10-138"><a href="#cb10-138"></a></span>
+<span id="cb10-139"><a href="#cb10-139"></a>The true biological relationship is a classic **U-shaped curve**. We begin by fitting a simple linear regression:</span>
+<span id="cb10-140"><a href="#cb10-140"></a>$$\hat{y} = \theta_0 + \theta_1 x$$</span>
+<span id="cb10-141"><a href="#cb10-141"></a></span>
+<span id="cb10-144"><a href="#cb10-144"></a><span class="in">```{python}</span></span>
+<span id="cb10-145"><a href="#cb10-145"></a><span class="co">#| label: fig-linear-underfit-residuals</span></span>
+<span id="cb10-146"><a href="#cb10-146"></a><span class="co">#| fig-cap: "Fitting a simple linear regression to non-linear data (left), and the resulting residual pattern (right)."</span></span>
+<span id="cb10-147"><a href="#cb10-147"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-148"><a href="#cb10-148"></a><span class="co">#| code-summary: "Generate Linear Fit &amp; Residual Plot"</span></span>
+<span id="cb10-149"><a href="#cb10-149"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb10-150"><a href="#cb10-150"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb10-151"><a href="#cb10-151"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-152"><a href="#cb10-152"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-153"><a href="#cb10-153"></a></span>
+<span id="cb10-154"><a href="#cb10-154"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb10-155"><a href="#cb10-155"></a>n_sim <span class="op">=</span> <span class="dv">300</span></span>
+<span id="cb10-156"><a href="#cb10-156"></a>x_data <span class="op">=</span> np.random.uniform(<span class="fl">16.0</span>, <span class="fl">45.0</span>, n_sim)</span>
+<span id="cb10-157"><a href="#cb10-157"></a>true_days <span class="op">=</span> <span class="fl">2.0</span> <span class="op">+</span> <span class="fl">0.040</span> <span class="op">*</span> (x_data <span class="op">-</span> <span class="fl">22.5</span>)<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">1.2</span>, n_sim)</span>
+<span id="cb10-158"><a href="#cb10-158"></a>y_data <span class="op">=</span> np.clip(true_days, <span class="fl">0.5</span>, <span class="va">None</span>)</span>
+<span id="cb10-159"><a href="#cb10-159"></a></span>
+<span id="cb10-160"><a href="#cb10-160"></a>xlabel <span class="op">=</span> <span class="st">"Body Mass Index [kg/m²]"</span></span>
+<span id="cb10-161"><a href="#cb10-161"></a>ylabel <span class="op">=</span> <span class="st">"Annual Inpatient Days [days/year]"</span></span>
+<span id="cb10-162"><a href="#cb10-162"></a>data_label <span class="op">=</span> <span class="st">"Simulated Cohort"</span></span>
+<span id="cb10-163"><a href="#cb10-163"></a></span>
+<span id="cb10-164"><a href="#cb10-164"></a><span class="co"># Fit Simple OLS Linear Model: y = theta_0 + theta_1 * x</span></span>
+<span id="cb10-165"><a href="#cb10-165"></a>n <span class="op">=</span> <span class="bu">len</span>(x_data)</span>
+<span id="cb10-166"><a href="#cb10-166"></a>X_lin <span class="op">=</span> np.column_stack([np.ones(n), x_data])</span>
+<span id="cb10-167"><a href="#cb10-167"></a>theta_lin <span class="op">=</span> np.linalg.solve(X_lin.T <span class="op">@</span> X_lin, X_lin.T <span class="op">@</span> y_data)</span>
+<span id="cb10-168"><a href="#cb10-168"></a>y_pred_lin <span class="op">=</span> X_lin <span class="op">@</span> theta_lin</span>
+<span id="cb10-169"><a href="#cb10-169"></a>e_lin <span class="op">=</span> y_data <span class="op">-</span> y_pred_lin</span>
+<span id="cb10-170"><a href="#cb10-170"></a></span>
+<span id="cb10-171"><a href="#cb10-171"></a>x_grid <span class="op">=</span> np.linspace(x_data.<span class="bu">min</span>(), x_data.<span class="bu">max</span>(), <span class="dv">200</span>)</span>
+<span id="cb10-172"><a href="#cb10-172"></a>X_grid_lin <span class="op">=</span> np.column_stack([np.ones(<span class="dv">200</span>), x_grid])</span>
+<span id="cb10-173"><a href="#cb10-173"></a>y_grid_lin <span class="op">=</span> X_grid_lin <span class="op">@</span> theta_lin</span>
+<span id="cb10-174"><a href="#cb10-174"></a></span>
+<span id="cb10-175"><a href="#cb10-175"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb10-176"><a href="#cb10-176"></a></span>
+<span id="cb10-177"><a href="#cb10-177"></a><span class="co"># Panel 1: Variable Space</span></span>
+<span id="cb10-178"><a href="#cb10-178"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span>data_label)</span>
+<span id="cb10-179"><a href="#cb10-179"></a>axes[<span class="dv">0</span>].plot(x_grid, y_grid_lin, color<span class="op">=</span><span class="st">'#d62728'</span>, linewidth<span class="op">=</span><span class="fl">2.2</span>, label<span class="op">=</span><span class="st">'Linear Regression'</span>)</span>
+<span id="cb10-180"><a href="#cb10-180"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space'</span>)</span>
+<span id="cb10-181"><a href="#cb10-181"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb10-182"><a href="#cb10-182"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb10-183"><a href="#cb10-183"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb10-184"><a href="#cb10-184"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-185"><a href="#cb10-185"></a></span>
+<span id="cb10-186"><a href="#cb10-186"></a><span class="co"># Panel 2: Residuals</span></span>
+<span id="cb10-187"><a href="#cb10-187"></a>axes[<span class="dv">1</span>].scatter(x_data, e_lin, color<span class="op">=</span><span class="st">'#d62728'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb10-188"><a href="#cb10-188"></a>axes[<span class="dv">1</span>].axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb10-189"><a href="#cb10-189"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Residuals'</span>)</span>
+<span id="cb10-190"><a href="#cb10-190"></a>axes[<span class="dv">1</span>].set_xlabel(xlabel)</span>
+<span id="cb10-191"><a href="#cb10-191"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Residual Error'</span>)</span>
+<span id="cb10-192"><a href="#cb10-192"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-193"><a href="#cb10-193"></a></span>
+<span id="cb10-194"><a href="#cb10-194"></a>plt.tight_layout()</span>
+<span id="cb10-195"><a href="#cb10-195"></a>plt.show()</span>
+<span id="cb10-196"><a href="#cb10-196"></a><span class="in">```</span></span>
+<span id="cb10-197"><a href="#cb10-197"></a></span>
+<span id="cb10-198"><a href="#cb10-198"></a>::: {.callout-note}</span>
+<span id="cb10-199"><a href="#cb10-199"></a><span class="fu">### Orthonormality Guarantees from OLS</span></span>
+<span id="cb10-200"><a href="#cb10-200"></a></span>
+<span id="cb10-201"><a href="#cb10-201"></a>$$\mathbf{1}^T \mathbf{e} = \sum_{i=1}^n e_i = 0, \qquad \mathbf{x}^T \mathbf{e} = \sum_{i=1}^n x_i e_i = 0$$</span>
+<span id="cb10-202"><a href="#cb10-202"></a></span>
+<span id="cb10-203"><a href="#cb10-203"></a>$$\mathbf{X}^T \mathbf{e} = \mathbf{0}$$</span>
+<span id="cb10-204"><a href="#cb10-204"></a></span>
+<span id="cb10-205"><a href="#cb10-205"></a>$\mathbf{e}$ is orthogonal to the column space of $\mathbf{X}$, which is the matrix formulation of what is spelled out as these two different vectors.</span>
+<span id="cb10-206"><a href="#cb10-206"></a>:::</span>
+<span id="cb10-207"><a href="#cb10-207"></a></span>
+<span id="cb10-208"><a href="#cb10-208"></a>Notice that Ordinary Least Squares mathematically guarantees that the sample residuals sum to zero ($\sum e_i = 0$) and have zero linear correlation with the predictor ($\mathbf{x}^T\mathbf{e} = 0$). This algebraic condition holds unconditionally, regardless of whether the true relationship is linear or curved.</span>
+<span id="cb10-209"><a href="#cb10-209"></a></span>
+<span id="cb10-210"><a href="#cb10-210"></a>However, orthogonality to $\mathbf{X}$ does **not** preclude non-linear dependence! In the residuals plot above, the error terms display an unmistakable parabolic U-shape: the model systematically overpredicts inpatient days for underweight and severely obese patients, while systematically underpredicting for normal-weight patients.</span>
+<span id="cb10-211"><a href="#cb10-211"></a></span>
+<span id="cb10-212"><a href="#cb10-212"></a>Any systematic pattern in the residuals is an unmistakable signal that the model is **underfitting (High Bias)**: the hypothesis space is too rigid to capture the data-generating process.</span>
+<span id="cb10-213"><a href="#cb10-213"></a></span>
+<span id="cb10-214"><a href="#cb10-214"></a><span class="fu">### 2.2 Monotonic Transformations vs. Quadratic Feature Expansion</span></span>
+<span id="cb10-215"><a href="#cb10-215"></a></span>
+<span id="cb10-216"><a href="#cb10-216"></a>How can we bend the model to capture the U-shape without leaving the linear regression framework?</span>
+<span id="cb10-217"><a href="#cb10-217"></a></span>
+<span id="cb10-218"><a href="#cb10-218"></a>Monotonic transformations (such as $\log(x)$ or $\sqrt{x}$) compress or stretch scales, but they **cannot invert curvature** or create a turning point (vertex). To model a U-shaped dependence, we must **engineer a new feature**: the quadratic term $x^2$.</span>
+<span id="cb10-219"><a href="#cb10-219"></a></span>
+<span id="cb10-220"><a href="#cb10-220"></a><span class="fu">### 2.3 Three Equivalent Mathematical Representations</span></span>
+<span id="cb10-221"><a href="#cb10-221"></a></span>
+<span id="cb10-222"><a href="#cb10-222"></a>We can formulate the expanded quadratic regression model in three mathematically equivalent representations:</span>
+<span id="cb10-223"><a href="#cb10-223"></a></span>
+<span id="cb10-224"><a href="#cb10-224"></a><span class="ss">1. </span>**Matrix-Vector Form**:</span>
+<span id="cb10-225"><a href="#cb10-225"></a>   $$\begin{bmatrix} y_1 <span class="sc">\\</span> y_2 <span class="sc">\\</span> \vdots <span class="sc">\\</span> y_n \end{bmatrix} = \begin{bmatrix} 1 &amp; x_1 &amp; x_1^2 <span class="sc">\\</span> 1 &amp; x_2 &amp; x_2^2 <span class="sc">\\</span> \vdots &amp; \vdots &amp; \vdots <span class="sc">\\</span> 1 &amp; x_n &amp; x_n^2 \end{bmatrix} \begin{bmatrix} \theta_0 <span class="sc">\\</span> \theta_1 <span class="sc">\\</span> \theta_2 \end{bmatrix} + \begin{bmatrix} e_1 <span class="sc">\\</span> e_2 <span class="sc">\\</span> \vdots <span class="sc">\\</span> e_n \end{bmatrix}$$</span>
+<span id="cb10-226"><a href="#cb10-226"></a></span>
+<span id="cb10-227"><a href="#cb10-227"></a><span class="ss">2. </span>**Linear Combination of Basis Column Vectors**:</span>
+<span id="cb10-228"><a href="#cb10-228"></a>   $$\mathbf{y} = \theta_0 \begin{bmatrix} 1 <span class="sc">\\</span> 1 <span class="sc">\\</span> \vdots <span class="sc">\\</span> 1 \end{bmatrix} + \theta_1 \begin{bmatrix} x_1 <span class="sc">\\</span> x_2 <span class="sc">\\</span> \vdots <span class="sc">\\</span> x_n \end{bmatrix} + \theta_2 \begin{bmatrix} x_1^2 <span class="sc">\\</span> x_2^2 <span class="sc">\\</span> \vdots <span class="sc">\\</span> x_n^2 \end{bmatrix} + \begin{bmatrix} e_1 <span class="sc">\\</span> e_2 <span class="sc">\\</span> \vdots <span class="sc">\\</span> e_n \end{bmatrix} = \theta_0 \mathbf{1} + \theta_1 \mathbf{x} + \theta_2 \mathbf{x}^2 + \mathbf{e}$$</span>
+<span id="cb10-229"><a href="#cb10-229"></a></span>
+<span id="cb10-230"><a href="#cb10-230"></a><span class="ss">3. </span>**Compact Matrix Notation**:</span>
+<span id="cb10-231"><a href="#cb10-231"></a>   $$\mathbf{y} = \mathbf{X}_{\text{poly}} \boldsymbol{\theta} + \mathbf{e}$$</span>
+<span id="cb10-232"><a href="#cb10-232"></a></span>
+<span id="cb10-233"><a href="#cb10-233"></a>::: {.callout-important}</span>
+<span id="cb10-234"><a href="#cb10-234"></a><span class="fu">### Why This is Still a Linear Regression</span></span>
+<span id="cb10-235"><a href="#cb10-235"></a>Notice that while the model is **quadratic in the variable $x$**, it is **strictly linear in the parameter vector $\boldsymbol{\theta} = [\theta_0, \theta_1, \theta_2]^T$**!</span>
+<span id="cb10-236"><a href="#cb10-236"></a></span>
+<span id="cb10-237"><a href="#cb10-237"></a>Because the equation remains linear in $\boldsymbol{\theta}$, Ordinary Least Squares solves it in closed form using the exact same normal equations:</span>
+<span id="cb10-238"><a href="#cb10-238"></a>$$\hat{\boldsymbol{\theta}} = (\mathbf{X}_{\text{poly}}^T\mathbf{X}_{\text{poly}})^{-1}\mathbf{X}_{\text{poly}}^T\mathbf{y}$$</span>
+<span id="cb10-239"><a href="#cb10-239"></a></span>
+<span id="cb10-240"><a href="#cb10-240"></a>In observation space $\mathbb{R}^n$, we have simply added a third basis vector $\mathbf{x}^2$ to the subspace onto which $\mathbf{y}$ is projected.</span>
+<span id="cb10-241"><a href="#cb10-241"></a>:::</span>
+<span id="cb10-242"><a href="#cb10-242"></a></span>
+<span id="cb10-245"><a href="#cb10-245"></a><span class="in">```{python}</span></span>
+<span id="cb10-246"><a href="#cb10-246"></a><span class="co">#| label: fig-quadratic-fit-residuals</span></span>
+<span id="cb10-247"><a href="#cb10-247"></a><span class="co">#| fig-cap: "Adding the engineered feature $x^2$: the quadratic model tracks non-linear curvature (left), and the residuals disperse around zero as genuine random noise (right)."</span></span>
+<span id="cb10-248"><a href="#cb10-248"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-249"><a href="#cb10-249"></a><span class="co">#| code-summary: "Generate Quadratic Fit &amp; Residual Plot"</span></span>
+<span id="cb10-250"><a href="#cb10-250"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb10-251"><a href="#cb10-251"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb10-252"><a href="#cb10-252"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-253"><a href="#cb10-253"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-254"><a href="#cb10-254"></a></span>
+<span id="cb10-255"><a href="#cb10-255"></a><span class="co"># Fit Quadratic Model: y = theta_0 + theta_1 * x + theta_2 * x^2</span></span>
+<span id="cb10-256"><a href="#cb10-256"></a>X_quad <span class="op">=</span> np.column_stack([np.ones(n), x_data, x_data<span class="op">**</span><span class="dv">2</span>])</span>
+<span id="cb10-257"><a href="#cb10-257"></a>theta_quad <span class="op">=</span> np.linalg.solve(X_quad.T <span class="op">@</span> X_quad, X_quad.T <span class="op">@</span> y_data)</span>
+<span id="cb10-258"><a href="#cb10-258"></a>y_pred_quad <span class="op">=</span> X_quad <span class="op">@</span> theta_quad</span>
+<span id="cb10-259"><a href="#cb10-259"></a>e_quad <span class="op">=</span> y_data <span class="op">-</span> y_pred_quad</span>
+<span id="cb10-260"><a href="#cb10-260"></a></span>
+<span id="cb10-261"><a href="#cb10-261"></a>X_grid_quad <span class="op">=</span> np.column_stack([np.ones(<span class="dv">200</span>), x_grid, x_grid<span class="op">**</span><span class="dv">2</span>])</span>
+<span id="cb10-262"><a href="#cb10-262"></a>y_grid_quad <span class="op">=</span> X_grid_quad <span class="op">@</span> theta_quad</span>
+<span id="cb10-263"><a href="#cb10-263"></a></span>
+<span id="cb10-264"><a href="#cb10-264"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb10-265"><a href="#cb10-265"></a></span>
+<span id="cb10-266"><a href="#cb10-266"></a><span class="co"># Panel 1: Quadratic Fit in Variable Space</span></span>
+<span id="cb10-267"><a href="#cb10-267"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>, label<span class="op">=</span>data_label)</span>
+<span id="cb10-268"><a href="#cb10-268"></a>axes[<span class="dv">0</span>].plot(x_grid, y_grid_quad, color<span class="op">=</span><span class="st">'#2ca02c'</span>, linewidth<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'Quadratic Fit (deg=2)'</span>)</span>
+<span id="cb10-269"><a href="#cb10-269"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space'</span>)</span>
+<span id="cb10-270"><a href="#cb10-270"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb10-271"><a href="#cb10-271"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb10-272"><a href="#cb10-272"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'best'</span>)</span>
+<span id="cb10-273"><a href="#cb10-273"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-274"><a href="#cb10-274"></a></span>
+<span id="cb10-275"><a href="#cb10-275"></a><span class="co"># Panel 2: Recovered Residuals</span></span>
+<span id="cb10-276"><a href="#cb10-276"></a>axes[<span class="dv">1</span>].scatter(x_data, e_quad, color<span class="op">=</span><span class="st">'#2ca02c'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidth<span class="op">=</span><span class="fl">0.5</span>, s<span class="op">=</span><span class="dv">50</span>)</span>
+<span id="cb10-277"><a href="#cb10-277"></a>axes[<span class="dv">1</span>].axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>, alpha<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb10-278"><a href="#cb10-278"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Residuals'</span>)</span>
+<span id="cb10-279"><a href="#cb10-279"></a>axes[<span class="dv">1</span>].set_xlabel(xlabel)</span>
+<span id="cb10-280"><a href="#cb10-280"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Residual Error'</span>)</span>
+<span id="cb10-281"><a href="#cb10-281"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-282"><a href="#cb10-282"></a></span>
+<span id="cb10-283"><a href="#cb10-283"></a>plt.tight_layout()</span>
+<span id="cb10-284"><a href="#cb10-284"></a>plt.show()</span>
+<span id="cb10-285"><a href="#cb10-285"></a><span class="in">```</span></span>
+<span id="cb10-286"><a href="#cb10-286"></a></span>
+<span id="cb10-287"><a href="#cb10-287"></a>---</span>
+<span id="cb10-288"><a href="#cb10-288"></a></span>
+<span id="cb10-289"><a href="#cb10-289"></a><span class="fu">## 3. Overfitting &amp; The Geometry of Runaway Flexibility</span></span>
+<span id="cb10-290"><a href="#cb10-290"></a></span>
+<span id="cb10-291"><a href="#cb10-291"></a>If adding $x^2$ successfully bent our model to capture the non-linear curvature, what prevents us from adding $x^3, x^4, \dots, x^{12}$?</span>
+<span id="cb10-292"><a href="#cb10-292"></a></span>
+<span id="cb10-293"><a href="#cb10-293"></a>As we engineer higher powers of $x$, the design matrix acquires more basis vectors. The model gains the flexibility to wiggle through sample-specific measurement noise:</span>
+<span id="cb10-294"><a href="#cb10-294"></a></span>
+<span id="cb10-297"><a href="#cb10-297"></a><span class="in">```{python}</span></span>
+<span id="cb10-298"><a href="#cb10-298"></a><span class="co">#| label: fig-polynomial-fits</span></span>
+<span id="cb10-299"><a href="#cb10-299"></a><span class="co">#| fig-cap: "Comparing Model Complexity: As degree increases from 1 to 12, the model shifts from underfitting (rigid) to overfitting (wild boundary oscillations)."</span></span>
+<span id="cb10-300"><a href="#cb10-300"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-301"><a href="#cb10-301"></a><span class="co">#| code-summary: "Generate Polynomial Complexity Comparison"</span></span>
+<span id="cb10-302"><a href="#cb10-302"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb10-303"><a href="#cb10-303"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb10-304"><a href="#cb10-304"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-305"><a href="#cb10-305"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-306"><a href="#cb10-306"></a></span>
+<span id="cb10-307"><a href="#cb10-307"></a>degrees <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">12</span>]</span>
+<span id="cb10-308"><a href="#cb10-308"></a>colors <span class="op">=</span> [<span class="st">'#d62728'</span>, <span class="st">'#2ca02c'</span>, <span class="st">'#ff7f0e'</span>, <span class="st">'#9467bd'</span>, <span class="st">'#8c564b'</span>]</span>
+<span id="cb10-309"><a href="#cb10-309"></a></span>
+<span id="cb10-310"><a href="#cb10-310"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb10-311"><a href="#cb10-311"></a></span>
+<span id="cb10-312"><a href="#cb10-312"></a><span class="co"># Panel 1: Variable Space Fits</span></span>
+<span id="cb10-313"><a href="#cb10-313"></a>axes[<span class="dv">0</span>].scatter(x_data, y_data, color<span class="op">=</span><span class="st">'#1f77b4'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">30</span>, label<span class="op">=</span><span class="st">'Data ($n=300$)'</span>)</span>
+<span id="cb10-314"><a href="#cb10-314"></a></span>
+<span id="cb10-315"><a href="#cb10-315"></a>train_mses <span class="op">=</span> []</span>
+<span id="cb10-316"><a href="#cb10-316"></a><span class="cf">for</span> deg, col <span class="kw">in</span> <span class="bu">zip</span>(degrees, colors):</span>
+<span id="cb10-317"><a href="#cb10-317"></a>    pipe <span class="op">=</span> make_pipeline(PolynomialFeatures(deg), LinearRegression())</span>
+<span id="cb10-318"><a href="#cb10-318"></a>    pipe.fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb10-319"><a href="#cb10-319"></a>    y_pred_grid <span class="op">=</span> pipe.predict(x_grid.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb10-320"><a href="#cb10-320"></a>    axes[<span class="dv">0</span>].plot(x_grid, y_pred_grid, color<span class="op">=</span>col, lw<span class="op">=</span><span class="fl">2.0</span>, label<span class="op">=</span><span class="ss">f'Degree </span><span class="sc">{</span>deg<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb10-321"><a href="#cb10-321"></a>    mse <span class="op">=</span> np.mean((y_data <span class="op">-</span> pipe.predict(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>)</span>
+<span id="cb10-322"><a href="#cb10-322"></a>    train_mses.append(mse)</span>
+<span id="cb10-323"><a href="#cb10-323"></a></span>
+<span id="cb10-324"><a href="#cb10-324"></a>axes[<span class="dv">0</span>].set_ylim(<span class="op">-</span><span class="dv">1</span>, <span class="dv">25</span>)</span>
+<span id="cb10-325"><a href="#cb10-325"></a>axes[<span class="dv">0</span>].set_title(<span class="st">'Variable Space: Model Complexity'</span>)</span>
+<span id="cb10-326"><a href="#cb10-326"></a>axes[<span class="dv">0</span>].set_xlabel(xlabel)</span>
+<span id="cb10-327"><a href="#cb10-327"></a>axes[<span class="dv">0</span>].set_ylabel(ylabel)</span>
+<span id="cb10-328"><a href="#cb10-328"></a>axes[<span class="dv">0</span>].legend(fontsize<span class="op">=</span><span class="dv">8</span>, loc<span class="op">=</span><span class="st">'upper center'</span>)</span>
+<span id="cb10-329"><a href="#cb10-329"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-330"><a href="#cb10-330"></a></span>
+<span id="cb10-331"><a href="#cb10-331"></a><span class="co"># Panel 2: Training MSE vs Degree</span></span>
+<span id="cb10-332"><a href="#cb10-332"></a>all_degs <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">9</span>))</span>
+<span id="cb10-333"><a href="#cb10-333"></a>all_mses <span class="op">=</span> []</span>
+<span id="cb10-334"><a href="#cb10-334"></a><span class="cf">for</span> d <span class="kw">in</span> all_degs:</span>
+<span id="cb10-335"><a href="#cb10-335"></a>    p <span class="op">=</span> make_pipeline(PolynomialFeatures(d), LinearRegression())</span>
+<span id="cb10-336"><a href="#cb10-336"></a>    p.fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb10-337"><a href="#cb10-337"></a>    all_mses.append(np.mean((y_data <span class="op">-</span> p.predict(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)))<span class="op">**</span><span class="dv">2</span>))</span>
+<span id="cb10-338"><a href="#cb10-338"></a></span>
+<span id="cb10-339"><a href="#cb10-339"></a>axes[<span class="dv">1</span>].plot(all_degs, all_mses, <span class="st">'o-'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="dv">2</span>, ms<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb10-340"><a href="#cb10-340"></a>axes[<span class="dv">1</span>].set_title(<span class="st">'Training MSE vs. Polynomial Degree'</span>)</span>
+<span id="cb10-341"><a href="#cb10-341"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb10-342"><a href="#cb10-342"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">'Training Mean Squared Error'</span>)</span>
+<span id="cb10-343"><a href="#cb10-343"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-344"><a href="#cb10-344"></a></span>
+<span id="cb10-345"><a href="#cb10-345"></a>plt.tight_layout()</span>
+<span id="cb10-346"><a href="#cb10-346"></a>plt.show()</span>
+<span id="cb10-347"><a href="#cb10-347"></a><span class="in">```</span></span>
+<span id="cb10-348"><a href="#cb10-348"></a></span>
+<span id="cb10-349"><a href="#cb10-349"></a><span class="fu">### 3.1 The Pathology of Overfitting: Exploding Weights</span></span>
+<span id="cb10-350"><a href="#cb10-350"></a></span>
+<span id="cb10-351"><a href="#cb10-351"></a>While training error decreases as polynomial powers are added, high-degree models suffer from two severe pathologies:</span>
+<span id="cb10-352"><a href="#cb10-352"></a></span>
+<span id="cb10-353"><a href="#cb10-353"></a><span class="ss">1. </span>**Boundary Instability (Runge's Phenomenon):** Between data points and near the boundaries ($x &lt; 18$ or $x &gt; 42$), high-degree polynomials oscillate wildly.</span>
+<span id="cb10-354"><a href="#cb10-354"></a><span class="ss">2. </span>**Exploding Parameter Weights:** To force a 12th-degree polynomial through random fluctuations, adjacent monomials must oscillate violently with massive opposing magnitudes:</span>
+<span id="cb10-355"><a href="#cb10-355"></a></span>
+<span id="cb10-358"><a href="#cb10-358"></a><span class="in">```{python}</span></span>
+<span id="cb10-359"><a href="#cb10-359"></a><span class="co">#| label: tbl-coefficient-magnitudes</span></span>
+<span id="cb10-360"><a href="#cb10-360"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-361"><a href="#cb10-361"></a><span class="co">#| code-summary: "Inspect Parameter Weights for Degree 2 vs. Degree 12"</span></span>
+<span id="cb10-362"><a href="#cb10-362"></a></span>
+<span id="cb10-363"><a href="#cb10-363"></a>pipe_deg2 <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">2</span>), LinearRegression()).fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb10-364"><a href="#cb10-364"></a>pipe_deg12 <span class="op">=</span> make_pipeline(PolynomialFeatures(<span class="dv">12</span>), LinearRegression()).fit(x_data.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y_data)</span>
+<span id="cb10-365"><a href="#cb10-365"></a></span>
+<span id="cb10-366"><a href="#cb10-366"></a>coef2 <span class="op">=</span> pipe_deg2.named_steps[<span class="st">'linearregression'</span>].coef_</span>
+<span id="cb10-367"><a href="#cb10-367"></a>coef12 <span class="op">=</span> pipe_deg12.named_steps[<span class="st">'linearregression'</span>].coef_</span>
+<span id="cb10-368"><a href="#cb10-368"></a></span>
+<span id="cb10-369"><a href="#cb10-369"></a><span class="bu">print</span>(<span class="ss">f"Degree  2 Maximum Absolute Weight: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(coef2))<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb10-370"><a href="#cb10-370"></a><span class="bu">print</span>(<span class="ss">f"Degree 12 Maximum Absolute Weight: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">max</span>(np.<span class="bu">abs</span>(coef12))<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb10-371"><a href="#cb10-371"></a><span class="in">```</span></span>
+<span id="cb10-372"><a href="#cb10-372"></a></span>
+<span id="cb10-373"><a href="#cb10-373"></a>Notice that the degree-12 weights explode by **six orders of magnitude**! A tiny perturbation in a single patient's record would wildly distort the entire prediction curve.</span>
+<span id="cb10-374"><a href="#cb10-374"></a></span>
+<span id="cb10-375"><a href="#cb10-375"></a><span class="fu">### 3.2 Gram Matrix Invertibility &amp; Condition: Why $\det(\mathbf{X}^T\mathbf{X}) \to 0$</span></span>
+<span id="cb10-376"><a href="#cb10-376"></a></span>
+<span id="cb10-377"><a href="#cb10-377"></a>Why do parameter weights explode so easily in polynomial regression? The answer lies in the geometry of the **Gram matrix** $\mathbf{X}^T\mathbf{X}$.</span>
+<span id="cb10-378"><a href="#cb10-378"></a></span>
+<span id="cb10-379"><a href="#cb10-379"></a>As we add powers $x, x^2, x^3, \dots, x^d$, the column vectors in $\mathbf{X}$ become increasingly collinear (near-parallel). This geometric collapse has two profound mathematical consequences:</span>
+<span id="cb10-380"><a href="#cb10-380"></a></span>
+<span id="cb10-381"><a href="#cb10-381"></a><span class="fu">#### 1. Underdetermined Systems ($p &gt; n$)</span></span>
+<span id="cb10-382"><a href="#cb10-382"></a>If the number of features $p = d + 1$ exceeds the number of observations $n$, the rank of $\mathbf{X} \in \mathbb{R}^{n \times p}$ is strictly bounded by $n$:</span>
+<span id="cb10-383"><a href="#cb10-383"></a>$$\text{rank}(\mathbf{X}) \le n &lt; p \implies \text{rank}(\mathbf{X}^T\mathbf{X}) &lt; p$$</span>
+<span id="cb10-384"><a href="#cb10-384"></a>Because the $p \times p$ Gram matrix has rank strictly less than its dimension $p$, it has at least $p - n$ zero eigenvalues. Therefore:</span>
+<span id="cb10-385"><a href="#cb10-385"></a>$$\boxed{\det(\mathbf{X}^T\mathbf{X}) \equiv 0 \qquad \text{for all } p &gt; n}$$</span>
+<span id="cb10-386"><a href="#cb10-386"></a>The matrix is **singular**, $(\mathbf{X}^T\mathbf{X})^{-1}$ does not exist, and Ordinary Least Squares has infinitely many valid solutions.</span>
+<span id="cb10-387"><a href="#cb10-387"></a></span>
+<span id="cb10-388"><a href="#cb10-388"></a><span class="fu">#### 2. Overdetermined Systems with Collinear Basis ($n \gg p$)</span></span>
+<span id="cb10-389"><a href="#cb10-389"></a>Even when we have far more samples than features ($n = 300 \gg p$), higher powers of $x$ span an increasingly flat parallelotope. As degree $d$ increases, the determinant collapses exponentially toward zero:</span>
+<span id="cb10-390"><a href="#cb10-390"></a></span>
+<span id="cb10-393"><a href="#cb10-393"></a><span class="in">```{python}</span></span>
+<span id="cb10-394"><a href="#cb10-394"></a><span class="co">#| label: fig-gram-determinant</span></span>
+<span id="cb10-395"><a href="#cb10-395"></a><span class="co">#| fig-cap: "Gram Matrix Invertibility: The determinant $\\det(\\mathbf{X}^T\\mathbf{X})$ plunges exponentially toward zero as polynomial degree increases, making the matrix near-singular."</span></span>
+<span id="cb10-396"><a href="#cb10-396"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-397"><a href="#cb10-397"></a><span class="co">#| code-summary: "Plot Gram Matrix Determinant vs. Degree"</span></span>
+<span id="cb10-398"><a href="#cb10-398"></a><span class="co">#| fig-width: 6.5</span></span>
+<span id="cb10-399"><a href="#cb10-399"></a><span class="co">#| fig-height: 4.0</span></span>
+<span id="cb10-400"><a href="#cb10-400"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-401"><a href="#cb10-401"></a><span class="co">#| out-width: "70%"</span></span>
+<span id="cb10-402"><a href="#cb10-402"></a></span>
+<span id="cb10-403"><a href="#cb10-403"></a>x_norm <span class="op">=</span> (x_data <span class="op">-</span> x_data.<span class="bu">min</span>()) <span class="op">/</span> (x_data.<span class="bu">max</span>() <span class="op">-</span> x_data.<span class="bu">min</span>())</span>
+<span id="cb10-404"><a href="#cb10-404"></a>poly_range <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">10</span>))</span>
+<span id="cb10-405"><a href="#cb10-405"></a>gram_dets <span class="op">=</span> []</span>
+<span id="cb10-406"><a href="#cb10-406"></a></span>
+<span id="cb10-407"><a href="#cb10-407"></a><span class="cf">for</span> d <span class="kw">in</span> poly_range:</span>
+<span id="cb10-408"><a href="#cb10-408"></a>    X_poly_d <span class="op">=</span> np.column_stack([x_norm<span class="op">**</span>k <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(d <span class="op">+</span> <span class="dv">1</span>)])</span>
+<span id="cb10-409"><a href="#cb10-409"></a>    G <span class="op">=</span> X_poly_d.T <span class="op">@</span> X_poly_d</span>
+<span id="cb10-410"><a href="#cb10-410"></a>    det <span class="op">=</span> np.linalg.det(G)</span>
+<span id="cb10-411"><a href="#cb10-411"></a>    gram_dets.append(det)</span>
+<span id="cb10-412"><a href="#cb10-412"></a></span>
+<span id="cb10-413"><a href="#cb10-413"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">6.5</span>, <span class="fl">4.0</span>))</span>
+<span id="cb10-414"><a href="#cb10-414"></a>ax.plot(poly_range, gram_dets, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'crimson'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, ms<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb10-415"><a href="#cb10-415"></a>ax.set_yscale(<span class="st">'log'</span>)</span>
+<span id="cb10-416"><a href="#cb10-416"></a>ax.set_title(<span class="st">'Gram Matrix Determinant vs. Polynomial Degree'</span>)</span>
+<span id="cb10-417"><a href="#cb10-417"></a>ax.set_xlabel(<span class="st">'Polynomial Degree $d$'</span>)</span>
+<span id="cb10-418"><a href="#cb10-418"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$\d</span><span class="vs">et</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athbf{X}</span><span class="dv">^</span><span class="vs">T</span><span class="dv">\m</span><span class="vs">athbf{X}</span><span class="kw">)</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Log Scale</span><span class="kw">)</span><span class="vs">'</span>)</span>
+<span id="cb10-419"><a href="#cb10-419"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, which<span class="op">=</span><span class="st">'both'</span>)</span>
+<span id="cb10-420"><a href="#cb10-420"></a></span>
+<span id="cb10-421"><a href="#cb10-421"></a>plt.tight_layout()</span>
+<span id="cb10-422"><a href="#cb10-422"></a>plt.show()</span>
+<span id="cb10-423"><a href="#cb10-423"></a><span class="in">```</span></span>
+<span id="cb10-424"><a href="#cb10-424"></a></span>
+<span id="cb10-425"><a href="#cb10-425"></a>::: {.callout-note}</span>
+<span id="cb10-426"><a href="#cb10-426"></a><span class="fu">### Numerical Instability in Finite Precision</span></span>
+<span id="cb10-427"><a href="#cb10-427"></a>Mathematically, in the continuous infinite-precision limit, adding more polynomial features to an unconstrained least-squares regression can never increase training error: $\text{MSE}_{\text{train}}(d) \le \text{MSE}_{\text{train}}(d-1)$.</span>
+<span id="cb10-428"><a href="#cb10-428"></a></span>
+<span id="cb10-429"><a href="#cb10-429"></a>However, on physical digital computers operating with finite 64-bit floating point precision ($\varepsilon_{\text{mach}} \approx 10^{-16}$), inverting a near-singular matrix whose determinant approaches zero triggers **catastrophic roundoff error**. Standard LAPACK solvers lose precision, which can cause computed training errors to plateau or fluctuate erratically at very high degrees ($d \ge 12$).</span>
+<span id="cb10-430"><a href="#cb10-430"></a></span>
+<span id="cb10-431"><a href="#cb10-431"></a>This numerical instability is not a failure of linear regression theory—it is a direct reminder that unconstrained polynomial expansions require **regularization**!</span>
+<span id="cb10-432"><a href="#cb10-432"></a>:::</span>
+<span id="cb10-433"><a href="#cb10-433"></a></span>
+<span id="cb10-434"><a href="#cb10-434"></a>---</span>
+<span id="cb10-435"><a href="#cb10-435"></a></span>
+<span id="cb10-436"><a href="#cb10-436"></a><span class="fu">## 4. Summary &amp; Looking Ahead</span></span>
+<span id="cb10-437"><a href="#cb10-437"></a></span>
+<span id="cb10-438"><a href="#cb10-438"></a><span class="fu">### Core Takeaways</span></span>
+<span id="cb10-439"><a href="#cb10-439"></a></span>
+<span id="cb10-440"><a href="#cb10-440"></a><span class="ss">1. </span>**Feature Engineering Unlocks Flexibility:** Ordinary Least Squares can fit qualitative groups (via one-hot dummy variables) and complex non-linear curves (via polynomial basis expansion) while remaining strictly linear in the parameters $\boldsymbol{\theta}$.</span>
+<span id="cb10-441"><a href="#cb10-441"></a><span class="ss">2. </span>**OLS Orthogonality vs. Non-Linear Residuals:** The OLS normal equations strictly guarantee that $\mathbf{X}^T\mathbf{e} = \mathbf{0}$. However, zero *linear* correlation does not eliminate non-linear curvature: any pattern in the residuals is an unmistakable signal of **Underfitting (High Bias)**.</span>
+<span id="cb10-442"><a href="#cb10-442"></a><span class="ss">3. </span>**The Danger of Unchecked Flexibility:** Higher polynomial degrees drive training error down, but cause parameter weights $\hat{\boldsymbol{\theta}}$ to explode and the Gram matrix determinant $\det(\mathbf{X}^T\mathbf{X})$ to collapse toward zero, creating wild boundary oscillations (**Overfitting / High Variance**).</span>
+<span id="cb10-443"><a href="#cb10-443"></a><span class="ss">4. </span>**The Power &amp; Responsibility Principle:** Model flexibility gives us the power to capture complex biology, but imposes the responsibility to constrain variance.</span>
+<span id="cb10-444"><a href="#cb10-444"></a></span>
+<span id="cb10-445"><a href="#cb10-445"></a><span class="fu">### Looking Ahead to Lecture 05: Bias-Variance &amp; Regularization</span></span>
+<span id="cb10-446"><a href="#cb10-446"></a></span>
+<span id="cb10-447"><a href="#cb10-447"></a>How do we tame this runaway flexibility? In **Lecture 05: Linear Regression: Bias-Variance &amp; Regularization**, we address:</span>
+<span id="cb10-448"><a href="#cb10-448"></a></span>
+<span id="cb10-449"><a href="#cb10-449"></a><span class="ss">1. </span>**The Bias-Variance Tradeoff:** Formally proving why generalization error decomposes into $\text{Bias}^2 + \text{Variance} + \text{Noise}$.</span>
+<span id="cb10-450"><a href="#cb10-450"></a><span class="ss">2. </span>**Empirical Validation Splits:** Detecting overfitting using independent holdout sets and the empirical U-curve.</span>
+<span id="cb10-451"><a href="#cb10-451"></a><span class="ss">3. </span>**Loss Function Regularization (Ridge &amp; Lasso):** How adding an analytical penalty rescues the collapsing Gram matrix and shrinks exploding weights back to stable magnitudes.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
