@@ -1,0 +1,2007 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-11-17">
+<meta name="description" content="From Linear Regression Failures to the Sigmoid Link &amp; Cross-Entropy">
+
+<title>06 Logistic Regression: Classification – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/04_linear_regression_flexibility/lecture.html">
+ <span class="dropdown-text">04 Linear Regression: Flexibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/05_linear_regression_regularization/lecture.html">
+ <span class="dropdown-text">05 Linear Regression: Regularization</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/06_logistic_regression_classification/lecture.html">
+ <span class="dropdown-text">06 Logistic Regression: Classification</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
+ <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#classification" id="toc-classification" class="nav-link active" data-scroll-target="#classification">1. Classification</a></li>
+  <li><a href="#modeling-expectations-and-probabilities" id="toc-modeling-expectations-and-probabilities" class="nav-link" data-scroll-target="#modeling-expectations-and-probabilities">2. Modeling Expectations and Probabilities</a>
+  <ul class="collapse">
+  <li><a href="#mapping-probabilities-to-an-unbounded-scale" id="toc-mapping-probabilities-to-an-unbounded-scale" class="nav-link" data-scroll-target="#mapping-probabilities-to-an-unbounded-scale">Mapping Probabilities to an Unbounded Scale</a></li>
+  <li><a href="#the-sigmoid-link-function" id="toc-the-sigmoid-link-function" class="nav-link" data-scroll-target="#the-sigmoid-link-function">The Sigmoid Link Function</a></li>
+  </ul></li>
+  <li><a href="#scikit-learn-implementation" id="toc-scikit-learn-implementation" class="nav-link" data-scroll-target="#scikit-learn-implementation">3. Scikit-learn Implementation</a></li>
+  <li><a href="#interpreting-parameters-and-odds-ratios" id="toc-interpreting-parameters-and-odds-ratios" class="nav-link" data-scroll-target="#interpreting-parameters-and-odds-ratios">4. Interpreting Parameters and Odds Ratios</a></li>
+  <li><a href="#a-new-loss-function" id="toc-a-new-loss-function" class="nav-link" data-scroll-target="#a-new-loss-function">5. A New Loss Function</a>
+  <ul class="collapse">
+  <li><a href="#mse-problem-for-classification" id="toc-mse-problem-for-classification" class="nav-link" data-scroll-target="#mse-problem-for-classification">5.1 MSE Problem for Classification</a></li>
+  <li><a href="#deriving-binary-cross-entropy" id="toc-deriving-binary-cross-entropy" class="nav-link" data-scroll-target="#deriving-binary-cross-entropy">5.2 Deriving Binary Cross-Entropy</a></li>
+  </ul></li>
+  <li><a href="#review-comparison" id="toc-review-comparison" class="nav-link" data-scroll-target="#review-comparison">6. Review &amp; Comparison</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">06 Logistic Regression: Classification</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning (Mathe3)</p>
+</div>
+
+<div>
+  <div class="description">
+    From Linear Regression Failures to the Sigmoid Link &amp; Cross-Entropy
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 17, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Visualization Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression, LogisticRegression</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="classification" class="level2">
+<h2 class="anchored" data-anchor-id="classification">1. Classification</h2>
+<p>Consider a categorical target variable that is boolean, where <span class="math inline">\(y \in \{0, 1\}\)</span>. We might be tempted to apply linear regression to this problem, but it is not appropriate for several reasons.</p>
+<div id="cell-fig-linear-regression-classification" class="cell" data-fig-height="4.2" data-fig-width="11" data-execution_count="2">
+<details class="code-fold">
+<summary>Plot Linear Regression and Residuals on Boolean Data</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>n_patients <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>glucose_healthy <span class="op">=</span> np.random.normal(<span class="dv">100</span>, <span class="dv">14</span>, <span class="dv">25</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>glucose_diabetic <span class="op">=</span> np.random.normal(<span class="dv">140</span>, <span class="dv">16</span>, <span class="dv">25</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>glucose <span class="op">=</span> np.concatenate([glucose_healthy, glucose_diabetic])</span>
+<span id="cb2-7"><a href="#cb2-7"></a>y <span class="op">=</span> np.concatenate([np.zeros(<span class="dv">25</span>), np.ones(<span class="dv">25</span>)])</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># Fit Linear Regression</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>ols <span class="op">=</span> LinearRegression().fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>y_ols <span class="op">=</span> ols.predict(x_grid)</span>
+<span id="cb2-14"><a href="#cb2-14"></a></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co"># In-sample predictions and residuals</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>y_hat <span class="op">=</span> ols.predict(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb2-17"><a href="#cb2-17"></a>residuals <span class="op">=</span> y <span class="op">-</span> y_hat</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb2-20"><a href="#cb2-20"></a></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co"># Left panel: Data and OLS fit</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>ax1.scatter(glucose[y<span class="op">==</span><span class="dv">0</span>], y[y<span class="op">==</span><span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Non-Diabetic ($y = 0$)'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>ax1.scatter(glucose[y<span class="op">==</span><span class="dv">1</span>], y[y<span class="op">==</span><span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>ax1.plot(x_grid, y_ols, color<span class="op">=</span><span class="st">'blue'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Linear Regression'</span>)</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a>ax1.axhline(<span class="fl">0.0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-27"><a href="#cb2-27"></a>ax1.axhline(<span class="fl">1.0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a>ax1.set_title(<span class="st">'Linear Regression on Boolean Target'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>ax1.set_xlabel(<span class="st">'Fasting Plasma Glucose (mg/dL)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>ax1.set_ylabel(<span class="st">'Label ($y$)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-32"><a href="#cb2-32"></a>ax1.set_ylim(<span class="op">-</span><span class="fl">0.25</span>, <span class="fl">1.25</span>)</span>
+<span id="cb2-33"><a href="#cb2-33"></a>ax1.set_yticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb2-34"><a href="#cb2-34"></a>ax1.set_yticklabels([<span class="st">'0'</span>, <span class="st">'1'</span>])</span>
+<span id="cb2-35"><a href="#cb2-35"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-36"><a href="#cb2-36"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb2-37"><a href="#cb2-37"></a></span>
+<span id="cb2-38"><a href="#cb2-38"></a><span class="co"># Right panel: Residuals vs Predicted Values</span></span>
+<span id="cb2-39"><a href="#cb2-39"></a>ax2.scatter(y_hat[y<span class="op">==</span><span class="dv">0</span>], residuals[y<span class="op">==</span><span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Non-Diabetic ($y = 0$)'</span>)</span>
+<span id="cb2-40"><a href="#cb2-40"></a>ax2.scatter(y_hat[y<span class="op">==</span><span class="dv">1</span>], residuals[y<span class="op">==</span><span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb2-41"><a href="#cb2-41"></a>ax2.axhline(<span class="fl">0.0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb2-42"><a href="#cb2-42"></a></span>
+<span id="cb2-43"><a href="#cb2-43"></a>ax2.set_title(<span class="st">'Residuals vs. Predicted Values'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-44"><a href="#cb2-44"></a>ax2.set_xlabel(<span class="vs">r'Predicted Value </span><span class="kw">(</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{y}</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-45"><a href="#cb2-45"></a>ax2.set_ylabel(<span class="vs">r'Residual </span><span class="kw">(</span><span class="dv">$</span><span class="vs">e = y - </span><span class="er">\</span><span class="vs">hat{y}</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-46"><a href="#cb2-46"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-47"><a href="#cb2-47"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb2-48"><a href="#cb2-48"></a></span>
+<span id="cb2-49"><a href="#cb2-49"></a>plt.tight_layout()</span>
+<span id="cb2-50"><a href="#cb2-50"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-linear-regression-classification" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-linear-regression-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-linear-regression-classification-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="606">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-regression-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Linear regression fit to a boolean classification target (<span class="math inline">\(y \in \{0, 1\}\)</span>) and corresponding residuals against predicted values <span class="math inline">\(\hat{y}\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Failures of Linear Regression:</strong></p>
+<ul>
+<li><strong>Unbounded outputs (<span class="math inline">\(y, \hat{y}\)</span>)</strong>: Continuous predictions <span class="math inline">\(\hat{y}\)</span> fall below <span class="math inline">\(0\)</span> or exceed <span class="math inline">\(1\)</span>.</li>
+<li><strong>Non-Gaussian, structured residuals</strong>: residuals <span class="math inline">\(e_i = y_i - \hat{y}_i\)</span> violate Gaussian noise assumption (<span class="math inline">\(e_i \sim \mathcal{N}(0, \sigma^2)\)</span>) and constant variance (homoscedasticity).</li>
+</ul>
+<hr>
+</section>
+<section id="modeling-expectations-and-probabilities" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-expectations-and-probabilities">2. Modeling Expectations and Probabilities</h2>
+<p>When the target is a boolean label <span class="math inline">\(y \in \{0, 1\}\)</span>, each observation conditioned on <span class="math inline">\(x\)</span> follows a <strong>Bernoulli distribution</strong> with parameter <span class="math inline">\(p\)</span>.</p>
+<p><span class="math display">\[
+\begin{aligned}
+Y &amp; \sim \text{Bernoulli}(p) \\
+P(Y=y|p) &amp; = \begin{cases}
+              p   &amp; y = 1 (\mathtt{TRUE}) \\
+              1-p &amp; y = 0 (\mathtt{FALSE})
+          \end{cases}
+\end{aligned}
+\]</span></p>
+<p>We assume that <em>success probability</em> <span class="math inline">\(p\)</span> is a function of observable features, i.e.&nbsp;<span class="math inline">\(p = p(x)\)</span>.</p>
+<p>For a given value of <span class="math inline">\(x\)</span>, the conditional expectation is precisely the probability of the positive class:</p>
+<p><span class="math display">\[\begin{aligned}
+\mathbb{E}[Y \mid X=x] &amp;= \sum_{y} y \cdot P(Y = y \mid X=x) \\
+&amp;= 1 \cdot P(Y = 1 \mid X=x) + 0 \cdot P(Y = 0 \mid X=x) \\
+&amp;= P(Y = 1 \mid X=x) \\
+&amp;= p(x) = ?
+\end{aligned}\]</span></p>
+<p>c.f. linear regression: <span class="math inline">\(\mathbb{E}[Y \mid X=x] = x^T \theta\)</span></p>
+<p>Similarly, the conditional variance is:</p>
+<p><span class="math display">\[\text{Var}[Y \mid X=x] = p(x)(1 - p(x))\]</span></p>
+<div id="cell-fig-bernoulli-variance" class="cell" data-fig-height="3.8" data-fig-width="7" data-execution_count="3">
+<details class="code-fold">
+<summary>Bernoulli Variance Curve</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>p_vals <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a>var_vals <span class="op">=</span> p_vals <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_vals)</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.8</span>))</span>
+<span id="cb3-5"><a href="#cb3-5"></a>ax.plot(p_vals, var_vals, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb3-6"><a href="#cb3-6"></a>ax.scatter([<span class="fl">0.5</span>], [<span class="fl">0.25</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">70</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>ax.vlines(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.25</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>ax.hlines(<span class="fl">0.25</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>ax.set_title(<span class="st">"Bernoulli variance is heteroscedastic"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>ax.set_xlabel(<span class="vs">r'Success Probability </span><span class="dv">$</span><span class="vs">p</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = P</span><span class="kw">(</span><span class="vs">Y = 1 </span><span class="dv">\m</span><span class="vs">id x</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>ax.set_ylabel(<span class="vs">r'Conditional Variance </span><span class="dv">$\m</span><span class="vs">athrm{Var}</span><span class="kw">(</span><span class="vs">Y </span><span class="dv">\m</span><span class="vs">id x</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.02</span>, <span class="fl">1.02</span>)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.28</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb3-16"><a href="#cb3-16"></a></span>
+<span id="cb3-17"><a href="#cb3-17"></a>plt.tight_layout()</span>
+<span id="cb3-18"><a href="#cb3-18"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-bernoulli-variance" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bernoulli-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-bernoulli-variance-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1026" height="546">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bernoulli-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Bernoulli variance is heteroscedastic.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="mapping-probabilities-to-an-unbounded-scale" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-probabilities-to-an-unbounded-scale">Mapping Probabilities to an Unbounded Scale</h3>
+<p>Which functions should we allow for <span class="math inline">\(p(x) \in (0,1)\)</span>?</p>
+<p>To connect an unbounded linear combination <span class="math inline">\(z = x^T \theta \in (-\infty, +\infty)\)</span> to a valid probability <span class="math inline">\(p \in (0, 1)\)</span>, we transition across three distinct scales:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 29%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Scale</th>
+<th style="text-align: left;">Definition</th>
+<th style="text-align: center;">Domain / Range</th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Probability</strong></td>
+<td style="text-align: left;"><span class="math inline">\(p(x) = P(Y = 1 \mid x)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([0, 1]\)</span></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Odds</strong></td>
+<td style="text-align: left;"><span class="math inline">\(\text{odds}(x) = \frac{p(x)}{1 - p(x)}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\([0, \infty)\)</span></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Log-Odds (Logit)</strong></td>
+<td style="text-align: left;"><span class="math inline">\(\text{logit}(p) = \ln\left(\frac{p}{1 - p}\right)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((-\infty, +\infty)\)</span></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-sigmoid-link-function" class="level3">
+<h3 class="anchored" data-anchor-id="the-sigmoid-link-function">The Sigmoid Link Function</h3>
+<p>Now the log-odds can be modeled as a linear regression of the features:</p>
+<p><span class="math display">\[\ln\left(\frac{p}{1 - p}\right) = z = x^T \theta\]</span></p>
+<p>Then <span class="math inline">\(p(x)\)</span> can be written as the <strong>logistic (sigmoid) function</strong>:</p>
+<p><span class="math display">\[p(x) = \sigma(z) = \frac{1}{1 + e^{-z}}\]</span></p>
+<div id="cell-fig-sigmoid-function" class="cell" data-fig-height="3.8" data-fig-width="7" data-execution_count="4">
+<details class="code-fold">
+<summary>Plot Logistic Sigmoid Function</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>z_vals <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">300</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>sigma_vals <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_vals))</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.8</span>))</span>
+<span id="cb4-5"><a href="#cb4-5"></a>ax.plot(z_vals, sigma_vals, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>ax.axhline(<span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb4-9"><a href="#cb4-9"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>ax.scatter([<span class="dv">0</span>], [<span class="fl">0.5</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a></span>
+<span id="cb4-12"><a href="#cb4-12"></a>ax.set_title(<span class="st">"The Logistic Sigmoid Function"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb4-13"><a href="#cb4-13"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">z = x</span><span class="dv">^</span><span class="vs">T </span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$\s</span><span class="vs">igma</span><span class="kw">(</span><span class="vs">z</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>ax.set_xlim(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>)</span>
+<span id="cb4-17"><a href="#cb4-17"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a>plt.tight_layout()</span>
+<span id="cb4-20"><a href="#cb4-20"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-sigmoid-function" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sigmoid-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-sigmoid-function-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1026" height="545">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sigmoid-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The logistic sigmoid function.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Essential Properties of the Sigmoid Function
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Symmetry</strong>: <span class="math inline">\(\sigma(-z) = 1 - \sigma(z)\)</span></p></li>
+<li><p><strong>Boundary Limits</strong>: <span class="math inline">\(\lim_{z \to +\infty} \sigma(z) = 1\)</span> and <span class="math inline">\(\lim_{z \to -\infty} \sigma(z) = 0\)</span></p></li>
+<li><p><strong>Center Point</strong>: <span class="math inline">\(\sigma(0) = \frac{1}{1 + 1} = 0.5\)</span></p></li>
+<li><p><strong>Derivative</strong>:</p>
+<p><span class="math display">\[\frac{d\sigma}{dz} = \sigma(z)\left(1 - \sigma(z)\right)\]</span></p></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="scikit-learn-implementation" class="level2">
+<h2 class="anchored" data-anchor-id="scikit-learn-implementation">3. Scikit-learn Implementation</h2>
+<p>With the sigmoid link function established, we fit a logistic regression model directly to our fasting glucose cohort using <code>scikit-learn</code>:</p>
+<div id="sec-sklearn-fit" class="cell" data-execution_count="5">
+<details open="" class="code-fold">
+<summary>Fit Logistic Regression with scikit-learn</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># Fit Logistic Regression</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>clf <span class="op">=</span> LogisticRegression()</span>
+<span id="cb5-5"><a href="#cb5-5"></a>clf.fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Extract fitted parameters</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>theta_0 <span class="op">=</span> clf.intercept_[<span class="dv">0</span>]</span>
+<span id="cb5-9"><a href="#cb5-9"></a>theta_1 <span class="op">=</span> clf.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co"># Generate prediction curve</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>p_fit <span class="op">=</span> clf.predict_proba(x_grid)[:, <span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-fig-logistic-fit" class="cell" data-fig-height="4.2" data-fig-width="7.5" data-execution_count="6">
+<details class="code-fold">
+<summary>plot_logistic_regression</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">4.2</span>))</span>
+<span id="cb6-2"><a href="#cb6-2"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, s<span class="op">=</span><span class="dv">45</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Non-Diabetic ($y=0$)"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">45</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Diabetic ($y=1$)"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a>ax.plot(x_grid, p_fit, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Logistic Sigmoid $p(x)$"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a>ax.set_title(<span class="ss">f"Logistic Regression Fit: $</span><span class="ch">\\</span><span class="ss">theta_0 </span><span class="ch">\\</span><span class="ss">approx </span><span class="sc">{</span>theta_0<span class="sc">:.2f}</span><span class="ss">,</span><span class="ch">\\</span><span class="ss"> </span><span class="ch">\\</span><span class="ss">theta_1 </span><span class="ch">\\</span><span class="ss">approx </span><span class="sc">{</span>theta_1<span class="sc">:.3f}</span><span class="ss">$"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a>ax.set_ylabel(<span class="st">"Probability of Diabetes $P(Y = 1 </span><span class="ch">\\</span><span class="st">mid x)$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-9"><a href="#cb6-9"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.15</span>, <span class="fl">1.15</span>)</span>
+<span id="cb6-10"><a href="#cb6-10"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-11"><a href="#cb6-11"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-12"><a href="#cb6-12"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-14"><a href="#cb6-14"></a></span>
+<span id="cb6-15"><a href="#cb6-15"></a>plt.tight_layout()</span>
+<span id="cb6-16"><a href="#cb6-16"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-logistic-fit" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-logistic-fit-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1102" height="605">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Fitted logistic sigmoid curve on the fasting plasma glucose cohort.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="interpreting-parameters-and-odds-ratios" class="level2">
+<h2 class="anchored" data-anchor-id="interpreting-parameters-and-odds-ratios">4. Interpreting Parameters and Odds Ratios</h2>
+<p>In linear regression; coefficient <span class="math inline">\(\theta_j\)</span> represents the additive change in <span class="math inline">\(y\)</span> when predictor <span class="math inline">\(x_j\)</span> changes by one unit, holding all other predictors constant.</p>
+<p>In logistic regression, <span class="math inline">\(\theta_j\)</span> represents the change in the <strong>odds ratio</strong> when predictor <span class="math inline">\(x_j\)</span> changes by one unit, holding all other predictors constant (<span class="math inline">\(z_2 = z_1 + \theta_j \Delta x_j = z_1 + \theta_j\)</span>):</p>
+<p><span class="math display">\[\text{Odds Ratio} = \frac{\text{Odds}(x_j + 1)}{\text{Odds}(x_j)} = e^{z_2} / e^{z_1} = e^{z_2 - z_1} = e^{\theta_j}\]</span></p>
+<ul>
+<li><p><strong><span class="math inline">\(\theta_j = 0 \implies \text{Odds Ratio} = 1\)</span></strong>: Feature <span class="math inline">\(x_j\)</span> has no association with the odds of disease.</p></li>
+<li><p><strong><span class="math inline">\(\theta_j &gt; 0 \implies \text{Odds Ratio} &gt; 1\)</span></strong>: Feature <span class="math inline">\(x_j\)</span> increases the odds.</p></li>
+<li><p><strong><span class="math inline">\(\theta_j &lt; 0 \implies \text{Odds Ratio} &lt; 1\)</span></strong>: Feature <span class="math inline">\(x_j\)</span> decreases the odds.</p></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Clinical Examples
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Fasting Glucose (<span class="math inline">\(x_1\)</span> in <span class="math inline">\(\text{mg/dL}\)</span>)</strong>:<br>
+From our fitted model: <span class="math inline">\(\theta_1 \approx 0.201 \longrightarrow \text{OR} = e^{0.201} \approx 1.223\)</span>.<br>
+Every <span class="math inline">\(+1\,\text{mg/dL}\)</span> increase in glucose multiplies the odds of diabetes by <span class="math inline">\(1.223\)</span> (a <span class="math inline">\(+22.3\%\)</span> increase in odds).</p></li>
+<li><p><strong>Body Mass Index (<span class="math inline">\(x_2\)</span> in <span class="math inline">\(\text{kg/m}^2\)</span>)</strong>:<br>
+<span class="math inline">\(\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.174\)</span>.<br>
+Every <span class="math inline">\(+1\,\text{kg/m}^2\)</span> increase in BMI multiplies the odds of diabetes by <span class="math inline">\(1.174\)</span> (a <span class="math inline">\(+17.4\%\)</span> increase).</p></li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
+<section id="a-new-loss-function" class="level2">
+<h2 class="anchored" data-anchor-id="a-new-loss-function">5. A New Loss Function</h2>
+<section id="mse-problem-for-classification" class="level3">
+<h3 class="anchored" data-anchor-id="mse-problem-for-classification">5.1 MSE Problem for Classification</h3>
+<p>Plugging in the sigmoid <span class="math inline">\(\hat{y}_i = \sigma(x_i^T \theta)\)</span> directly into mean squared error yields:</p>
+<p><span class="math display">\[S(\theta) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \hat{y}_i \right)^2 = \frac{1}{n}\sum_{i=1}^n \left( y_i - \sigma(x_i^T \theta) \right)^2\]</span></p>
+<p>For a model with two features (<span class="math inline">\(x_{i1}, x_{i2}\)</span>) and parameters <span class="math inline">\(\theta = (\theta_1, \theta_2)^T\)</span>, the linear predictor is <span class="math inline">\(x_i^T \theta = \theta_1 x_{i1} + \theta_2 x_{i2}\)</span>, giving the concrete loss:</p>
+<p><span class="math display">\[S(\theta_1, \theta_2) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \frac{1}{1 + e^{-(\theta_1 x_{i1} + \theta_2 x_{i2})}} \right)^2\]</span></p>
+<ul>
+<li><p><strong>Non-Convexity</strong>: The composition of the quadratic loss with the non-linear sigmoid generates an irregular landscape with local minima and saddle points.</p></li>
+<li><p><strong>Gradient Saturation</strong>: When the model makes a confident wrong prediction (e.g.&nbsp;<span class="math inline">\(y=1\)</span> but <span class="math inline">\(z \ll 0\)</span>), the derivative <span class="math inline">\(\sigma'(z) \to 0\)</span>, causing updates to vanish and learning to stall.</p></li>
+</ul>
+<div id="cell-fig-non-convex-landscape" class="cell" data-fig-height="5.2" data-fig-width="7.5" data-execution_count="7">
+<details class="code-fold">
+<summary>Plot Contour Map of Loss Function (MSE)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Concrete observations: 6 patients with two standardized clinical features (x_i1, x_i2)</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>X_sample <span class="op">=</span> np.array([</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    [ <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.2</span>],</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    [<span class="op">-</span><span class="fl">2.6</span>, <span class="op">-</span><span class="fl">2.7</span>],</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    [<span class="op">-</span><span class="fl">1.1</span>,  <span class="fl">2.4</span>],</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    [<span class="op">-</span><span class="fl">2.7</span>,  <span class="fl">2.4</span>],</span>
+<span id="cb7-7"><a href="#cb7-7"></a>    [<span class="op">-</span><span class="fl">2.3</span>, <span class="op">-</span><span class="fl">2.6</span>],</span>
+<span id="cb7-8"><a href="#cb7-8"></a>    [<span class="op">-</span><span class="fl">1.3</span>,  <span class="fl">0.7</span>]</span>
+<span id="cb7-9"><a href="#cb7-9"></a>])</span>
+<span id="cb7-10"><a href="#cb7-10"></a>y_sample <span class="op">=</span> np.array([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb7-11"><a href="#cb7-11"></a></span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>t1 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2000</span>)</span>
+<span id="cb7-14"><a href="#cb7-14"></a>t2 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2000</span>)</span>
+<span id="cb7-15"><a href="#cb7-15"></a>T1, T2 <span class="op">=</span> np.meshgrid(t1, t2)</span>
+<span id="cb7-16"><a href="#cb7-16"></a></span>
+<span id="cb7-17"><a href="#cb7-17"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb7-18"><a href="#cb7-18"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>z))</span>
+<span id="cb7-19"><a href="#cb7-19"></a></span>
+<span id="cb7-20"><a href="#cb7-20"></a><span class="co"># S(theta) = 1/n sum (y_i - sigma(x_i^T theta))^2 where x_i^T theta = theta1 * x_i1 + theta2 * x_i2</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a>Z <span class="op">=</span> np.zeros_like(T1)</span>
+<span id="cb7-22"><a href="#cb7-22"></a><span class="cf">for</span> (x1, x2), yi <span class="kw">in</span> <span class="bu">zip</span>(X_sample, y_sample):</span>
+<span id="cb7-23"><a href="#cb7-23"></a>    z <span class="op">=</span> T1 <span class="op">*</span> x1 <span class="op">+</span> T2 <span class="op">*</span> x2</span>
+<span id="cb7-24"><a href="#cb7-24"></a>    p <span class="op">=</span> sigmoid(z)</span>
+<span id="cb7-25"><a href="#cb7-25"></a>    Z <span class="op">+=</span> (yi <span class="op">-</span> p)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb7-26"><a href="#cb7-26"></a>Z <span class="op">/=</span> <span class="bu">len</span>(y_sample)</span>
+<span id="cb7-27"><a href="#cb7-27"></a></span>
+<span id="cb7-28"><a href="#cb7-28"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">5.2</span>))</span>
+<span id="cb7-29"><a href="#cb7-29"></a>contour <span class="op">=</span> ax.contourf(T1, T2, Z, levels<span class="op">=</span><span class="dv">25</span>, cmap<span class="op">=</span><span class="st">'viridis'</span>)</span>
+<span id="cb7-30"><a href="#cb7-30"></a>ax.contour(T1, T2, Z, levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'white'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb7-31"><a href="#cb7-31"></a>cbar <span class="op">=</span> plt.colorbar(contour, ax<span class="op">=</span>ax, pad<span class="op">=</span><span class="fl">0.03</span>)</span>
+<span id="cb7-32"><a href="#cb7-32"></a>cbar.set_label(<span class="vs">r"Loss </span><span class="dv">$</span><span class="vs">S</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-33"><a href="#cb7-33"></a></span>
+<span id="cb7-34"><a href="#cb7-34"></a>ax.set_title(<span class="st">"Contour map of loss function (MSE)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-35"><a href="#cb7-35"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-36"><a href="#cb7-36"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_2</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-37"><a href="#cb7-37"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-38"><a href="#cb7-38"></a></span>
+<span id="cb7-39"><a href="#cb7-39"></a>plt.tight_layout()</span>
+<span id="cb7-40"><a href="#cb7-40"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-non-convex-landscape" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-non-convex-landscape-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-non-convex-landscape-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1086" height="756">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-non-convex-landscape-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Contour map of the Mean Squared Error loss <span class="math inline">\(S(\theta) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \sigma(\theta_1 x_{i1} + \theta_2 x_{i2}) \right)^2\)</span>, showing multiple local minima, saddle regions, and plateaus.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="deriving-binary-cross-entropy" class="level3">
+<h3 class="anchored" data-anchor-id="deriving-binary-cross-entropy">5.2 Deriving Binary Cross-Entropy</h3>
+<p>Because <span class="math inline">\(y_i \in \{0, 1\}\)</span>, each observation follows an independent <strong>Bernoulli trial</strong> with success parameter <span class="math inline">\(\hat{y}_i = \sigma(x_i^T \theta)\)</span>:</p>
+<p><span class="math display">\[P(y_i \mid x_i) = \hat{y}_i^{y_i} (1 - \hat{y}_i)^{1 - y_i}\]</span></p>
+<p>For <span class="math inline">\(n\)</span> independent observations, the joint Likelihood is:</p>
+<p><span class="math display">\[L(\theta) = \prod_{i=1}^n \hat{y}_i^{y_i} (1 - \hat{y}_i)^{1 - y_i}\]</span></p>
+<p>Taking the negative logarithm (and normalizing by <span class="math inline">\(n\)</span>) produces the loss function <span class="math inline">\(\ell(\theta)\)</span>:</p>
+<p><span class="math display">\[\ell(\theta) = -\frac{1}{n}\sum_{i=1}^n \left[ y_i \ln \hat{y}_i + (1 - y_i)\ln(1 - \hat{y}_i) \right]\]</span></p>
+<div id="cell-fig-bce-loss" class="cell" data-fig-height="3.8" data-fig-width="10" data-execution_count="8">
+<details class="code-fold">
+<summary>Plot Binary Cross-Entropy Loss Curves</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>p_vals <span class="op">=</span> np.linspace(<span class="fl">0.001</span>, <span class="fl">0.999</span>, <span class="dv">300</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>loss_y1 <span class="op">=</span> <span class="op">-</span>np.log(p_vals)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>loss_y0 <span class="op">=</span> <span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> p_vals)</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a>axes[<span class="dv">0</span>].plot(p_vals, loss_y1, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a>axes[<span class="dv">0</span>].set_title(<span class="vs">r'True Label </span><span class="dv">$</span><span class="vs">y = 1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Diabetic</span><span class="kw">)</span><span class="vs">: Loss = </span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">ln</span><span class="kw">(</span><span class="er">\</span><span class="vs">hat{y}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'Predicted Probability $</span><span class="er">\</span><span class="st">hat</span><span class="sc">{y}</span><span class="st">$'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb8-12"><a href="#cb8-12"></a></span>
+<span id="cb8-13"><a href="#cb8-13"></a>axes[<span class="dv">1</span>].plot(p_vals, loss_y0, color<span class="op">=</span><span class="st">'#1b9e77'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb8-14"><a href="#cb8-14"></a>axes[<span class="dv">1</span>].set_title(<span class="vs">r'True Label </span><span class="dv">$</span><span class="vs">y = 0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Healthy</span><span class="kw">)</span><span class="vs">: Loss = </span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">ln</span><span class="kw">(</span><span class="vs">1 - </span><span class="er">\</span><span class="vs">hat{y}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-15"><a href="#cb8-15"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Predicted Probability $</span><span class="er">\</span><span class="st">hat</span><span class="sc">{y}</span><span class="st">$'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-16"><a href="#cb8-16"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb8-17"><a href="#cb8-17"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb8-18"><a href="#cb8-18"></a></span>
+<span id="cb8-19"><a href="#cb8-19"></a>plt.tight_layout()</span>
+<span id="cb8-20"><a href="#cb8-20"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-bce-loss" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bce-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-bce-loss-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="545">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bce-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Binary Cross-Entropy penalizes confident incorrect predictions with large loss.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-fig-bce-contour" class="cell" data-fig-height="5.2" data-fig-width="7.5" data-execution_count="9">
+<details class="code-fold">
+<summary>Plot Contour Map of Loss Function (BCE)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>Z_bce <span class="op">=</span> np.zeros_like(T1)</span>
+<span id="cb9-2"><a href="#cb9-2"></a>eps <span class="op">=</span> <span class="fl">1e-12</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="cf">for</span> (x1, x2), yi <span class="kw">in</span> <span class="bu">zip</span>(X_sample, y_sample):</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    z <span class="op">=</span> T1 <span class="op">*</span> x1 <span class="op">+</span> T2 <span class="op">*</span> x2</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    p <span class="op">=</span> np.clip(sigmoid(z), eps, <span class="dv">1</span> <span class="op">-</span> eps)</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    Z_bce <span class="op">-=</span> (yi <span class="op">*</span> np.log(p) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> yi) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p))</span>
+<span id="cb9-7"><a href="#cb9-7"></a>Z_bce <span class="op">/=</span> <span class="bu">len</span>(y_sample)</span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">5.2</span>))</span>
+<span id="cb9-10"><a href="#cb9-10"></a>contour_bce <span class="op">=</span> ax.contourf(T1, T2, Z_bce, levels<span class="op">=</span><span class="dv">25</span>, cmap<span class="op">=</span><span class="st">'viridis'</span>)</span>
+<span id="cb9-11"><a href="#cb9-11"></a>ax.contour(T1, T2, Z_bce, levels<span class="op">=</span><span class="dv">25</span>, colors<span class="op">=</span><span class="st">'white'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb9-12"><a href="#cb9-12"></a>cbar <span class="op">=</span> plt.colorbar(contour_bce, ax<span class="op">=</span>ax, pad<span class="op">=</span><span class="fl">0.03</span>)</span>
+<span id="cb9-13"><a href="#cb9-13"></a>cbar.set_label(<span class="vs">r"Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb9-14"><a href="#cb9-14"></a></span>
+<span id="cb9-15"><a href="#cb9-15"></a>ax.set_title(<span class="st">"Contour map of loss function (Binary Cross-Entropy)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb9-16"><a href="#cb9-16"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb9-17"><a href="#cb9-17"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_2</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb9-18"><a href="#cb9-18"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb9-19"><a href="#cb9-19"></a></span>
+<span id="cb9-20"><a href="#cb9-20"></a>plt.tight_layout()</span>
+<span id="cb9-21"><a href="#cb9-21"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-bce-contour" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bce-contour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-bce-contour-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1080" height="756">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bce-contour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Contour map of Binary Cross-Entropy for the identical dataset. Convexity and single global minimum.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Convexity Guarantee</strong>: <span class="math inline">\(\ell(\theta)\)</span> is strictly convex in <span class="math inline">\(\theta\)</span> <span class="math inline">\(\to\)</span> easier optimization</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="review-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="review-comparison">6. Review &amp; Comparison</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dimension</th>
+<th style="text-align: left;">Linear Regression (OLS)</th>
+<th style="text-align: left;">Logistic Regression</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Target Variable (<span class="math inline">\(y\)</span>)</strong></td>
+<td style="text-align: left;">Continuous metric: <span class="math inline">\(y \in \mathbb{R}\)</span></td>
+<td style="text-align: left;">Discrete binary class: <span class="math inline">\(y \in \{0, 1\}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Model Formulation</strong></td>
+<td style="text-align: left;"><span class="math inline">\(\hat{y} = x^T \theta\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(p = \sigma(x^T \theta) = \frac{1}{1 + e^{-x^T \theta}}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Output Domain</strong></td>
+<td style="text-align: left;">Unbounded: <span class="math inline">\((-\infty, +\infty)\)</span></td>
+<td style="text-align: left;">Strictly bounded probability: <span class="math inline">\((0, 1)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Parameter Meaning</strong></td>
+<td style="text-align: left;">Additive change in target per unit <span class="math inline">\(x\)</span></td>
+<td style="text-align: left;">Additive change in log-odds; <span class="math inline">\(e^{\theta_j}\)</span> is Odds Ratio</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Loss Function</strong></td>
+<td style="text-align: left;">Mean Squared Error: <span class="math inline">\(S(\theta)\)</span></td>
+<td style="text-align: left;">Binary Cross-Entropy: <span class="math inline">\(\ell(\theta)\)</span></td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="an">title:</span><span class="co"> "06 Logistic Regression: Classification"</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="an">description:</span><span class="co"> "From Linear Regression Failures to the Sigmoid Link &amp; Cross-Entropy"</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning (Mathe3)"</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="an">date:</span><span class="co"> "2026-11-17"</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="an">format:</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">  html:</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">    toc: true</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">---</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="in">```{python}</span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#| code-summary: "Imports &amp; Visualization Setup"</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression, LogisticRegression</span>
+<span id="cb10-31"><a href="#cb10-31"></a></span>
+<span id="cb10-32"><a href="#cb10-32"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb10-33"><a href="#cb10-33"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="in">```</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a></span>
+<span id="cb10-36"><a href="#cb10-36"></a><span class="fu">## 1. Classification</span></span>
+<span id="cb10-37"><a href="#cb10-37"></a></span>
+<span id="cb10-38"><a href="#cb10-38"></a>Consider a categorical target variable that is boolean, where $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$.</span>
+<span id="cb10-39"><a href="#cb10-39"></a>We might be tempted to apply linear regression to this problem, but it is not appropriate for several reasons.</span>
+<span id="cb10-40"><a href="#cb10-40"></a></span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="in">```{python}</span></span>
+<span id="cb10-44"><a href="#cb10-44"></a><span class="co">#| label: fig-linear-regression-classification</span></span>
+<span id="cb10-45"><a href="#cb10-45"></a><span class="co">#| fig-cap: "Linear regression fit to a boolean classification target ($y \\in \\{0, 1\\}$) and corresponding residuals against predicted values $\\hat{y}$."</span></span>
+<span id="cb10-46"><a href="#cb10-46"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-47"><a href="#cb10-47"></a><span class="co">#| code-summary: "Plot Linear Regression and Residuals on Boolean Data"</span></span>
+<span id="cb10-48"><a href="#cb10-48"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb10-49"><a href="#cb10-49"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb10-50"><a href="#cb10-50"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-51"><a href="#cb10-51"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-52"><a href="#cb10-52"></a></span>
+<span id="cb10-53"><a href="#cb10-53"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb10-54"><a href="#cb10-54"></a>n_patients <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb10-55"><a href="#cb10-55"></a>glucose_healthy <span class="op">=</span> np.random.normal(<span class="dv">100</span>, <span class="dv">14</span>, <span class="dv">25</span>)</span>
+<span id="cb10-56"><a href="#cb10-56"></a>glucose_diabetic <span class="op">=</span> np.random.normal(<span class="dv">140</span>, <span class="dv">16</span>, <span class="dv">25</span>)</span>
+<span id="cb10-57"><a href="#cb10-57"></a></span>
+<span id="cb10-58"><a href="#cb10-58"></a>glucose <span class="op">=</span> np.concatenate([glucose_healthy, glucose_diabetic])</span>
+<span id="cb10-59"><a href="#cb10-59"></a>y <span class="op">=</span> np.concatenate([np.zeros(<span class="dv">25</span>), np.ones(<span class="dv">25</span>)])</span>
+<span id="cb10-60"><a href="#cb10-60"></a></span>
+<span id="cb10-61"><a href="#cb10-61"></a><span class="co"># Fit Linear Regression</span></span>
+<span id="cb10-62"><a href="#cb10-62"></a>ols <span class="op">=</span> LinearRegression().fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb10-63"><a href="#cb10-63"></a></span>
+<span id="cb10-64"><a href="#cb10-64"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb10-65"><a href="#cb10-65"></a>y_ols <span class="op">=</span> ols.predict(x_grid)</span>
+<span id="cb10-66"><a href="#cb10-66"></a></span>
+<span id="cb10-67"><a href="#cb10-67"></a><span class="co"># In-sample predictions and residuals</span></span>
+<span id="cb10-68"><a href="#cb10-68"></a>y_hat <span class="op">=</span> ols.predict(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb10-69"><a href="#cb10-69"></a>residuals <span class="op">=</span> y <span class="op">-</span> y_hat</span>
+<span id="cb10-70"><a href="#cb10-70"></a></span>
+<span id="cb10-71"><a href="#cb10-71"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb10-72"><a href="#cb10-72"></a></span>
+<span id="cb10-73"><a href="#cb10-73"></a><span class="co"># Left panel: Data and OLS fit</span></span>
+<span id="cb10-74"><a href="#cb10-74"></a>ax1.scatter(glucose[y<span class="op">==</span><span class="dv">0</span>], y[y<span class="op">==</span><span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Non-Diabetic ($y = 0$)'</span>)</span>
+<span id="cb10-75"><a href="#cb10-75"></a>ax1.scatter(glucose[y<span class="op">==</span><span class="dv">1</span>], y[y<span class="op">==</span><span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb10-76"><a href="#cb10-76"></a>ax1.plot(x_grid, y_ols, color<span class="op">=</span><span class="st">'blue'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Linear Regression'</span>)</span>
+<span id="cb10-77"><a href="#cb10-77"></a></span>
+<span id="cb10-78"><a href="#cb10-78"></a>ax1.axhline(<span class="fl">0.0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-79"><a href="#cb10-79"></a>ax1.axhline(<span class="fl">1.0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb10-80"><a href="#cb10-80"></a></span>
+<span id="cb10-81"><a href="#cb10-81"></a>ax1.set_title(<span class="st">'Linear Regression on Boolean Target'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-82"><a href="#cb10-82"></a>ax1.set_xlabel(<span class="st">'Fasting Plasma Glucose (mg/dL)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-83"><a href="#cb10-83"></a>ax1.set_ylabel(<span class="st">'Label ($y$)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-84"><a href="#cb10-84"></a>ax1.set_ylim(<span class="op">-</span><span class="fl">0.25</span>, <span class="fl">1.25</span>)</span>
+<span id="cb10-85"><a href="#cb10-85"></a>ax1.set_yticks([<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb10-86"><a href="#cb10-86"></a>ax1.set_yticklabels([<span class="st">'0'</span>, <span class="st">'1'</span>])</span>
+<span id="cb10-87"><a href="#cb10-87"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-88"><a href="#cb10-88"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-89"><a href="#cb10-89"></a></span>
+<span id="cb10-90"><a href="#cb10-90"></a><span class="co"># Right panel: Residuals vs Predicted Values</span></span>
+<span id="cb10-91"><a href="#cb10-91"></a>ax2.scatter(y_hat[y<span class="op">==</span><span class="dv">0</span>], residuals[y<span class="op">==</span><span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Non-Diabetic ($y = 0$)'</span>)</span>
+<span id="cb10-92"><a href="#cb10-92"></a>ax2.scatter(y_hat[y<span class="op">==</span><span class="dv">1</span>], residuals[y<span class="op">==</span><span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb10-93"><a href="#cb10-93"></a>ax2.axhline(<span class="fl">0.0</span>, color<span class="op">=</span><span class="st">'black'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-94"><a href="#cb10-94"></a></span>
+<span id="cb10-95"><a href="#cb10-95"></a>ax2.set_title(<span class="st">'Residuals vs. Predicted Values'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-96"><a href="#cb10-96"></a>ax2.set_xlabel(<span class="vs">r'Predicted Value </span><span class="kw">(</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{y}</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-97"><a href="#cb10-97"></a>ax2.set_ylabel(<span class="vs">r'Residual </span><span class="kw">(</span><span class="dv">$</span><span class="vs">e = y - </span><span class="er">\</span><span class="vs">hat{y}</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-98"><a href="#cb10-98"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper right'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-99"><a href="#cb10-99"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-100"><a href="#cb10-100"></a></span>
+<span id="cb10-101"><a href="#cb10-101"></a>plt.tight_layout()</span>
+<span id="cb10-102"><a href="#cb10-102"></a>plt.show()</span>
+<span id="cb10-103"><a href="#cb10-103"></a><span class="in">```</span></span>
+<span id="cb10-104"><a href="#cb10-104"></a></span>
+<span id="cb10-105"><a href="#cb10-105"></a>**Failures of Linear Regression:**</span>
+<span id="cb10-106"><a href="#cb10-106"></a></span>
+<span id="cb10-107"><a href="#cb10-107"></a><span class="ss">* </span>**Unbounded outputs ($y, \hat{y}$)**: Continuous predictions $\hat{y}$ fall below $0$ or exceed $1$.</span>
+<span id="cb10-108"><a href="#cb10-108"></a><span class="ss">* </span>**Non-Gaussian, structured residuals**: residuals $e_i = y_i - \hat{y}_i$ violate Gaussian noise assumption ($e_i \sim \mathcal{N}(0, \sigma^2)$) and constant variance (homoscedasticity).</span>
+<span id="cb10-109"><a href="#cb10-109"></a></span>
+<span id="cb10-110"><a href="#cb10-110"></a>---</span>
+<span id="cb10-111"><a href="#cb10-111"></a></span>
+<span id="cb10-112"><a href="#cb10-112"></a><span class="fu">## 2. Modeling Expectations and Probabilities</span></span>
+<span id="cb10-113"><a href="#cb10-113"></a></span>
+<span id="cb10-114"><a href="#cb10-114"></a>When the target is a boolean label $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$, each observation conditioned on $x$ follows a **Bernoulli distribution** with parameter $p$.</span>
+<span id="cb10-115"><a href="#cb10-115"></a></span>
+<span id="cb10-116"><a href="#cb10-116"></a>$$</span>
+<span id="cb10-117"><a href="#cb10-117"></a>\begin{aligned}</span>
+<span id="cb10-118"><a href="#cb10-118"></a>Y &amp; \sim \text{Bernoulli}(p) <span class="sc">\\</span></span>
+<span id="cb10-119"><a href="#cb10-119"></a>P(Y=y|p) &amp; = \begin{cases}</span>
+<span id="cb10-120"><a href="#cb10-120"></a>              p   &amp; y = 1 (\mathtt{TRUE}) <span class="sc">\\</span></span>
+<span id="cb10-121"><a href="#cb10-121"></a>              1-p &amp; y = 0 (\mathtt{FALSE})</span>
+<span id="cb10-122"><a href="#cb10-122"></a>          \end{cases} </span>
+<span id="cb10-123"><a href="#cb10-123"></a>\end{aligned}</span>
+<span id="cb10-124"><a href="#cb10-124"></a>$$</span>
+<span id="cb10-125"><a href="#cb10-125"></a></span>
+<span id="cb10-126"><a href="#cb10-126"></a>We assume that *success probability* $p$ is a function of observable features, i.e. $p = p(x)$.</span>
+<span id="cb10-127"><a href="#cb10-127"></a></span>
+<span id="cb10-128"><a href="#cb10-128"></a>For a given value of $x$, the conditional expectation is precisely the probability of the positive class:</span>
+<span id="cb10-129"><a href="#cb10-129"></a></span>
+<span id="cb10-130"><a href="#cb10-130"></a>$$\begin{aligned}</span>
+<span id="cb10-131"><a href="#cb10-131"></a>\mathbb{E}<span class="co">[</span><span class="ot">Y \mid X=x</span><span class="co">]</span> &amp;= \sum_{y} y \cdot P(Y = y \mid X=x) <span class="sc">\\</span></span>
+<span id="cb10-132"><a href="#cb10-132"></a>&amp;= 1 \cdot P(Y = 1 \mid X=x) + 0 \cdot P(Y = 0 \mid X=x) <span class="sc">\\</span></span>
+<span id="cb10-133"><a href="#cb10-133"></a>&amp;= P(Y = 1 \mid X=x) <span class="sc">\\</span></span>
+<span id="cb10-134"><a href="#cb10-134"></a>&amp;= p(x) = ?</span>
+<span id="cb10-135"><a href="#cb10-135"></a>\end{aligned}$$</span>
+<span id="cb10-136"><a href="#cb10-136"></a></span>
+<span id="cb10-137"><a href="#cb10-137"></a>c.f. linear regression: $\mathbb{E}<span class="co">[</span><span class="ot">Y \mid X=x</span><span class="co">]</span> = x^T \theta$</span>
+<span id="cb10-138"><a href="#cb10-138"></a></span>
+<span id="cb10-139"><a href="#cb10-139"></a>Similarly, the conditional variance is:</span>
+<span id="cb10-140"><a href="#cb10-140"></a></span>
+<span id="cb10-141"><a href="#cb10-141"></a>$$\text{Var}<span class="co">[</span><span class="ot">Y \mid X=x</span><span class="co">]</span> = p(x)(1 - p(x))$$</span>
+<span id="cb10-142"><a href="#cb10-142"></a></span>
+<span id="cb10-145"><a href="#cb10-145"></a><span class="in">```{python}</span></span>
+<span id="cb10-146"><a href="#cb10-146"></a><span class="co">#| label: fig-bernoulli-variance</span></span>
+<span id="cb10-147"><a href="#cb10-147"></a><span class="co">#| fig-cap: "Bernoulli variance is heteroscedastic."</span></span>
+<span id="cb10-148"><a href="#cb10-148"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-149"><a href="#cb10-149"></a><span class="co">#| code-summary: "Bernoulli Variance Curve"</span></span>
+<span id="cb10-150"><a href="#cb10-150"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb10-151"><a href="#cb10-151"></a><span class="co">#| fig-height: 3.8</span></span>
+<span id="cb10-152"><a href="#cb10-152"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-153"><a href="#cb10-153"></a><span class="co">#| out-width: "70%"</span></span>
+<span id="cb10-154"><a href="#cb10-154"></a></span>
+<span id="cb10-155"><a href="#cb10-155"></a>p_vals <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">300</span>)</span>
+<span id="cb10-156"><a href="#cb10-156"></a>var_vals <span class="op">=</span> p_vals <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p_vals)</span>
+<span id="cb10-157"><a href="#cb10-157"></a></span>
+<span id="cb10-158"><a href="#cb10-158"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.8</span>))</span>
+<span id="cb10-159"><a href="#cb10-159"></a>ax.plot(p_vals, var_vals, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb10-160"><a href="#cb10-160"></a>ax.scatter([<span class="fl">0.5</span>], [<span class="fl">0.25</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">70</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-161"><a href="#cb10-161"></a>ax.vlines(<span class="fl">0.5</span>, <span class="dv">0</span>, <span class="fl">0.25</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-162"><a href="#cb10-162"></a>ax.hlines(<span class="fl">0.25</span>, <span class="dv">0</span>, <span class="fl">0.5</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb10-163"><a href="#cb10-163"></a></span>
+<span id="cb10-164"><a href="#cb10-164"></a>ax.set_title(<span class="st">"Bernoulli variance is heteroscedastic"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-165"><a href="#cb10-165"></a>ax.set_xlabel(<span class="vs">r'Success Probability </span><span class="dv">$</span><span class="vs">p</span><span class="kw">(</span><span class="vs">x</span><span class="kw">)</span><span class="vs"> = P</span><span class="kw">(</span><span class="vs">Y = 1 </span><span class="dv">\m</span><span class="vs">id x</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-166"><a href="#cb10-166"></a>ax.set_ylabel(<span class="vs">r'Conditional Variance </span><span class="dv">$\m</span><span class="vs">athrm{Var}</span><span class="kw">(</span><span class="vs">Y </span><span class="dv">\m</span><span class="vs">id x</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-167"><a href="#cb10-167"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.02</span>, <span class="fl">1.02</span>)</span>
+<span id="cb10-168"><a href="#cb10-168"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.01</span>, <span class="fl">0.28</span>)</span>
+<span id="cb10-169"><a href="#cb10-169"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-170"><a href="#cb10-170"></a></span>
+<span id="cb10-171"><a href="#cb10-171"></a>plt.tight_layout()</span>
+<span id="cb10-172"><a href="#cb10-172"></a>plt.show()</span>
+<span id="cb10-173"><a href="#cb10-173"></a><span class="in">```</span></span>
+<span id="cb10-174"><a href="#cb10-174"></a></span>
+<span id="cb10-175"><a href="#cb10-175"></a><span class="fu">### Mapping Probabilities to an Unbounded Scale</span></span>
+<span id="cb10-176"><a href="#cb10-176"></a></span>
+<span id="cb10-177"><a href="#cb10-177"></a>Which functions should we allow for $p(x) \in (0,1)$?</span>
+<span id="cb10-178"><a href="#cb10-178"></a></span>
+<span id="cb10-179"><a href="#cb10-179"></a>To connect an unbounded linear combination $z = x^T \theta \in (-\infty, +\infty)$ to a valid probability $p \in (0, 1)$, we transition across three distinct scales:</span>
+<span id="cb10-180"><a href="#cb10-180"></a></span>
+<span id="cb10-181"><a href="#cb10-181"></a><span class="pp">|</span> Scale <span class="pp">|</span> Definition <span class="pp">|</span> Domain / Range <span class="pp">|</span> </span>
+<span id="cb10-182"><a href="#cb10-182"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb10-183"><a href="#cb10-183"></a><span class="pp">|</span> **Probability** <span class="pp">|</span> $p(x) = P(Y = 1 \mid x)$ <span class="pp">|</span> $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>$ <span class="pp">|</span> </span>
+<span id="cb10-184"><a href="#cb10-184"></a><span class="pp">|</span> **Odds** <span class="pp">|</span> $\text{odds}(x) = \frac{p(x)}{1 - p(x)}$ <span class="pp">|</span> $[0, \infty)$ <span class="pp">|</span> </span>
+<span id="cb10-185"><a href="#cb10-185"></a><span class="pp">|</span> **Log-Odds (Logit)** <span class="pp">|</span> $\text{logit}(p) = \ln\left(\frac{p}{1 - p}\right)$ <span class="pp">|</span> $(-\infty, +\infty)$ <span class="pp">|</span> </span>
+<span id="cb10-186"><a href="#cb10-186"></a></span>
+<span id="cb10-187"><a href="#cb10-187"></a><span class="fu">### The Sigmoid Link Function</span></span>
+<span id="cb10-188"><a href="#cb10-188"></a></span>
+<span id="cb10-189"><a href="#cb10-189"></a>Now the log-odds can be modeled as a linear regression of the features:</span>
+<span id="cb10-190"><a href="#cb10-190"></a></span>
+<span id="cb10-191"><a href="#cb10-191"></a>$$\ln\left(\frac{p}{1 - p}\right) = z = x^T \theta$$</span>
+<span id="cb10-192"><a href="#cb10-192"></a></span>
+<span id="cb10-193"><a href="#cb10-193"></a>Then $p(x)$ can be written as the **logistic (sigmoid) function**:</span>
+<span id="cb10-194"><a href="#cb10-194"></a></span>
+<span id="cb10-195"><a href="#cb10-195"></a>$$p(x) = \sigma(z) = \frac{1}{1 + e^{-z}}$$</span>
+<span id="cb10-196"><a href="#cb10-196"></a></span>
+<span id="cb10-199"><a href="#cb10-199"></a><span class="in">```{python}</span></span>
+<span id="cb10-200"><a href="#cb10-200"></a><span class="co">#| label: fig-sigmoid-function</span></span>
+<span id="cb10-201"><a href="#cb10-201"></a><span class="co">#| fig-cap: "The logistic sigmoid function."</span></span>
+<span id="cb10-202"><a href="#cb10-202"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-203"><a href="#cb10-203"></a><span class="co">#| code-summary: "Plot Logistic Sigmoid Function"</span></span>
+<span id="cb10-204"><a href="#cb10-204"></a><span class="co">#| fig-width: 7</span></span>
+<span id="cb10-205"><a href="#cb10-205"></a><span class="co">#| fig-height: 3.8</span></span>
+<span id="cb10-206"><a href="#cb10-206"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-207"><a href="#cb10-207"></a><span class="co">#| out-width: "70%"</span></span>
+<span id="cb10-208"><a href="#cb10-208"></a></span>
+<span id="cb10-209"><a href="#cb10-209"></a>z_vals <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">300</span>)</span>
+<span id="cb10-210"><a href="#cb10-210"></a>sigma_vals <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_vals))</span>
+<span id="cb10-211"><a href="#cb10-211"></a></span>
+<span id="cb10-212"><a href="#cb10-212"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">3.8</span>))</span>
+<span id="cb10-213"><a href="#cb10-213"></a>ax.plot(z_vals, sigma_vals, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb10-214"><a href="#cb10-214"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-215"><a href="#cb10-215"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-216"><a href="#cb10-216"></a>ax.axhline(<span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb10-217"><a href="#cb10-217"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb10-218"><a href="#cb10-218"></a>ax.scatter([<span class="dv">0</span>], [<span class="fl">0.5</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">50</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-219"><a href="#cb10-219"></a></span>
+<span id="cb10-220"><a href="#cb10-220"></a>ax.set_title(<span class="st">"The Logistic Sigmoid Function"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-221"><a href="#cb10-221"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="vs">z = x</span><span class="dv">^</span><span class="vs">T </span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-222"><a href="#cb10-222"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$\s</span><span class="vs">igma</span><span class="kw">(</span><span class="vs">z</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-223"><a href="#cb10-223"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb10-224"><a href="#cb10-224"></a>ax.set_xlim(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>)</span>
+<span id="cb10-225"><a href="#cb10-225"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-226"><a href="#cb10-226"></a></span>
+<span id="cb10-227"><a href="#cb10-227"></a>plt.tight_layout()</span>
+<span id="cb10-228"><a href="#cb10-228"></a>plt.show()</span>
+<span id="cb10-229"><a href="#cb10-229"></a><span class="in">```</span></span>
+<span id="cb10-230"><a href="#cb10-230"></a></span>
+<span id="cb10-231"><a href="#cb10-231"></a>::: {.callout-note}</span>
+<span id="cb10-232"><a href="#cb10-232"></a><span class="fu">### Essential Properties of the Sigmoid Function</span></span>
+<span id="cb10-233"><a href="#cb10-233"></a></span>
+<span id="cb10-234"><a href="#cb10-234"></a><span class="ss">* </span>**Symmetry**: $\sigma(-z) = 1 - \sigma(z)$</span>
+<span id="cb10-235"><a href="#cb10-235"></a><span class="ss">* </span>**Boundary Limits**: $\lim_{z \to +\infty} \sigma(z) = 1$ and $\lim_{z \to -\infty} \sigma(z) = 0$</span>
+<span id="cb10-236"><a href="#cb10-236"></a><span class="ss">* </span>**Center Point**: $\sigma(0) = \frac{1}{1 + 1} = 0.5$</span>
+<span id="cb10-237"><a href="#cb10-237"></a><span class="ss">* </span>**Derivative**:</span>
+<span id="cb10-238"><a href="#cb10-238"></a></span>
+<span id="cb10-239"><a href="#cb10-239"></a>  $$\frac{d\sigma}{dz} = \sigma(z)\left(1 - \sigma(z)\right)$$</span>
+<span id="cb10-240"><a href="#cb10-240"></a></span>
+<span id="cb10-241"><a href="#cb10-241"></a>:::</span>
+<span id="cb10-242"><a href="#cb10-242"></a></span>
+<span id="cb10-243"><a href="#cb10-243"></a>---</span>
+<span id="cb10-244"><a href="#cb10-244"></a></span>
+<span id="cb10-245"><a href="#cb10-245"></a><span class="fu">## 3. Scikit-learn Implementation</span></span>
+<span id="cb10-246"><a href="#cb10-246"></a></span>
+<span id="cb10-247"><a href="#cb10-247"></a>With the sigmoid link function established, we fit a logistic regression model directly to our fasting glucose cohort using <span class="in">`scikit-learn`</span>:</span>
+<span id="cb10-248"><a href="#cb10-248"></a></span>
+<span id="cb10-251"><a href="#cb10-251"></a><span class="in">```{python}</span></span>
+<span id="cb10-252"><a href="#cb10-252"></a><span class="co">#| label: sec-sklearn-fit</span></span>
+<span id="cb10-253"><a href="#cb10-253"></a><span class="co">#| code-fold: show</span></span>
+<span id="cb10-254"><a href="#cb10-254"></a><span class="co">#| code-summary: "Fit Logistic Regression with scikit-learn"</span></span>
+<span id="cb10-255"><a href="#cb10-255"></a></span>
+<span id="cb10-256"><a href="#cb10-256"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb10-257"><a href="#cb10-257"></a></span>
+<span id="cb10-258"><a href="#cb10-258"></a><span class="co"># Fit Logistic Regression</span></span>
+<span id="cb10-259"><a href="#cb10-259"></a>clf <span class="op">=</span> LogisticRegression()</span>
+<span id="cb10-260"><a href="#cb10-260"></a>clf.fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb10-261"><a href="#cb10-261"></a></span>
+<span id="cb10-262"><a href="#cb10-262"></a><span class="co"># Extract fitted parameters</span></span>
+<span id="cb10-263"><a href="#cb10-263"></a>theta_0 <span class="op">=</span> clf.intercept_[<span class="dv">0</span>]</span>
+<span id="cb10-264"><a href="#cb10-264"></a>theta_1 <span class="op">=</span> clf.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb10-265"><a href="#cb10-265"></a></span>
+<span id="cb10-266"><a href="#cb10-266"></a><span class="co"># Generate prediction curve</span></span>
+<span id="cb10-267"><a href="#cb10-267"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb10-268"><a href="#cb10-268"></a>p_fit <span class="op">=</span> clf.predict_proba(x_grid)[:, <span class="dv">1</span>]</span>
+<span id="cb10-269"><a href="#cb10-269"></a><span class="in">```</span></span>
+<span id="cb10-270"><a href="#cb10-270"></a></span>
+<span id="cb10-273"><a href="#cb10-273"></a><span class="in">```{python}</span></span>
+<span id="cb10-274"><a href="#cb10-274"></a><span class="co">#| label: fig-logistic-fit</span></span>
+<span id="cb10-275"><a href="#cb10-275"></a><span class="co">#| fig-cap: "Fitted logistic sigmoid curve on the fasting plasma glucose cohort."</span></span>
+<span id="cb10-276"><a href="#cb10-276"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-277"><a href="#cb10-277"></a><span class="co">#| code-summary: "plot_logistic_regression"</span></span>
+<span id="cb10-278"><a href="#cb10-278"></a><span class="co">#| fig-width: 7.5</span></span>
+<span id="cb10-279"><a href="#cb10-279"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb10-280"><a href="#cb10-280"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-281"><a href="#cb10-281"></a><span class="co">#| out-width: "75%"</span></span>
+<span id="cb10-282"><a href="#cb10-282"></a></span>
+<span id="cb10-283"><a href="#cb10-283"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">4.2</span>))</span>
+<span id="cb10-284"><a href="#cb10-284"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, s<span class="op">=</span><span class="dv">45</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Non-Diabetic ($y=0$)"</span>)</span>
+<span id="cb10-285"><a href="#cb10-285"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">45</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">"Diabetic ($y=1$)"</span>)</span>
+<span id="cb10-286"><a href="#cb10-286"></a>ax.plot(x_grid, p_fit, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Logistic Sigmoid $p(x)$"</span>)</span>
+<span id="cb10-287"><a href="#cb10-287"></a></span>
+<span id="cb10-288"><a href="#cb10-288"></a>ax.set_title(<span class="ss">f"Logistic Regression Fit: $</span><span class="ch">\\</span><span class="ss">theta_0 </span><span class="ch">\\</span><span class="ss">approx </span><span class="sc">{</span>theta_0<span class="sc">:.2f}</span><span class="ss">,</span><span class="ch">\\</span><span class="ss"> </span><span class="ch">\\</span><span class="ss">theta_1 </span><span class="ch">\\</span><span class="ss">approx </span><span class="sc">{</span>theta_1<span class="sc">:.3f}</span><span class="ss">$"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-289"><a href="#cb10-289"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-290"><a href="#cb10-290"></a>ax.set_ylabel(<span class="st">"Probability of Diabetes $P(Y = 1 </span><span class="ch">\\</span><span class="st">mid x)$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-291"><a href="#cb10-291"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.15</span>, <span class="fl">1.15</span>)</span>
+<span id="cb10-292"><a href="#cb10-292"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-293"><a href="#cb10-293"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-294"><a href="#cb10-294"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-295"><a href="#cb10-295"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-296"><a href="#cb10-296"></a></span>
+<span id="cb10-297"><a href="#cb10-297"></a>plt.tight_layout()</span>
+<span id="cb10-298"><a href="#cb10-298"></a>plt.show()</span>
+<span id="cb10-299"><a href="#cb10-299"></a><span class="in">```</span></span>
+<span id="cb10-300"><a href="#cb10-300"></a></span>
+<span id="cb10-301"><a href="#cb10-301"></a>---</span>
+<span id="cb10-302"><a href="#cb10-302"></a></span>
+<span id="cb10-303"><a href="#cb10-303"></a><span class="fu">## 4. Interpreting Parameters and Odds Ratios</span></span>
+<span id="cb10-304"><a href="#cb10-304"></a></span>
+<span id="cb10-305"><a href="#cb10-305"></a>In linear regression; coefficient $\theta_j$ represents the additive change in $y$ when predictor $x_j$ changes by one unit, holding all other predictors constant.</span>
+<span id="cb10-306"><a href="#cb10-306"></a></span>
+<span id="cb10-307"><a href="#cb10-307"></a>In logistic regression, $\theta_j$ represents the change in the **odds ratio** when predictor $x_j$ changes by one unit, holding all other </span>
+<span id="cb10-308"><a href="#cb10-308"></a>predictors constant ($z_2 = z_1 + \theta_j \Delta x_j = z_1 + \theta_j$):</span>
+<span id="cb10-309"><a href="#cb10-309"></a></span>
+<span id="cb10-310"><a href="#cb10-310"></a>$$\text{Odds Ratio} = \frac{\text{Odds}(x_j + 1)}{\text{Odds}(x_j)} = e^{z_2} / e^{z_1} = e^{z_2 - z_1} = e^{\theta_j}$$</span>
+<span id="cb10-311"><a href="#cb10-311"></a></span>
+<span id="cb10-312"><a href="#cb10-312"></a><span class="ss">* </span>**$\theta_j = 0 \implies \text{Odds Ratio} = 1$**: Feature $x_j$ has no association with the odds of disease.</span>
+<span id="cb10-313"><a href="#cb10-313"></a></span>
+<span id="cb10-314"><a href="#cb10-314"></a><span class="ss">* </span>**$\theta_j &gt; 0 \implies \text{Odds Ratio} &gt; 1$**: Feature $x_j$ increases the odds.</span>
+<span id="cb10-315"><a href="#cb10-315"></a></span>
+<span id="cb10-316"><a href="#cb10-316"></a><span class="ss">* </span>**$\theta_j &lt; 0 \implies \text{Odds Ratio} &lt; 1$**: Feature $x_j$ decreases the odds.</span>
+<span id="cb10-317"><a href="#cb10-317"></a></span>
+<span id="cb10-318"><a href="#cb10-318"></a>::: {.callout-tip}</span>
+<span id="cb10-319"><a href="#cb10-319"></a><span class="fu">### Clinical Examples</span></span>
+<span id="cb10-320"><a href="#cb10-320"></a></span>
+<span id="cb10-321"><a href="#cb10-321"></a><span class="ss">* </span>**Fasting Glucose ($x_1$ in $\text{mg/dL}$)**:  </span>
+<span id="cb10-322"><a href="#cb10-322"></a>  From our fitted model: $\theta_1 \approx 0.201 \longrightarrow \text{OR} = e^{0.201} \approx 1.223$.  </span>
+<span id="cb10-323"><a href="#cb10-323"></a>  Every $+1\,\text{mg/dL}$ increase in glucose multiplies the odds of diabetes by $1.223$ (a $+22.3\%$ increase in odds).</span>
+<span id="cb10-324"><a href="#cb10-324"></a></span>
+<span id="cb10-325"><a href="#cb10-325"></a><span class="ss">* </span>**Body Mass Index ($x_2$ in $\text{kg/m}^2$)**:  </span>
+<span id="cb10-326"><a href="#cb10-326"></a>  $\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.174$.  </span>
+<span id="cb10-327"><a href="#cb10-327"></a>  Every $+1\,\text{kg/m}^2$ increase in BMI multiplies the odds of diabetes by $1.174$ (a $+17.4\%$ increase).</span>
+<span id="cb10-328"><a href="#cb10-328"></a>:::</span>
+<span id="cb10-329"><a href="#cb10-329"></a></span>
+<span id="cb10-330"><a href="#cb10-330"></a>---</span>
+<span id="cb10-331"><a href="#cb10-331"></a></span>
+<span id="cb10-332"><a href="#cb10-332"></a><span class="fu">## 5. A New Loss Function</span></span>
+<span id="cb10-333"><a href="#cb10-333"></a></span>
+<span id="cb10-334"><a href="#cb10-334"></a><span class="fu">### 5.1 MSE Problem for Classification</span></span>
+<span id="cb10-335"><a href="#cb10-335"></a></span>
+<span id="cb10-336"><a href="#cb10-336"></a>Plugging in the sigmoid $\hat{y}_i = \sigma(x_i^T \theta)$ directly into mean squared error yields:</span>
+<span id="cb10-337"><a href="#cb10-337"></a></span>
+<span id="cb10-338"><a href="#cb10-338"></a>$$S(\theta) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \hat{y}_i \right)^2 = \frac{1}{n}\sum_{i=1}^n \left( y_i - \sigma(x_i^T \theta) \right)^2$$</span>
+<span id="cb10-339"><a href="#cb10-339"></a></span>
+<span id="cb10-340"><a href="#cb10-340"></a>For a model with two features ($x_{i1}, x_{i2}$) and parameters $\theta = (\theta_1, \theta_2)^T$, the linear predictor is $x_i^T \theta = \theta_1 x_{i1} + \theta_2 x_{i2}$, giving the concrete loss:</span>
+<span id="cb10-341"><a href="#cb10-341"></a></span>
+<span id="cb10-342"><a href="#cb10-342"></a>$$S(\theta_1, \theta_2) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \frac{1}{1 + e^{-(\theta_1 x_{i1} + \theta_2 x_{i2})}} \right)^2$$</span>
+<span id="cb10-343"><a href="#cb10-343"></a></span>
+<span id="cb10-344"><a href="#cb10-344"></a><span class="ss">* </span>**Non-Convexity**: The composition of the quadratic loss with the non-linear sigmoid generates an irregular landscape with local minima and saddle points.</span>
+<span id="cb10-345"><a href="#cb10-345"></a></span>
+<span id="cb10-346"><a href="#cb10-346"></a><span class="ss">* </span>**Gradient Saturation**: When the model makes a confident wrong prediction (e.g. $y=1$ but $z \ll 0$), the derivative $\sigma'(z) \to 0$, causing updates to vanish and learning to stall.</span>
+<span id="cb10-347"><a href="#cb10-347"></a></span>
+<span id="cb10-350"><a href="#cb10-350"></a><span class="in">```{python}</span></span>
+<span id="cb10-351"><a href="#cb10-351"></a><span class="co">#| label: fig-non-convex-landscape</span></span>
+<span id="cb10-352"><a href="#cb10-352"></a><span class="co">#| fig-cap: "Contour map of the Mean Squared Error loss $S(\\theta) = \\frac{1}{n}\\sum_{i=1}^n \\left( y_i - \\sigma(\\theta_1 x_{i1} + \\theta_2 x_{i2}) \\right)^2$, showing multiple local minima, saddle regions, and plateaus."</span></span>
+<span id="cb10-353"><a href="#cb10-353"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-354"><a href="#cb10-354"></a><span class="co">#| code-summary: "Plot Contour Map of Loss Function (MSE)"</span></span>
+<span id="cb10-355"><a href="#cb10-355"></a><span class="co">#| fig-width: 7.5</span></span>
+<span id="cb10-356"><a href="#cb10-356"></a><span class="co">#| fig-height: 5.2</span></span>
+<span id="cb10-357"><a href="#cb10-357"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-358"><a href="#cb10-358"></a><span class="co">#| out-width: "75%"</span></span>
+<span id="cb10-359"><a href="#cb10-359"></a></span>
+<span id="cb10-360"><a href="#cb10-360"></a><span class="co"># Concrete observations: 6 patients with two standardized clinical features (x_i1, x_i2)</span></span>
+<span id="cb10-361"><a href="#cb10-361"></a>X_sample <span class="op">=</span> np.array([</span>
+<span id="cb10-362"><a href="#cb10-362"></a>    [ <span class="fl">0.5</span>, <span class="op">-</span><span class="fl">0.2</span>],</span>
+<span id="cb10-363"><a href="#cb10-363"></a>    [<span class="op">-</span><span class="fl">2.6</span>, <span class="op">-</span><span class="fl">2.7</span>],</span>
+<span id="cb10-364"><a href="#cb10-364"></a>    [<span class="op">-</span><span class="fl">1.1</span>,  <span class="fl">2.4</span>],</span>
+<span id="cb10-365"><a href="#cb10-365"></a>    [<span class="op">-</span><span class="fl">2.7</span>,  <span class="fl">2.4</span>],</span>
+<span id="cb10-366"><a href="#cb10-366"></a>    [<span class="op">-</span><span class="fl">2.3</span>, <span class="op">-</span><span class="fl">2.6</span>],</span>
+<span id="cb10-367"><a href="#cb10-367"></a>    [<span class="op">-</span><span class="fl">1.3</span>,  <span class="fl">0.7</span>]</span>
+<span id="cb10-368"><a href="#cb10-368"></a>])</span>
+<span id="cb10-369"><a href="#cb10-369"></a>y_sample <span class="op">=</span> np.array([<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb10-370"><a href="#cb10-370"></a></span>
+<span id="cb10-371"><a href="#cb10-371"></a></span>
+<span id="cb10-372"><a href="#cb10-372"></a>t1 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2000</span>)</span>
+<span id="cb10-373"><a href="#cb10-373"></a>t2 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2000</span>)</span>
+<span id="cb10-374"><a href="#cb10-374"></a>T1, T2 <span class="op">=</span> np.meshgrid(t1, t2)</span>
+<span id="cb10-375"><a href="#cb10-375"></a></span>
+<span id="cb10-376"><a href="#cb10-376"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb10-377"><a href="#cb10-377"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (<span class="dv">1</span> <span class="op">+</span> np.exp(<span class="op">-</span>z))</span>
+<span id="cb10-378"><a href="#cb10-378"></a></span>
+<span id="cb10-379"><a href="#cb10-379"></a><span class="co"># S(theta) = 1/n sum (y_i - sigma(x_i^T theta))^2 where x_i^T theta = theta1 * x_i1 + theta2 * x_i2</span></span>
+<span id="cb10-380"><a href="#cb10-380"></a>Z <span class="op">=</span> np.zeros_like(T1)</span>
+<span id="cb10-381"><a href="#cb10-381"></a><span class="cf">for</span> (x1, x2), yi <span class="kw">in</span> <span class="bu">zip</span>(X_sample, y_sample):</span>
+<span id="cb10-382"><a href="#cb10-382"></a>    z <span class="op">=</span> T1 <span class="op">*</span> x1 <span class="op">+</span> T2 <span class="op">*</span> x2</span>
+<span id="cb10-383"><a href="#cb10-383"></a>    p <span class="op">=</span> sigmoid(z)</span>
+<span id="cb10-384"><a href="#cb10-384"></a>    Z <span class="op">+=</span> (yi <span class="op">-</span> p)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb10-385"><a href="#cb10-385"></a>Z <span class="op">/=</span> <span class="bu">len</span>(y_sample)</span>
+<span id="cb10-386"><a href="#cb10-386"></a></span>
+<span id="cb10-387"><a href="#cb10-387"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">5.2</span>))</span>
+<span id="cb10-388"><a href="#cb10-388"></a>contour <span class="op">=</span> ax.contourf(T1, T2, Z, levels<span class="op">=</span><span class="dv">25</span>, cmap<span class="op">=</span><span class="st">'viridis'</span>)</span>
+<span id="cb10-389"><a href="#cb10-389"></a>ax.contour(T1, T2, Z, levels<span class="op">=</span><span class="dv">20</span>, colors<span class="op">=</span><span class="st">'white'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb10-390"><a href="#cb10-390"></a>cbar <span class="op">=</span> plt.colorbar(contour, ax<span class="op">=</span>ax, pad<span class="op">=</span><span class="fl">0.03</span>)</span>
+<span id="cb10-391"><a href="#cb10-391"></a>cbar.set_label(<span class="vs">r"Loss </span><span class="dv">$</span><span class="vs">S</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-392"><a href="#cb10-392"></a></span>
+<span id="cb10-393"><a href="#cb10-393"></a>ax.set_title(<span class="st">"Contour map of loss function (MSE)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-394"><a href="#cb10-394"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-395"><a href="#cb10-395"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_2</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-396"><a href="#cb10-396"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-397"><a href="#cb10-397"></a></span>
+<span id="cb10-398"><a href="#cb10-398"></a>plt.tight_layout()</span>
+<span id="cb10-399"><a href="#cb10-399"></a>plt.show()</span>
+<span id="cb10-400"><a href="#cb10-400"></a><span class="in">```</span></span>
+<span id="cb10-401"><a href="#cb10-401"></a></span>
+<span id="cb10-402"><a href="#cb10-402"></a>---</span>
+<span id="cb10-403"><a href="#cb10-403"></a></span>
+<span id="cb10-404"><a href="#cb10-404"></a><span class="fu">### 5.2 Deriving Binary Cross-Entropy</span></span>
+<span id="cb10-405"><a href="#cb10-405"></a></span>
+<span id="cb10-406"><a href="#cb10-406"></a>Because $y_i \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$, each observation follows an independent **Bernoulli trial** with success parameter $\hat{y}_i = \sigma(x_i^T \theta)$:</span>
+<span id="cb10-407"><a href="#cb10-407"></a></span>
+<span id="cb10-408"><a href="#cb10-408"></a>$$P(y_i \mid x_i) = \hat{y}_i^{y_i} (1 - \hat{y}_i)^{1 - y_i}$$</span>
+<span id="cb10-409"><a href="#cb10-409"></a></span>
+<span id="cb10-410"><a href="#cb10-410"></a>For $n$ independent observations, the joint Likelihood is:</span>
+<span id="cb10-411"><a href="#cb10-411"></a></span>
+<span id="cb10-412"><a href="#cb10-412"></a>$$L(\theta) = \prod_{i=1}^n \hat{y}_i^{y_i} (1 - \hat{y}_i)^{1 - y_i}$$</span>
+<span id="cb10-413"><a href="#cb10-413"></a></span>
+<span id="cb10-414"><a href="#cb10-414"></a>Taking the negative logarithm (and normalizing by $n$) produces the loss function $\ell(\theta)$:</span>
+<span id="cb10-415"><a href="#cb10-415"></a></span>
+<span id="cb10-416"><a href="#cb10-416"></a>$$\ell(\theta) = -\frac{1}{n}\sum_{i=1}^n \left<span class="co">[</span><span class="ot"> y_i \ln \hat{y}_i + (1 - y_i)\ln(1 - \hat{y}_i) \right</span><span class="co">]</span>$$</span>
+<span id="cb10-417"><a href="#cb10-417"></a></span>
+<span id="cb10-420"><a href="#cb10-420"></a><span class="in">```{python}</span></span>
+<span id="cb10-421"><a href="#cb10-421"></a><span class="co">#| label: fig-bce-loss</span></span>
+<span id="cb10-422"><a href="#cb10-422"></a><span class="co">#| fig-cap: "Binary Cross-Entropy penalizes confident incorrect predictions with large loss."</span></span>
+<span id="cb10-423"><a href="#cb10-423"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-424"><a href="#cb10-424"></a><span class="co">#| code-summary: "Plot Binary Cross-Entropy Loss Curves"</span></span>
+<span id="cb10-425"><a href="#cb10-425"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb10-426"><a href="#cb10-426"></a><span class="co">#| fig-height: 3.8</span></span>
+<span id="cb10-427"><a href="#cb10-427"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-428"><a href="#cb10-428"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb10-429"><a href="#cb10-429"></a></span>
+<span id="cb10-430"><a href="#cb10-430"></a>p_vals <span class="op">=</span> np.linspace(<span class="fl">0.001</span>, <span class="fl">0.999</span>, <span class="dv">300</span>)</span>
+<span id="cb10-431"><a href="#cb10-431"></a>loss_y1 <span class="op">=</span> <span class="op">-</span>np.log(p_vals)</span>
+<span id="cb10-432"><a href="#cb10-432"></a>loss_y0 <span class="op">=</span> <span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> p_vals)</span>
+<span id="cb10-433"><a href="#cb10-433"></a></span>
+<span id="cb10-434"><a href="#cb10-434"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">3.8</span>))</span>
+<span id="cb10-435"><a href="#cb10-435"></a></span>
+<span id="cb10-436"><a href="#cb10-436"></a>axes[<span class="dv">0</span>].plot(p_vals, loss_y1, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb10-437"><a href="#cb10-437"></a>axes[<span class="dv">0</span>].set_title(<span class="vs">r'True Label </span><span class="dv">$</span><span class="vs">y = 1</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Diabetic</span><span class="kw">)</span><span class="vs">: Loss = </span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">ln</span><span class="kw">(</span><span class="er">\</span><span class="vs">hat{y}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-438"><a href="#cb10-438"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">'Predicted Probability $</span><span class="er">\</span><span class="st">hat</span><span class="sc">{y}</span><span class="st">$'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-439"><a href="#cb10-439"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-440"><a href="#cb10-440"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-441"><a href="#cb10-441"></a></span>
+<span id="cb10-442"><a href="#cb10-442"></a>axes[<span class="dv">1</span>].plot(p_vals, loss_y0, color<span class="op">=</span><span class="st">'#1b9e77'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb10-443"><a href="#cb10-443"></a>axes[<span class="dv">1</span>].set_title(<span class="vs">r'True Label </span><span class="dv">$</span><span class="vs">y = 0</span><span class="dv">$</span><span class="vs"> </span><span class="kw">(</span><span class="vs">Healthy</span><span class="kw">)</span><span class="vs">: Loss = </span><span class="dv">$</span><span class="vs">-</span><span class="er">\</span><span class="vs">ln</span><span class="kw">(</span><span class="vs">1 - </span><span class="er">\</span><span class="vs">hat{y}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-444"><a href="#cb10-444"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">'Predicted Probability $</span><span class="er">\</span><span class="st">hat</span><span class="sc">{y}</span><span class="st">$'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-445"><a href="#cb10-445"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-446"><a href="#cb10-446"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb10-447"><a href="#cb10-447"></a></span>
+<span id="cb10-448"><a href="#cb10-448"></a>plt.tight_layout()</span>
+<span id="cb10-449"><a href="#cb10-449"></a>plt.show()</span>
+<span id="cb10-450"><a href="#cb10-450"></a><span class="in">```</span></span>
+<span id="cb10-451"><a href="#cb10-451"></a></span>
+<span id="cb10-454"><a href="#cb10-454"></a><span class="in">```{python}</span></span>
+<span id="cb10-455"><a href="#cb10-455"></a><span class="co">#| label: fig-bce-contour</span></span>
+<span id="cb10-456"><a href="#cb10-456"></a><span class="co">#| fig-cap: "Contour map of Binary Cross-Entropy for the identical dataset. Convexity and single global minimum."</span></span>
+<span id="cb10-457"><a href="#cb10-457"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb10-458"><a href="#cb10-458"></a><span class="co">#| code-summary: "Plot Contour Map of Loss Function (BCE)"</span></span>
+<span id="cb10-459"><a href="#cb10-459"></a><span class="co">#| fig-width: 7.5</span></span>
+<span id="cb10-460"><a href="#cb10-460"></a><span class="co">#| fig-height: 5.2</span></span>
+<span id="cb10-461"><a href="#cb10-461"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb10-462"><a href="#cb10-462"></a><span class="co">#| out-width: "75%"</span></span>
+<span id="cb10-463"><a href="#cb10-463"></a></span>
+<span id="cb10-464"><a href="#cb10-464"></a>Z_bce <span class="op">=</span> np.zeros_like(T1)</span>
+<span id="cb10-465"><a href="#cb10-465"></a>eps <span class="op">=</span> <span class="fl">1e-12</span></span>
+<span id="cb10-466"><a href="#cb10-466"></a><span class="cf">for</span> (x1, x2), yi <span class="kw">in</span> <span class="bu">zip</span>(X_sample, y_sample):</span>
+<span id="cb10-467"><a href="#cb10-467"></a>    z <span class="op">=</span> T1 <span class="op">*</span> x1 <span class="op">+</span> T2 <span class="op">*</span> x2</span>
+<span id="cb10-468"><a href="#cb10-468"></a>    p <span class="op">=</span> np.clip(sigmoid(z), eps, <span class="dv">1</span> <span class="op">-</span> eps)</span>
+<span id="cb10-469"><a href="#cb10-469"></a>    Z_bce <span class="op">-=</span> (yi <span class="op">*</span> np.log(p) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> yi) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p))</span>
+<span id="cb10-470"><a href="#cb10-470"></a>Z_bce <span class="op">/=</span> <span class="bu">len</span>(y_sample)</span>
+<span id="cb10-471"><a href="#cb10-471"></a></span>
+<span id="cb10-472"><a href="#cb10-472"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">7.5</span>, <span class="fl">5.2</span>))</span>
+<span id="cb10-473"><a href="#cb10-473"></a>contour_bce <span class="op">=</span> ax.contourf(T1, T2, Z_bce, levels<span class="op">=</span><span class="dv">25</span>, cmap<span class="op">=</span><span class="st">'viridis'</span>)</span>
+<span id="cb10-474"><a href="#cb10-474"></a>ax.contour(T1, T2, Z_bce, levels<span class="op">=</span><span class="dv">25</span>, colors<span class="op">=</span><span class="st">'white'</span>, linewidths<span class="op">=</span><span class="fl">0.5</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb10-475"><a href="#cb10-475"></a>cbar <span class="op">=</span> plt.colorbar(contour_bce, ax<span class="op">=</span>ax, pad<span class="op">=</span><span class="fl">0.03</span>)</span>
+<span id="cb10-476"><a href="#cb10-476"></a>cbar.set_label(<span class="vs">r"Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-477"><a href="#cb10-477"></a></span>
+<span id="cb10-478"><a href="#cb10-478"></a>ax.set_title(<span class="st">"Contour map of loss function (Binary Cross-Entropy)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb10-479"><a href="#cb10-479"></a>ax.set_xlabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_1</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-480"><a href="#cb10-480"></a>ax.set_ylabel(<span class="vs">r"</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta_2</span><span class="dv">$</span><span class="vs">"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb10-481"><a href="#cb10-481"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb10-482"><a href="#cb10-482"></a></span>
+<span id="cb10-483"><a href="#cb10-483"></a>plt.tight_layout()</span>
+<span id="cb10-484"><a href="#cb10-484"></a>plt.show()</span>
+<span id="cb10-485"><a href="#cb10-485"></a><span class="in">```</span></span>
+<span id="cb10-486"><a href="#cb10-486"></a></span>
+<span id="cb10-487"><a href="#cb10-487"></a><span class="ss">* </span>**Convexity Guarantee**: $\ell(\theta)$ is strictly convex in $\theta$ $\to$ easier optimization</span>
+<span id="cb10-488"><a href="#cb10-488"></a></span>
+<span id="cb10-489"><a href="#cb10-489"></a>---</span>
+<span id="cb10-490"><a href="#cb10-490"></a></span>
+<span id="cb10-491"><a href="#cb10-491"></a><span class="fu">## 6. Review &amp; Comparison</span></span>
+<span id="cb10-492"><a href="#cb10-492"></a></span>
+<span id="cb10-493"><a href="#cb10-493"></a><span class="pp">|</span> Dimension <span class="pp">|</span> Linear Regression (OLS) <span class="pp">|</span> Logistic Regression <span class="pp">|</span></span>
+<span id="cb10-494"><a href="#cb10-494"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb10-495"><a href="#cb10-495"></a><span class="pp">|</span> **Target Variable ($y$)** <span class="pp">|</span> Continuous metric: $y \in \mathbb{R}$ <span class="pp">|</span> Discrete binary class: $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb10-496"><a href="#cb10-496"></a><span class="pp">|</span> **Model Formulation** <span class="pp">|</span> $\hat{y} = x^T \theta$ <span class="pp">|</span> $p = \sigma(x^T \theta) = \frac{1}{1 + e^{-x^T \theta}}$ <span class="pp">|</span></span>
+<span id="cb10-497"><a href="#cb10-497"></a><span class="pp">|</span> **Output Domain** <span class="pp">|</span> Unbounded: $(-\infty, +\infty)$ <span class="pp">|</span> Strictly bounded probability: $(0, 1)$ <span class="pp">|</span></span>
+<span id="cb10-498"><a href="#cb10-498"></a><span class="pp">|</span> **Parameter Meaning** <span class="pp">|</span> Additive change in target per unit $x$ <span class="pp">|</span> Additive change in log-odds; $e^{\theta_j}$ is Odds Ratio <span class="pp">|</span></span>
+<span id="cb10-499"><a href="#cb10-499"></a><span class="pp">|</span> **Loss Function** <span class="pp">|</span> Mean Squared Error: $S(\theta)$ <span class="pp">|</span> Binary Cross-Entropy: $\ell(\theta)$ <span class="pp">|</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-11-17">
+<meta name="description" content="Goodness of Fit, Deviance, Decision Thresholding, and The Confusion Matrix">
+
+<title>07 Logistic Regression: Deviance and Confusion – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/04_linear_regression_flexibility/lecture.html">
+ <span class="dropdown-text">04 Linear Regression: Flexibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/05_linear_regression_regularization/lecture.html">
+ <span class="dropdown-text">05 Linear Regression: Regularization</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/06_logistic_regression_classification/lecture.html">
+ <span class="dropdown-text">06 Logistic Regression: Classification</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
+ <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#goodness-of-fit" id="toc-goodness-of-fit" class="nav-link active" data-scroll-target="#goodness-of-fit">1. Goodness of Fit</a>
+  <ul class="collapse">
+  <li><a href="#from-rss-to-deviance" id="toc-from-rss-to-deviance" class="nav-link" data-scroll-target="#from-rss-to-deviance">1.1 From RSS to Deviance</a></li>
+  <li><a href="#the-three-baseline-models" id="toc-the-three-baseline-models" class="nav-link" data-scroll-target="#the-three-baseline-models">1.2 The Three Baseline Models</a></li>
+  </ul></li>
+  <li><a href="#the-confusion-matrix" id="toc-the-confusion-matrix" class="nav-link" data-scroll-target="#the-confusion-matrix">2. The Confusion Matrix</a>
+  <ul class="collapse">
+  <li><a href="#decision-thresholding" id="toc-decision-thresholding" class="nav-link" data-scroll-target="#decision-thresholding">2.1 Decision Thresholding</a></li>
+  <li><a href="#confusion-matrix" id="toc-confusion-matrix" class="nav-link" data-scroll-target="#confusion-matrix">2.2 Confusion Matrix</a></li>
+  <li><a href="#diagnostic-metrics" id="toc-diagnostic-metrics" class="nav-link" data-scroll-target="#diagnostic-metrics">2.3 Diagnostic Metrics</a></li>
+  </ul></li>
+  <li><a href="#roc-and-pr-curves" id="toc-roc-and-pr-curves" class="nav-link" data-scroll-target="#roc-and-pr-curves">3. ROC and PR Curves</a></li>
+  <li><a href="#review" id="toc-review" class="nav-link" data-scroll-target="#review">4. Review</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">07 Logistic Regression: Deviance and Confusion</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning (Mathe3)</p>
+</div>
+
+<div>
+  <div class="description">
+    Goodness of Fit, Deviance, Decision Thresholding, and The Confusion Matrix
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 17, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Clinical Cohort Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (</span>
+<span id="cb1-7"><a href="#cb1-7"></a>    confusion_matrix, roc_curve, roc_auc_score,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>    precision_recall_curve, average_precision_score</span>
+<span id="cb1-9"><a href="#cb1-9"></a>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb1-13"><a href="#cb1-13"></a></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co"># Generate realistic clinical cohort (n = 150 patients)</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a>n <span class="op">=</span> <span class="dv">150</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)  <span class="co"># Fasting Plasma Glucose (mg/dL)</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co"># Latent log-odds: z = -8.5 + 0.07 * Glucose (crossover p=0.5 at ~121.4 mg/dL)</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">8.5</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose</span>
+<span id="cb1-21"><a href="#cb1-21"></a>p_true <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true))</span>
+<span id="cb1-22"><a href="#cb1-22"></a>y <span class="op">=</span> (np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n) <span class="op">&lt;</span> p_true).astype(<span class="bu">int</span>)</span>
+<span id="cb1-23"><a href="#cb1-23"></a></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co"># Fit unregularized Logistic Regression model</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a>model <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1e9</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>)</span>
+<span id="cb1-26"><a href="#cb1-26"></a>model.fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb1-27"><a href="#cb1-27"></a>p_pred <span class="op">=</span> model.predict_proba(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))[:, <span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="goodness-of-fit" class="level2">
+<h2 class="anchored" data-anchor-id="goodness-of-fit">1. Goodness of Fit</h2>
+<section id="from-rss-to-deviance" class="level3">
+<h3 class="anchored" data-anchor-id="from-rss-to-deviance">1.1 From RSS to Deviance</h3>
+<p>In linear regression, model fit is quantified by the Residual Sum of Squares:</p>
+<p><span class="math display">\[RSS = \sum_{i=1}^n (y_i - \hat{y}_i)^2\]</span></p>
+<p>For binary classification (<span class="math inline">\(y_i \in \{0, 1\}\)</span>), squared residuals are inadequate because the conditional variance is inherently heteroscedastic (<span class="math inline">\(\text{Var}(Y \mid x) = p(x)(1 - p(x))\)</span>) and error terms are Bernoulli, not Gaussian.</p>
+<p>In Maximum Likelihood estimation, the natural counterpart to the residual sum of squares is <strong>Deviance</strong> (<span class="math inline">\(D\)</span>):</p>
+<p><span class="math display">\[D = 2 \left[ \ln L(\text{saturated}) - \ln L(\hat{\theta}) \right]\]</span></p>
+<p>A hypothetical <strong>saturated model</strong> has as many parameters as observations (<span class="math inline">\(p = n\)</span>), assigning each patient their exact observed label (<span class="math inline">\(\hat{p}_i = y_i\)</span>). For individual binary data, the log-likelihood of this perfect fit is:</p>
+<p><span class="math display">\[\ln L(\text{saturated}) = \sum_{i=1}^n \left[ y_i \ln(1) + (1 - y_i)\ln(1) \right] = 0\]</span></p>
+<p>Consequently, the deviance of our fitted model simplifies directly to:</p>
+<p><span class="math display">\[D = -2 \ln L(\hat{\theta}) = -2 \sum_{i=1}^n \left[ y_i \ln \hat{p}_i + (1 - y_i) \ln(1 - \hat{p}_i) \right] = 2n \times \text{BCE}(\hat{\theta})\]</span></p>
+<p>Deviance directly measures the shortfall of our model relative to a hypothetical perfect fit.</p>
+<hr>
+</section>
+<section id="the-three-baseline-models" class="level3">
+<h3 class="anchored" data-anchor-id="the-three-baseline-models">1.2 The Three Baseline Models</h3>
+<p>To evaluate whether a deviance value represents a strong or weak fit, we position our model along a spectrum defined by three reference baselines:</p>
+<ol type="1">
+<li><strong>Saturated Model</strong> (<span class="math inline">\(\hat{p}_i = y_i\)</span>): <span class="math inline">\(D(\text{saturated}) = 0\)</span>. Perfect fit that captures all individual fluctuations.</li>
+<li><strong>Proposed Model</strong> (<span class="math inline">\(\hat{p}_i = \sigma(x_i^T \hat{\theta})\)</span>): <span class="math inline">\(D(\hat{\theta}) = -2 \ln L(\hat{\theta})\)</span>. Our actual statistical fit.</li>
+<li><strong>Null Model</strong> (<span class="math inline">\(\hat{p}_i = \bar{p} = k/n\)</span>): Ignores all predictors <span class="math inline">\(X\)</span> and uses only the baseline sample prevalence <span class="math inline">\(\bar{p} = k/n\)</span>: <span class="math display">\[D(\text{null}) = -2 \left[ k \ln(\bar{p}) + (n - k) \ln(1 - \bar{p}) \right]\]</span></li>
+</ol>
+<p>The reduction in deviance:</p>
+<p><span class="math display">\[G = D(\text{null}) - D(\hat{\theta})\]</span></p>
+<p>plays the exact role of the explained sum of squares (<span class="math inline">\(ESS = TSS - RSS\)</span>) in ordinary least squares.</p>
+<hr>
+</section>
+</section>
+<section id="the-confusion-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="the-confusion-matrix">2. The Confusion Matrix</h2>
+<section id="decision-thresholding" class="level3">
+<h3 class="anchored" data-anchor-id="decision-thresholding">2.1 Decision Thresholding</h3>
+<p>A fitted logistic model outputs continuous conditional probabilities <span class="math inline">\(p = P(y = 1 \mid x) \in (0, 1)\)</span>. However, medical intervention requires a discrete operational decision via a <strong>decision threshold <span class="math inline">\(\tau\)</span></strong>:</p>
+<p><span class="math display">\[\hat{y} = \begin{cases} 1 &amp; \text{if } p \ge \tau \\ 0 &amp; \text{if } p &lt; \tau \end{cases}\]</span></p>
+<div id="cell-fig-decision-thresholding" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="2">
+<details class="code-fold">
+<summary>Plot Logistic Sigmoid with Decision Threshold</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>theta_0 <span class="op">=</span> model.intercept_[<span class="dv">0</span>]</span>
+<span id="cb2-2"><a href="#cb2-2"></a>theta_1 <span class="op">=</span> model.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb2-3"><a href="#cb2-3"></a>crossover_glucose <span class="op">=</span> <span class="op">-</span>theta_0 <span class="op">/</span> theta_1</span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>p_grid <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>(theta_0 <span class="op">+</span> theta_1 <span class="op">*</span> x_grid)))</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Shaded decision regions</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Healthy (ŷ = 0)"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Diabetic (ŷ = 1)"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co"># Fitted Sigmoid</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>ax.plot(x_grid, p_grid, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Fitted P(Diabetes | Glucose)"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co"># Patient Observations</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Healthy (y=0)"</span>)</span>
+<span id="cb2-19"><a href="#cb2-19"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Diabetic (y=1)"</span>)</span>
+<span id="cb2-20"><a href="#cb2-20"></a></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co"># Threshold markers at tau = 0.5</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Threshold τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Cutoff (</span><span class="sc">{</span>crossover_glucose<span class="sc">:.1f}</span><span class="ss"> mg/dL)"</span>)</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a>ax.set_title(<span class="st">"Logistic Probability Curve and Decision Thresholding"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-27"><a href="#cb2-27"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(y = 1 | x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-29"><a href="#cb2-29"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb2-32"><a href="#cb2-32"></a></span>
+<span id="cb2-33"><a href="#cb2-33"></a>plt.tight_layout()</span>
+<span id="cb2-34"><a href="#cb2-34"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-decision-thresholding" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-decision-thresholding-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-decision-thresholding-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="651">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decision-thresholding-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Sigmoid probability curve fitted on Fasting Plasma Glucose with decision threshold τ = 0.5.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="confusion-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="confusion-matrix">2.2 Confusion Matrix</h3>
+<p>Comparing discrete predictions <span class="math inline">\(\hat{y} \in \{0, 1\}\)</span> against actual ground truth <span class="math inline">\(y \in \{0, 1\}\)</span> partitions all outcomes into four diagnostic quadrants:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 35%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Predicted Negative (<span class="math inline">\(\hat{y} = 0\)</span>)</th>
+<th style="text-align: center;">Predicted Positive (<span class="math inline">\(\hat{y} = 1\)</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Actual Negative (<span class="math inline">\(y = 0\)</span>)</strong></td>
+<td style="text-align: center;"><strong>True Negative (TN)</strong><br>Healthy patient correctly cleared</td>
+<td style="text-align: center;"><strong>False Positive (FP)</strong><br>False alarm (Type I error)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Actual Positive (<span class="math inline">\(y = 1\)</span>)</strong></td>
+<td style="text-align: center;"><strong>False Negative (FN)</strong><br>Sick patient missed (Type II error)</td>
+<td style="text-align: center;"><strong>True Positive (TP)</strong><br>Sick patient correctly caught</td>
+</tr>
+</tbody>
+</table>
+<div id="cell-fig-confusion-matrix" class="cell" data-fig-height="4.2" data-fig-width="6" data-execution_count="3">
+<details class="code-fold">
+<summary>Plot Confusion Matrix Heatmap</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>y_pred <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau).astype(<span class="bu">int</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>cm <span class="op">=</span> confusion_matrix(y, y_pred)</span>
+<span id="cb3-4"><a href="#cb3-4"></a></span>
+<span id="cb3-5"><a href="#cb3-5"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">4.2</span>))</span>
+<span id="cb3-6"><a href="#cb3-6"></a>sns.heatmap(cm, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, ax<span class="op">=</span>ax, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>            annot_kws<span class="op">=</span>{<span class="st">"size"</span>: <span class="dv">14</span>, <span class="st">"weight"</span>: <span class="st">"bold"</span>},</span>
+<span id="cb3-8"><a href="#cb3-8"></a>            xticklabels<span class="op">=</span>[<span class="st">"Predicted Healthy (0)"</span>, <span class="st">"Predicted Diabetic (1)"</span>],</span>
+<span id="cb3-9"><a href="#cb3-9"></a>            yticklabels<span class="op">=</span>[<span class="st">"Actual Healthy (0)"</span>, <span class="st">"Actual Diabetic (1)"</span>])</span>
+<span id="cb3-10"><a href="#cb3-10"></a>ax.set_title(<span class="ss">f"Clinical Confusion Matrix (τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>plt.tight_layout()</span>
+<span id="cb3-12"><a href="#cb3-12"></a>plt.show()</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a>tn, fp, fn, tp <span class="op">=</span> cm.ravel()</span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="bu">print</span>(<span class="ss">f"Total Cohort = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> | TP = </span><span class="sc">{</span>tp<span class="sc">}</span><span class="ss">, FP = </span><span class="sc">{</span>fp<span class="sc">}</span><span class="ss">, TN = </span><span class="sc">{</span>tn<span class="sc">}</span><span class="ss">, FN = </span><span class="sc">{</span>fn<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-confusion-matrix" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-confusion-matrix-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="875" height="606">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confusion-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Clinical Confusion Matrix evaluated at threshold τ = 0.5.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total Cohort = 150 | TP = 62, FP = 13, TN = 60, FN = 15</code></pre>
+</div>
+</div>
+<hr>
+</section>
+<section id="diagnostic-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="diagnostic-metrics">2.3 Diagnostic Metrics</h3>
+<p>The quadrant counts of the confusion matrix define the core metrics used to evaluate clinical diagnostic systems:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 38%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: center;">Equation</th>
+<th style="text-align: left;">Clinical Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Sensitivity (Recall / TPR)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\frac{\text{TP}}{\text{TP} + \text{FN}}\)</span></td>
+<td style="text-align: left;">Fraction of all sick patients successfully detected by the screening test.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Specificity</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\frac{\text{TN}}{\text{TN} + \text{FP}}\)</span></td>
+<td style="text-align: left;">Fraction of healthy individuals correctly identified and cleared.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Precision (PPV)</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\frac{\text{TP}}{\text{TP} + \text{FP}}\)</span></td>
+<td style="text-align: left;">Probability that a patient flagged positive by the test is truly diseased.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Accuracy</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\frac{\text{TP} + \text{TN}}{\text{Total}}\)</span></td>
+<td style="text-align: left;">Overall fraction of correct diagnostic classifications across all patients.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong><span class="math inline">\(F_1\)</span>-Score</strong></td>
+<td style="text-align: center;"><span class="math inline">\(2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}\)</span></td>
+<td style="text-align: left;">Harmonic mean balancing Precision and Sensitivity.</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Accuracy versus Costs
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In medical screening, diagnostic costs are heavily asymmetric:</p>
+<ul>
+<li><p><strong>Cost of False Negative (<span class="math inline">\(C_{\text{FN}}\)</span>)</strong>: An undetected sick patient goes untreated, leading to preventable complications or mortality.</p></li>
+<li><p><strong>Cost of False Positive (<span class="math inline">\(C_{\text{FP}}\)</span>)</strong>: A healthy patient receives an unnecessary follow-up blood test, causing minor anxiety and cost.</p></li>
+<li><p><strong>The Prevalence Paradox</strong>: When a disease is rare (e.g., 2% prevalence), a naive classifier predicting “healthy” for every patient achieves 98% accuracy yet fails to detect a single sick patient (<span class="math inline">\(\text{Sensitivity} = 0\%\)</span>).</p></li>
+</ul>
+<p>Because <span class="math inline">\(C_{\text{FN}} \gg C_{\text{FP}}\)</span>, clinicians deliberately lower the threshold (e.g., <span class="math inline">\(\tau = 0.20\)</span>) to catch more sick patients, consciously accepting a higher false-alarm rate.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="roc-and-pr-curves" class="level2">
+<h2 class="anchored" data-anchor-id="roc-and-pr-curves">3. ROC and PR Curves</h2>
+<p>Rather than evaluating a single fixed threshold <span class="math inline">\(\tau\)</span>, sweeping <span class="math inline">\(\tau\)</span> continuously across <span class="math inline">\([0, 1]\)</span> traces out the complete operational trade-off across all potential operating points.</p>
+<ul>
+<li>The <strong>Receiver Operating Characteristic (ROC)</strong> curve plots True Positive Rate (Sensitivity) against False Positive Rate (<span class="math inline">\(1 - \text{Specificity}\)</span>).</li>
+<li>The <strong>Precision-Recall (PR)</strong> curve plots Precision against Recall, which is particularly informative when evaluating imbalanced or rare-prevalence cohorts.</li>
+</ul>
+<div id="cell-fig-roc-pr-curves" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="4">
+<details class="code-fold">
+<summary>Generate Side-by-Side ROC and PR Curves</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>fpr, tpr, roc_thresholds <span class="op">=</span> roc_curve(y, p_pred)</span>
+<span id="cb5-2"><a href="#cb5-2"></a>auc_val <span class="op">=</span> roc_auc_score(y, p_pred)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>prec, rec, pr_thresholds <span class="op">=</span> precision_recall_curve(y, p_pred)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>ap_val <span class="op">=</span> average_precision_score(y, p_pred)</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Exact operational operating point at threshold tau = 0.5</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>tau_05 <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>y_pred_05 <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau_05).astype(<span class="bu">int</span>)</span>
+<span id="cb5-10"><a href="#cb5-10"></a>tn_05, fp_05, fn_05, tp_05 <span class="op">=</span> confusion_matrix(y, y_pred_05).ravel()</span>
+<span id="cb5-11"><a href="#cb5-11"></a></span>
+<span id="cb5-12"><a href="#cb5-12"></a>tpr_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fn_05)   <span class="co"># True Positive Rate = Sensitivity = Recall</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a>fpr_05 <span class="op">=</span> fp_05 <span class="op">/</span> (fp_05 <span class="op">+</span> tn_05)   <span class="co"># False Positive Rate = 1 - Specificity</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a>prec_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fp_05)  <span class="co"># Precision = Positive Predictive Value</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>rec_05 <span class="op">=</span> tpr_05                    <span class="co"># Identically equal to True Positive Rate</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co"># Panel 1: ROC Curve</span></span>
+<span id="cb5-20"><a href="#cb5-20"></a>axes[<span class="dv">0</span>].plot(fpr, tpr, color<span class="op">=</span><span class="st">"#1f77b4"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"ROC Curve (AUC = </span><span class="sc">{</span>auc_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guessing (AUC = 0.500)"</span>)</span>
+<span id="cb5-22"><a href="#cb5-22"></a>axes[<span class="dv">0</span>].scatter(fpr_05, tpr_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (FPR=</span><span class="sc">{</span>fpr_05<span class="sc">:.2f}</span><span class="ss">, TPR=</span><span class="sc">{</span>tpr_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-24"><a href="#cb5-24"></a></span>
+<span id="cb5-25"><a href="#cb5-25"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Receiver Operating Characteristic (ROC)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"False Positive Rate (1 - Specificity)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"True Positive Rate (Sensitivity / Recall)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-28"><a href="#cb5-28"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-29"><a href="#cb5-29"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-30"><a href="#cb5-30"></a></span>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
+<span id="cb5-32"><a href="#cb5-32"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-33"><a href="#cb5-33"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
+<span id="cb5-34"><a href="#cb5-34"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-35"><a href="#cb5-35"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb5-36"><a href="#cb5-36"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (Rec=</span><span class="sc">{</span>rec_05<span class="sc">:.2f}</span><span class="ss">, Prec=</span><span class="sc">{</span>prec_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-37"><a href="#cb5-37"></a></span>
+<span id="cb5-38"><a href="#cb5-38"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-39"><a href="#cb5-39"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-40"><a href="#cb5-40"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-41"><a href="#cb5-41"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-42"><a href="#cb5-42"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-43"><a href="#cb5-43"></a></span>
+<span id="cb5-44"><a href="#cb5-44"></a>plt.tight_layout()</span>
+<span id="cb5-45"><a href="#cb5-45"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-roc-pr-curves" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-roc-pr-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-roc-pr-curves-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="651">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-pr-curves-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Side-by-side ROC and Precision-Recall Curves across all decision thresholds with τ = 0.5 highlighted.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Area Under the ROC Curve (AUC)</strong>: <span class="math inline">\(\text{AUC} \approx 0.90\)</span> summarizes diagnostic discrimination across all false-positive rates, substantially exceeding the random guessing baseline of <span class="math inline">\(0.50\)</span>.</li>
+<li><strong>Average Precision (AP)</strong>: <span class="math inline">\(\text{AP} \approx 0.92\)</span> measures the area under the Precision-Recall curve (<span class="math inline">\(\int_0^1 P(R) \, dR\)</span>), summarizing positive predictive performance across all recall levels. Unlike ROC-AUC, the random-guessing baseline for AP is the sample prevalence (<span class="math inline">\(\bar{p} \approx 0.51\)</span>), with a perfect test reaching <span class="math inline">\(\text{AP} = 1.0\)</span>.</li>
+</ul>
+<hr>
+</section>
+<section id="review" class="level2">
+<h2 class="anchored" data-anchor-id="review">4. Review</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Concept</th>
+<th style="text-align: left;">Linear Regression</th>
+<th style="text-align: left;">Logistic Regression</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Target Variable</strong></td>
+<td style="text-align: left;">Continuous <span class="math inline">\(y \in \mathbb{R}\)</span></td>
+<td style="text-align: left;">Binary <span class="math inline">\(y \in \{0, 1\}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Residual Metric</strong></td>
+<td style="text-align: left;"><span class="math inline">\(RSS = \sum (y_i - \hat{y}_i)^2\)</span></td>
+<td style="text-align: left;">Deviance <span class="math inline">\(D = -2 \ln L(\hat{\theta}) = 2n \times \text{BCE}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Baseline Benchmark</strong></td>
+<td style="text-align: left;">Total Sum of Squares (<span class="math inline">\(TSS\)</span>)</td>
+<td style="text-align: left;">Null Deviance <span class="math inline">\(D(\text{null})\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Explanatory Gain</strong></td>
+<td style="text-align: left;"><span class="math inline">\(ESS = TSS - RSS\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(G = D(\text{null}) - D(\hat{\theta})\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Operational Metric</strong></td>
+<td style="text-align: left;"><span class="math inline">\(R^2\)</span>, RMSE</td>
+<td style="text-align: left;">Confusion Matrix, Sensitivity, Specificity, AUC</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">---</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="an">title:</span><span class="co"> "07 Logistic Regression: Deviance and Confusion"</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="an">description:</span><span class="co"> "Goodness of Fit, Deviance, Decision Thresholding, and The Confusion Matrix"</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning (Mathe3)"</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="an">date:</span><span class="co"> "2026-11-17"</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="an">format:</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">  html:</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">    toc: true</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="co">---</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="in">```{python}</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="co">#| code-summary: "Imports &amp; Clinical Cohort Setup"</span></span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (</span>
+<span id="cb6-32"><a href="#cb6-32"></a>    confusion_matrix, roc_curve, roc_auc_score,</span>
+<span id="cb6-33"><a href="#cb6-33"></a>    precision_recall_curve, average_precision_score</span>
+<span id="cb6-34"><a href="#cb6-34"></a>)</span>
+<span id="cb6-35"><a href="#cb6-35"></a></span>
+<span id="cb6-36"><a href="#cb6-36"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb6-37"><a href="#cb6-37"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb6-38"><a href="#cb6-38"></a></span>
+<span id="cb6-39"><a href="#cb6-39"></a><span class="co"># Generate realistic clinical cohort (n = 150 patients)</span></span>
+<span id="cb6-40"><a href="#cb6-40"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-41"><a href="#cb6-41"></a>n <span class="op">=</span> <span class="dv">150</span></span>
+<span id="cb6-42"><a href="#cb6-42"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)  <span class="co"># Fasting Plasma Glucose (mg/dL)</span></span>
+<span id="cb6-43"><a href="#cb6-43"></a></span>
+<span id="cb6-44"><a href="#cb6-44"></a><span class="co"># Latent log-odds: z = -8.5 + 0.07 * Glucose (crossover p=0.5 at ~121.4 mg/dL)</span></span>
+<span id="cb6-45"><a href="#cb6-45"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">8.5</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose</span>
+<span id="cb6-46"><a href="#cb6-46"></a>p_true <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true))</span>
+<span id="cb6-47"><a href="#cb6-47"></a>y <span class="op">=</span> (np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n) <span class="op">&lt;</span> p_true).astype(<span class="bu">int</span>)</span>
+<span id="cb6-48"><a href="#cb6-48"></a></span>
+<span id="cb6-49"><a href="#cb6-49"></a><span class="co"># Fit unregularized Logistic Regression model</span></span>
+<span id="cb6-50"><a href="#cb6-50"></a>model <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1e9</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>)</span>
+<span id="cb6-51"><a href="#cb6-51"></a>model.fit(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), y)</span>
+<span id="cb6-52"><a href="#cb6-52"></a>p_pred <span class="op">=</span> model.predict_proba(glucose.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>))[:, <span class="dv">1</span>]</span>
+<span id="cb6-53"><a href="#cb6-53"></a><span class="in">```</span></span>
+<span id="cb6-54"><a href="#cb6-54"></a></span>
+<span id="cb6-55"><a href="#cb6-55"></a><span class="fu">## 1. Goodness of Fit</span></span>
+<span id="cb6-56"><a href="#cb6-56"></a></span>
+<span id="cb6-57"><a href="#cb6-57"></a><span class="fu">### 1.1 From RSS to Deviance</span></span>
+<span id="cb6-58"><a href="#cb6-58"></a></span>
+<span id="cb6-59"><a href="#cb6-59"></a>In linear regression, model fit is quantified by the Residual Sum of Squares:</span>
+<span id="cb6-60"><a href="#cb6-60"></a></span>
+<span id="cb6-61"><a href="#cb6-61"></a>$$RSS = \sum_{i=1}^n (y_i - \hat{y}_i)^2$$</span>
+<span id="cb6-62"><a href="#cb6-62"></a></span>
+<span id="cb6-63"><a href="#cb6-63"></a>For binary classification ($y_i \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$), squared residuals are inadequate because the conditional variance is inherently heteroscedastic ($\text{Var}(Y \mid x) = p(x)(1 - p(x))$) and error terms are Bernoulli, not Gaussian.</span>
+<span id="cb6-64"><a href="#cb6-64"></a></span>
+<span id="cb6-65"><a href="#cb6-65"></a>In Maximum Likelihood estimation, the natural counterpart to the residual sum of squares is **Deviance** ($D$):</span>
+<span id="cb6-66"><a href="#cb6-66"></a></span>
+<span id="cb6-67"><a href="#cb6-67"></a>$$D = 2 \left<span class="co">[</span><span class="ot"> \ln L(\text{saturated}) - \ln L(\hat{\theta}) \right</span><span class="co">]</span>$$</span>
+<span id="cb6-68"><a href="#cb6-68"></a></span>
+<span id="cb6-69"><a href="#cb6-69"></a>A hypothetical **saturated model** has as many parameters as observations ($p = n$), assigning each patient their exact observed label ($\hat{p}_i = y_i$). For individual binary data, the log-likelihood of this perfect fit is:</span>
+<span id="cb6-70"><a href="#cb6-70"></a></span>
+<span id="cb6-71"><a href="#cb6-71"></a>$$\ln L(\text{saturated}) = \sum_{i=1}^n \left<span class="co">[</span><span class="ot"> y_i \ln(1) + (1 - y_i)\ln(1) \right</span><span class="co">]</span> = 0$$</span>
+<span id="cb6-72"><a href="#cb6-72"></a></span>
+<span id="cb6-73"><a href="#cb6-73"></a>Consequently, the deviance of our fitted model simplifies directly to:</span>
+<span id="cb6-74"><a href="#cb6-74"></a></span>
+<span id="cb6-75"><a href="#cb6-75"></a>$$D = -2 \ln L(\hat{\theta}) = -2 \sum_{i=1}^n \left<span class="co">[</span><span class="ot"> y_i \ln \hat{p}_i + (1 - y_i) \ln(1 - \hat{p}_i) \right</span><span class="co">]</span> = 2n \times \text{BCE}(\hat{\theta})$$</span>
+<span id="cb6-76"><a href="#cb6-76"></a></span>
+<span id="cb6-77"><a href="#cb6-77"></a>Deviance directly measures the shortfall of our model relative to a hypothetical perfect fit.</span>
+<span id="cb6-78"><a href="#cb6-78"></a></span>
+<span id="cb6-79"><a href="#cb6-79"></a>---</span>
+<span id="cb6-80"><a href="#cb6-80"></a></span>
+<span id="cb6-81"><a href="#cb6-81"></a><span class="fu">### 1.2 The Three Baseline Models</span></span>
+<span id="cb6-82"><a href="#cb6-82"></a></span>
+<span id="cb6-83"><a href="#cb6-83"></a>To evaluate whether a deviance value represents a strong or weak fit, we position our model along a spectrum defined by three reference baselines:</span>
+<span id="cb6-84"><a href="#cb6-84"></a></span>
+<span id="cb6-85"><a href="#cb6-85"></a><span class="ss">1. </span>**Saturated Model** ($\hat{p}_i = y_i$): $D(\text{saturated}) = 0$. Perfect fit that captures all individual fluctuations.</span>
+<span id="cb6-86"><a href="#cb6-86"></a><span class="ss">2. </span>**Proposed Model** ($\hat{p}_i = \sigma(x_i^T \hat{\theta})$): $D(\hat{\theta}) = -2 \ln L(\hat{\theta})$. Our actual statistical fit.</span>
+<span id="cb6-87"><a href="#cb6-87"></a><span class="ss">3. </span>**Null Model** ($\hat{p}_i = \bar{p} = k/n$): Ignores all predictors $X$ and uses only the baseline sample prevalence $\bar{p} = k/n$:</span>
+<span id="cb6-88"><a href="#cb6-88"></a>   $$D(\text{null}) = -2 \left<span class="co">[</span><span class="ot"> k \ln(\bar{p}) + (n - k) \ln(1 - \bar{p}) \right</span><span class="co">]</span>$$</span>
+<span id="cb6-89"><a href="#cb6-89"></a></span>
+<span id="cb6-90"><a href="#cb6-90"></a>The reduction in deviance:</span>
+<span id="cb6-91"><a href="#cb6-91"></a></span>
+<span id="cb6-92"><a href="#cb6-92"></a>$$G = D(\text{null}) - D(\hat{\theta})$$</span>
+<span id="cb6-93"><a href="#cb6-93"></a></span>
+<span id="cb6-94"><a href="#cb6-94"></a>plays the exact role of the explained sum of squares ($ESS = TSS - RSS$) in ordinary least squares.</span>
+<span id="cb6-95"><a href="#cb6-95"></a></span>
+<span id="cb6-96"><a href="#cb6-96"></a>---</span>
+<span id="cb6-97"><a href="#cb6-97"></a></span>
+<span id="cb6-98"><a href="#cb6-98"></a><span class="fu">## 2. The Confusion Matrix</span></span>
+<span id="cb6-99"><a href="#cb6-99"></a></span>
+<span id="cb6-100"><a href="#cb6-100"></a><span class="fu">### 2.1 Decision Thresholding</span></span>
+<span id="cb6-101"><a href="#cb6-101"></a></span>
+<span id="cb6-102"><a href="#cb6-102"></a>A fitted logistic model outputs continuous conditional probabilities $p = P(y = 1 \mid x) \in (0, 1)$. However, medical intervention requires a discrete operational decision via a **decision threshold $\tau$**:</span>
+<span id="cb6-103"><a href="#cb6-103"></a></span>
+<span id="cb6-104"><a href="#cb6-104"></a>$$\hat{y} = \begin{cases} 1 &amp; \text{if } p \ge \tau <span class="sc">\\</span> 0 &amp; \text{if } p &lt; \tau \end{cases}$$</span>
+<span id="cb6-105"><a href="#cb6-105"></a></span>
+<span id="cb6-108"><a href="#cb6-108"></a><span class="in">```{python}</span></span>
+<span id="cb6-109"><a href="#cb6-109"></a><span class="co">#| label: fig-decision-thresholding</span></span>
+<span id="cb6-110"><a href="#cb6-110"></a><span class="co">#| fig-cap: "Sigmoid probability curve fitted on Fasting Plasma Glucose with decision threshold τ = 0.5."</span></span>
+<span id="cb6-111"><a href="#cb6-111"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-112"><a href="#cb6-112"></a><span class="co">#| code-summary: "Plot Logistic Sigmoid with Decision Threshold"</span></span>
+<span id="cb6-113"><a href="#cb6-113"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-114"><a href="#cb6-114"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-115"><a href="#cb6-115"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-116"><a href="#cb6-116"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-117"><a href="#cb6-117"></a></span>
+<span id="cb6-118"><a href="#cb6-118"></a>theta_0 <span class="op">=</span> model.intercept_[<span class="dv">0</span>]</span>
+<span id="cb6-119"><a href="#cb6-119"></a>theta_1 <span class="op">=</span> model.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb6-120"><a href="#cb6-120"></a>crossover_glucose <span class="op">=</span> <span class="op">-</span>theta_0 <span class="op">/</span> theta_1</span>
+<span id="cb6-121"><a href="#cb6-121"></a></span>
+<span id="cb6-122"><a href="#cb6-122"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>)</span>
+<span id="cb6-123"><a href="#cb6-123"></a>p_grid <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>(theta_0 <span class="op">+</span> theta_1 <span class="op">*</span> x_grid)))</span>
+<span id="cb6-124"><a href="#cb6-124"></a></span>
+<span id="cb6-125"><a href="#cb6-125"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-126"><a href="#cb6-126"></a></span>
+<span id="cb6-127"><a href="#cb6-127"></a><span class="co"># Shaded decision regions</span></span>
+<span id="cb6-128"><a href="#cb6-128"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Healthy (ŷ = 0)"</span>)</span>
+<span id="cb6-129"><a href="#cb6-129"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Diabetic (ŷ = 1)"</span>)</span>
+<span id="cb6-130"><a href="#cb6-130"></a></span>
+<span id="cb6-131"><a href="#cb6-131"></a><span class="co"># Fitted Sigmoid</span></span>
+<span id="cb6-132"><a href="#cb6-132"></a>ax.plot(x_grid, p_grid, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Fitted P(Diabetes | Glucose)"</span>)</span>
+<span id="cb6-133"><a href="#cb6-133"></a></span>
+<span id="cb6-134"><a href="#cb6-134"></a><span class="co"># Patient Observations</span></span>
+<span id="cb6-135"><a href="#cb6-135"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Healthy (y=0)"</span>)</span>
+<span id="cb6-136"><a href="#cb6-136"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Diabetic (y=1)"</span>)</span>
+<span id="cb6-137"><a href="#cb6-137"></a></span>
+<span id="cb6-138"><a href="#cb6-138"></a><span class="co"># Threshold markers at tau = 0.5</span></span>
+<span id="cb6-139"><a href="#cb6-139"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-140"><a href="#cb6-140"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Threshold τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-141"><a href="#cb6-141"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Cutoff (</span><span class="sc">{</span>crossover_glucose<span class="sc">:.1f}</span><span class="ss"> mg/dL)"</span>)</span>
+<span id="cb6-142"><a href="#cb6-142"></a></span>
+<span id="cb6-143"><a href="#cb6-143"></a>ax.set_title(<span class="st">"Logistic Probability Curve and Decision Thresholding"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-144"><a href="#cb6-144"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-145"><a href="#cb6-145"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(y = 1 | x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-146"><a href="#cb6-146"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb6-147"><a href="#cb6-147"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-148"><a href="#cb6-148"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-149"><a href="#cb6-149"></a></span>
+<span id="cb6-150"><a href="#cb6-150"></a>plt.tight_layout()</span>
+<span id="cb6-151"><a href="#cb6-151"></a>plt.show()</span>
+<span id="cb6-152"><a href="#cb6-152"></a><span class="in">```</span></span>
+<span id="cb6-153"><a href="#cb6-153"></a></span>
+<span id="cb6-154"><a href="#cb6-154"></a>---</span>
+<span id="cb6-155"><a href="#cb6-155"></a></span>
+<span id="cb6-156"><a href="#cb6-156"></a><span class="fu">### 2.2 Confusion Matrix</span></span>
+<span id="cb6-157"><a href="#cb6-157"></a></span>
+<span id="cb6-158"><a href="#cb6-158"></a>Comparing discrete predictions $\hat{y} \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ against actual ground truth $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ partitions all outcomes into four diagnostic quadrants:</span>
+<span id="cb6-159"><a href="#cb6-159"></a></span>
+<span id="cb6-160"><a href="#cb6-160"></a><span class="pp">|</span> <span class="pp">|</span> Predicted Negative ($\hat{y} = 0$) <span class="pp">|</span> Predicted Positive ($\hat{y} = 1$) <span class="pp">|</span></span>
+<span id="cb6-161"><a href="#cb6-161"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">|</span></span>
+<span id="cb6-162"><a href="#cb6-162"></a><span class="pp">|</span> **Actual Negative ($y = 0$)** | **True Negative (TN)**&lt;br&gt;Healthy patient correctly cleared | **False Positive (FP)**<span class="dt">&lt;</span><span class="kw">br</span><span class="dt">&gt;</span>False alarm (Type I error) <span class="pp">|</span></span>
+<span id="cb6-163"><a href="#cb6-163"></a><span class="pp">|</span> **Actual Positive ($y = 1$)** | **False Negative (FN)**&lt;br&gt;Sick patient missed (Type II error) | **True Positive (TP)**<span class="dt">&lt;</span><span class="kw">br</span><span class="dt">&gt;</span>Sick patient correctly caught <span class="pp">|</span></span>
+<span id="cb6-164"><a href="#cb6-164"></a></span>
+<span id="cb6-167"><a href="#cb6-167"></a><span class="in">```{python}</span></span>
+<span id="cb6-168"><a href="#cb6-168"></a><span class="co">#| label: fig-confusion-matrix</span></span>
+<span id="cb6-169"><a href="#cb6-169"></a><span class="co">#| fig-cap: "Clinical Confusion Matrix evaluated at threshold τ = 0.5."</span></span>
+<span id="cb6-170"><a href="#cb6-170"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-171"><a href="#cb6-171"></a><span class="co">#| code-summary: "Plot Confusion Matrix Heatmap"</span></span>
+<span id="cb6-172"><a href="#cb6-172"></a><span class="co">#| fig-width: 6</span></span>
+<span id="cb6-173"><a href="#cb6-173"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb6-174"><a href="#cb6-174"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-175"><a href="#cb6-175"></a><span class="co">#| out-width: "60%"</span></span>
+<span id="cb6-176"><a href="#cb6-176"></a></span>
+<span id="cb6-177"><a href="#cb6-177"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-178"><a href="#cb6-178"></a>y_pred <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau).astype(<span class="bu">int</span>)</span>
+<span id="cb6-179"><a href="#cb6-179"></a>cm <span class="op">=</span> confusion_matrix(y, y_pred)</span>
+<span id="cb6-180"><a href="#cb6-180"></a></span>
+<span id="cb6-181"><a href="#cb6-181"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">4.2</span>))</span>
+<span id="cb6-182"><a href="#cb6-182"></a>sns.heatmap(cm, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, ax<span class="op">=</span>ax, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb6-183"><a href="#cb6-183"></a>            annot_kws<span class="op">=</span>{<span class="st">"size"</span>: <span class="dv">14</span>, <span class="st">"weight"</span>: <span class="st">"bold"</span>},</span>
+<span id="cb6-184"><a href="#cb6-184"></a>            xticklabels<span class="op">=</span>[<span class="st">"Predicted Healthy (0)"</span>, <span class="st">"Predicted Diabetic (1)"</span>],</span>
+<span id="cb6-185"><a href="#cb6-185"></a>            yticklabels<span class="op">=</span>[<span class="st">"Actual Healthy (0)"</span>, <span class="st">"Actual Diabetic (1)"</span>])</span>
+<span id="cb6-186"><a href="#cb6-186"></a>ax.set_title(<span class="ss">f"Clinical Confusion Matrix (τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-187"><a href="#cb6-187"></a>plt.tight_layout()</span>
+<span id="cb6-188"><a href="#cb6-188"></a>plt.show()</span>
+<span id="cb6-189"><a href="#cb6-189"></a></span>
+<span id="cb6-190"><a href="#cb6-190"></a>tn, fp, fn, tp <span class="op">=</span> cm.ravel()</span>
+<span id="cb6-191"><a href="#cb6-191"></a><span class="bu">print</span>(<span class="ss">f"Total Cohort = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> | TP = </span><span class="sc">{</span>tp<span class="sc">}</span><span class="ss">, FP = </span><span class="sc">{</span>fp<span class="sc">}</span><span class="ss">, TN = </span><span class="sc">{</span>tn<span class="sc">}</span><span class="ss">, FN = </span><span class="sc">{</span>fn<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-192"><a href="#cb6-192"></a><span class="in">```</span></span>
+<span id="cb6-193"><a href="#cb6-193"></a></span>
+<span id="cb6-194"><a href="#cb6-194"></a>---</span>
+<span id="cb6-195"><a href="#cb6-195"></a></span>
+<span id="cb6-196"><a href="#cb6-196"></a><span class="fu">### 2.3 Diagnostic Metrics</span></span>
+<span id="cb6-197"><a href="#cb6-197"></a></span>
+<span id="cb6-198"><a href="#cb6-198"></a>The quadrant counts of the confusion matrix define the core metrics used to evaluate clinical diagnostic systems:</span>
+<span id="cb6-199"><a href="#cb6-199"></a></span>
+<span id="cb6-200"><a href="#cb6-200"></a><span class="pp">|</span> Metric Name <span class="pp">|</span> Equation <span class="pp">|</span> Clinical Meaning <span class="pp">|</span></span>
+<span id="cb6-201"><a href="#cb6-201"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb6-202"><a href="#cb6-202"></a><span class="pp">|</span> **Sensitivity (Recall / TPR)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FN}}$ <span class="pp">|</span> Fraction of all sick patients successfully detected by the screening test. <span class="pp">|</span></span>
+<span id="cb6-203"><a href="#cb6-203"></a><span class="pp">|</span> **Specificity** <span class="pp">|</span> $\frac{\text{TN}}{\text{TN} + \text{FP}}$ <span class="pp">|</span> Fraction of healthy individuals correctly identified and cleared. <span class="pp">|</span></span>
+<span id="cb6-204"><a href="#cb6-204"></a><span class="pp">|</span> **Precision (PPV)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FP}}$ <span class="pp">|</span> Probability that a patient flagged positive by the test is truly diseased. <span class="pp">|</span></span>
+<span id="cb6-205"><a href="#cb6-205"></a><span class="pp">|</span> **Accuracy** <span class="pp">|</span> $\frac{\text{TP} + \text{TN}}{\text{Total}}$ <span class="pp">|</span> Overall fraction of correct diagnostic classifications across all patients. <span class="pp">|</span></span>
+<span id="cb6-206"><a href="#cb6-206"></a><span class="pp">|</span> **$F_1$-Score** <span class="pp">|</span> $2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$ <span class="pp">|</span> Harmonic mean balancing Precision and Sensitivity. <span class="pp">|</span></span>
+<span id="cb6-207"><a href="#cb6-207"></a></span>
+<span id="cb6-208"><a href="#cb6-208"></a>::: {.callout-important}</span>
+<span id="cb6-209"><a href="#cb6-209"></a><span class="fu">### Accuracy versus Costs</span></span>
+<span id="cb6-210"><a href="#cb6-210"></a></span>
+<span id="cb6-211"><a href="#cb6-211"></a>In medical screening, diagnostic costs are heavily asymmetric:</span>
+<span id="cb6-212"><a href="#cb6-212"></a></span>
+<span id="cb6-213"><a href="#cb6-213"></a><span class="ss">* </span>**Cost of False Negative ($C_{\text{FN}}$)**: An undetected sick patient goes untreated, leading to preventable complications or mortality.</span>
+<span id="cb6-214"><a href="#cb6-214"></a></span>
+<span id="cb6-215"><a href="#cb6-215"></a><span class="ss">* </span>**Cost of False Positive ($C_{\text{FP}}$)**: A healthy patient receives an unnecessary follow-up blood test, causing minor anxiety and cost.</span>
+<span id="cb6-216"><a href="#cb6-216"></a></span>
+<span id="cb6-217"><a href="#cb6-217"></a><span class="ss">* </span>**The Prevalence Paradox**: When a disease is rare (e.g., 2% prevalence), a naive classifier predicting "healthy" for every patient achieves 98% accuracy yet fails to detect a single sick patient ($\text{Sensitivity} = 0\%$).</span>
+<span id="cb6-218"><a href="#cb6-218"></a></span>
+<span id="cb6-219"><a href="#cb6-219"></a>Because $C_{\text{FN}} \gg C_{\text{FP}}$, clinicians deliberately lower the threshold (e.g., $\tau = 0.20$) to catch more sick patients, consciously accepting a higher false-alarm rate.</span>
+<span id="cb6-220"><a href="#cb6-220"></a>:::</span>
+<span id="cb6-221"><a href="#cb6-221"></a></span>
+<span id="cb6-222"><a href="#cb6-222"></a>---</span>
+<span id="cb6-223"><a href="#cb6-223"></a></span>
+<span id="cb6-224"><a href="#cb6-224"></a><span class="fu">## 3. ROC and PR Curves</span></span>
+<span id="cb6-225"><a href="#cb6-225"></a></span>
+<span id="cb6-226"><a href="#cb6-226"></a>Rather than evaluating a single fixed threshold $\tau$, sweeping $\tau$ continuously across $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>$ traces out the complete operational trade-off across all potential operating points.</span>
+<span id="cb6-227"><a href="#cb6-227"></a></span>
+<span id="cb6-228"><a href="#cb6-228"></a><span class="ss">* </span>The **Receiver Operating Characteristic (ROC)** curve plots True Positive Rate (Sensitivity) against False Positive Rate ($1 - \text{Specificity}$).</span>
+<span id="cb6-229"><a href="#cb6-229"></a><span class="ss">* </span>The **Precision-Recall (PR)** curve plots Precision against Recall, which is particularly informative when evaluating imbalanced or rare-prevalence cohorts.</span>
+<span id="cb6-230"><a href="#cb6-230"></a></span>
+<span id="cb6-233"><a href="#cb6-233"></a><span class="in">```{python}</span></span>
+<span id="cb6-234"><a href="#cb6-234"></a><span class="co">#| label: fig-roc-pr-curves</span></span>
+<span id="cb6-235"><a href="#cb6-235"></a><span class="co">#| fig-cap: "Side-by-side ROC and Precision-Recall Curves across all decision thresholds with τ = 0.5 highlighted."</span></span>
+<span id="cb6-236"><a href="#cb6-236"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-237"><a href="#cb6-237"></a><span class="co">#| code-summary: "Generate Side-by-Side ROC and PR Curves"</span></span>
+<span id="cb6-238"><a href="#cb6-238"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-239"><a href="#cb6-239"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-240"><a href="#cb6-240"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-241"><a href="#cb6-241"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-242"><a href="#cb6-242"></a></span>
+<span id="cb6-243"><a href="#cb6-243"></a>fpr, tpr, roc_thresholds <span class="op">=</span> roc_curve(y, p_pred)</span>
+<span id="cb6-244"><a href="#cb6-244"></a>auc_val <span class="op">=</span> roc_auc_score(y, p_pred)</span>
+<span id="cb6-245"><a href="#cb6-245"></a></span>
+<span id="cb6-246"><a href="#cb6-246"></a>prec, rec, pr_thresholds <span class="op">=</span> precision_recall_curve(y, p_pred)</span>
+<span id="cb6-247"><a href="#cb6-247"></a>ap_val <span class="op">=</span> average_precision_score(y, p_pred)</span>
+<span id="cb6-248"><a href="#cb6-248"></a></span>
+<span id="cb6-249"><a href="#cb6-249"></a><span class="co"># Exact operational operating point at threshold tau = 0.5</span></span>
+<span id="cb6-250"><a href="#cb6-250"></a>tau_05 <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-251"><a href="#cb6-251"></a>y_pred_05 <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau_05).astype(<span class="bu">int</span>)</span>
+<span id="cb6-252"><a href="#cb6-252"></a>tn_05, fp_05, fn_05, tp_05 <span class="op">=</span> confusion_matrix(y, y_pred_05).ravel()</span>
+<span id="cb6-253"><a href="#cb6-253"></a></span>
+<span id="cb6-254"><a href="#cb6-254"></a>tpr_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fn_05)   <span class="co"># True Positive Rate = Sensitivity = Recall</span></span>
+<span id="cb6-255"><a href="#cb6-255"></a>fpr_05 <span class="op">=</span> fp_05 <span class="op">/</span> (fp_05 <span class="op">+</span> tn_05)   <span class="co"># False Positive Rate = 1 - Specificity</span></span>
+<span id="cb6-256"><a href="#cb6-256"></a>prec_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fp_05)  <span class="co"># Precision = Positive Predictive Value</span></span>
+<span id="cb6-257"><a href="#cb6-257"></a>rec_05 <span class="op">=</span> tpr_05                    <span class="co"># Identically equal to True Positive Rate</span></span>
+<span id="cb6-258"><a href="#cb6-258"></a></span>
+<span id="cb6-259"><a href="#cb6-259"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-260"><a href="#cb6-260"></a></span>
+<span id="cb6-261"><a href="#cb6-261"></a><span class="co"># Panel 1: ROC Curve</span></span>
+<span id="cb6-262"><a href="#cb6-262"></a>axes[<span class="dv">0</span>].plot(fpr, tpr, color<span class="op">=</span><span class="st">"#1f77b4"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"ROC Curve (AUC = </span><span class="sc">{</span>auc_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-263"><a href="#cb6-263"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guessing (AUC = 0.500)"</span>)</span>
+<span id="cb6-264"><a href="#cb6-264"></a>axes[<span class="dv">0</span>].scatter(fpr_05, tpr_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb6-265"><a href="#cb6-265"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (FPR=</span><span class="sc">{</span>fpr_05<span class="sc">:.2f}</span><span class="ss">, TPR=</span><span class="sc">{</span>tpr_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-266"><a href="#cb6-266"></a></span>
+<span id="cb6-267"><a href="#cb6-267"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Receiver Operating Characteristic (ROC)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-268"><a href="#cb6-268"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"False Positive Rate (1 - Specificity)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-269"><a href="#cb6-269"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"True Positive Rate (Sensitivity / Recall)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-270"><a href="#cb6-270"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-271"><a href="#cb6-271"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-272"><a href="#cb6-272"></a></span>
+<span id="cb6-273"><a href="#cb6-273"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
+<span id="cb6-274"><a href="#cb6-274"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-275"><a href="#cb6-275"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
+<span id="cb6-276"><a href="#cb6-276"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-277"><a href="#cb6-277"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb6-278"><a href="#cb6-278"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (Rec=</span><span class="sc">{</span>rec_05<span class="sc">:.2f}</span><span class="ss">, Prec=</span><span class="sc">{</span>prec_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-279"><a href="#cb6-279"></a></span>
+<span id="cb6-280"><a href="#cb6-280"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-281"><a href="#cb6-281"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-282"><a href="#cb6-282"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-283"><a href="#cb6-283"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-284"><a href="#cb6-284"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-285"><a href="#cb6-285"></a></span>
+<span id="cb6-286"><a href="#cb6-286"></a>plt.tight_layout()</span>
+<span id="cb6-287"><a href="#cb6-287"></a>plt.show()</span>
+<span id="cb6-288"><a href="#cb6-288"></a><span class="in">```</span></span>
+<span id="cb6-289"><a href="#cb6-289"></a></span>
+<span id="cb6-290"><a href="#cb6-290"></a><span class="ss">* </span>**Area Under the ROC Curve (AUC)**: $\text{AUC} \approx 0.90$ summarizes diagnostic discrimination across all false-positive rates, substantially exceeding the random guessing baseline of $0.50$.</span>
+<span id="cb6-291"><a href="#cb6-291"></a><span class="ss">* </span>**Average Precision (AP)**: $\text{AP} \approx 0.92$ measures the area under the Precision-Recall curve ($\int_0^1 P(R) \, dR$), summarizing positive predictive performance across all recall levels. Unlike ROC-AUC, the random-guessing baseline for AP is the sample prevalence ($\bar{p} \approx 0.51$), with a perfect test reaching $\text{AP} = 1.0$.</span>
+<span id="cb6-292"><a href="#cb6-292"></a></span>
+<span id="cb6-293"><a href="#cb6-293"></a></span>
+<span id="cb6-294"><a href="#cb6-294"></a>---</span>
+<span id="cb6-295"><a href="#cb6-295"></a></span>
+<span id="cb6-296"><a href="#cb6-296"></a><span class="fu">## 4. Review</span></span>
+<span id="cb6-297"><a href="#cb6-297"></a></span>
+<span id="cb6-298"><a href="#cb6-298"></a><span class="pp">|</span> Concept <span class="pp">|</span> Linear Regression <span class="pp">|</span> Logistic Regression <span class="pp">|</span></span>
+<span id="cb6-299"><a href="#cb6-299"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb6-300"><a href="#cb6-300"></a><span class="pp">|</span> **Target Variable** <span class="pp">|</span> Continuous $y \in \mathbb{R}$ <span class="pp">|</span> Binary $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb6-301"><a href="#cb6-301"></a><span class="pp">|</span> **Residual Metric** <span class="pp">|</span> $RSS = \sum (y_i - \hat{y}_i)^2$ <span class="pp">|</span> Deviance $D = -2 \ln L(\hat{\theta}) = 2n \times \text{BCE}$ <span class="pp">|</span></span>
+<span id="cb6-302"><a href="#cb6-302"></a><span class="pp">|</span> **Baseline Benchmark** <span class="pp">|</span> Total Sum of Squares ($TSS$) <span class="pp">|</span> Null Deviance $D(\text{null})$ <span class="pp">|</span></span>
+<span id="cb6-303"><a href="#cb6-303"></a><span class="pp">|</span> **Explanatory Gain** <span class="pp">|</span> $ESS = TSS - RSS$ <span class="pp">|</span> $G = D(\text{null}) - D(\hat{\theta})$ <span class="pp">|</span></span>
+<span id="cb6-304"><a href="#cb6-304"></a><span class="pp">|</span> **Operational Metric** <span class="pp">|</span> $R^2$, RMSE <span class="pp">|</span> Confusion Matrix, Sensitivity, Specificity, AUC <span class="pp">|</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
