@@ -385,6 +385,14 @@ window.Quarto = {
     <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
  <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04a_tutorial/assignment.html">
+ <span class="dropdown-text">04a Tutorial (Breast Cancer)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04b_tutorial/assignment.html">
+ <span class="dropdown-text">04b Tutorial (Heart Disease)</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -567,7 +575,7 @@ window.Quarto = {
 <div id="fig-linear-regression-classification" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-linear-regression-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-linear-regression-classification-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="606">
+<img src="lecture_files/figure-html/fig-linear-regression-classification-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-linear-regression-classification-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;1: Linear regression fit to a boolean classification target (<span class="math inline">\(y \in \{0, 1\}\)</span>) and corresponding residuals against predicted values <span class="math inline">\(\hat{y}\)</span>.
@@ -632,7 +640,7 @@ P(Y=y|p) &amp; = \begin{cases}
 <div id="fig-bernoulli-variance" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bernoulli-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-bernoulli-variance-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1026" height="546">
+<img src="lecture_files/figure-html/fig-bernoulli-variance-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bernoulli-variance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;2: Bernoulli variance is heteroscedastic.
@@ -716,7 +724,7 @@ Figure&nbsp;2: Bernoulli variance is heteroscedastic.
 <div id="fig-sigmoid-function" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-sigmoid-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-sigmoid-function-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1026" height="545">
+<img src="lecture_files/figure-html/fig-sigmoid-function-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sigmoid-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;3: The logistic sigmoid function.
@@ -792,7 +800,7 @@ Figure&nbsp;3: The logistic sigmoid function.
 <div id="fig-logistic-fit" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-logistic-fit-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1102" height="605">
+<img src="lecture_files/figure-html/fig-logistic-fit-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;4: Fitted logistic sigmoid curve on the fasting plasma glucose cohort.
@@ -825,11 +833,11 @@ Figure&nbsp;4: Fitted logistic sigmoid curve on the fasting plasma glucose cohor
 <div class="callout-body-container callout-body">
 <ul>
 <li><p><strong>Fasting Glucose (<span class="math inline">\(x_1\)</span> in <span class="math inline">\(\text{mg/dL}\)</span>)</strong>:<br>
-From our fitted model: <span class="math inline">\(\theta_1 \approx 0.201 \longrightarrow \text{OR} = e^{0.201} \approx 1.223\)</span>.<br>
-Every <span class="math inline">\(+1\,\text{mg/dL}\)</span> increase in glucose multiplies the odds of diabetes by <span class="math inline">\(1.223\)</span> (a <span class="math inline">\(+22.3\%\)</span> increase in odds).</p></li>
+<span class="math inline">\(\theta_{\text{glucose}} = 0.065 \longrightarrow \text{OR} = e^{0.065} \approx 1.06\)</span><br>
+Every <span class="math inline">\(+1\,\text{mg/dL}\)</span> increase in glucose multiplies the odds by <span class="math inline">\(1.06\)</span>, a <span class="math inline">\(6.7\%\)</span> increase.</p></li>
 <li><p><strong>Body Mass Index (<span class="math inline">\(x_2\)</span> in <span class="math inline">\(\text{kg/m}^2\)</span>)</strong>:<br>
-<span class="math inline">\(\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.174\)</span>.<br>
-Every <span class="math inline">\(+1\,\text{kg/m}^2\)</span> increase in BMI multiplies the odds of diabetes by <span class="math inline">\(1.174\)</span> (a <span class="math inline">\(+17.4\%\)</span> increase).</p></li>
+<span class="math inline">\(\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.17\)</span><br>
+Every <span class="math inline">\(+1\,\text{kg/m}^2\)</span> increase in BMI multiplies the odds by <span class="math inline">\(1.17\)</span>, a <span class="math inline">\(17.4\%\)</span> increase.</p></li>
 </ul>
 </div>
 </div>
@@ -895,7 +903,7 @@ Every <span class="math inline">\(+1\,\text{kg/m}^2\)</span> increase in BMI mul
 <div id="fig-non-convex-landscape" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-non-convex-landscape-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-non-convex-landscape-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1086" height="756">
+<img src="lecture_files/figure-html/fig-non-convex-landscape-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-non-convex-landscape-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;5: Contour map of the Mean Squared Error loss <span class="math inline">\(S(\theta) = \frac{1}{n}\sum_{i=1}^n \left( y_i - \sigma(\theta_1 x_{i1} + \theta_2 x_{i2}) \right)^2\)</span>, showing multiple local minima, saddle regions, and plateaus.
@@ -942,7 +950,7 @@ Figure&nbsp;5: Contour map of the Mean Squared Error loss <span class="math inli
 <div id="fig-bce-loss" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bce-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-bce-loss-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="545">
+<img src="lecture_files/figure-html/fig-bce-loss-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bce-loss-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;6: Binary Cross-Entropy penalizes confident incorrect predictions with large loss.
@@ -980,7 +988,7 @@ Figure&nbsp;6: Binary Cross-Entropy penalizes confident incorrect predictions wi
 <div id="fig-bce-contour" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bce-contour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-bce-contour-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1080" height="756">
+<img src="lecture_files/figure-html/fig-bce-contour-output-1.png" class="img-fluid quarto-figure quarto-figure-left figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bce-contour-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;7: Contour map of Binary Cross-Entropy for the identical dataset. Convexity and single global minimum.
@@ -1825,12 +1833,12 @@ Figure&nbsp;7: Contour map of Binary Cross-Entropy for the identical dataset. Co
 <span id="cb10-319"><a href="#cb10-319"></a><span class="fu">### Clinical Examples</span></span>
 <span id="cb10-320"><a href="#cb10-320"></a></span>
 <span id="cb10-321"><a href="#cb10-321"></a><span class="ss">* </span>**Fasting Glucose ($x_1$ in $\text{mg/dL}$)**:  </span>
-<span id="cb10-322"><a href="#cb10-322"></a>  From our fitted model: $\theta_1 \approx 0.201 \longrightarrow \text{OR} = e^{0.201} \approx 1.223$.  </span>
-<span id="cb10-323"><a href="#cb10-323"></a>  Every $+1\,\text{mg/dL}$ increase in glucose multiplies the odds of diabetes by $1.223$ (a $+22.3\%$ increase in odds).</span>
+<span id="cb10-322"><a href="#cb10-322"></a>  $\theta_{\text{glucose}} = 0.065 \longrightarrow \text{OR} = e^{0.065} \approx 1.06$  </span>
+<span id="cb10-323"><a href="#cb10-323"></a>  Every $+1\,\text{mg/dL}$ increase in glucose multiplies the odds by $1.06$, a $6.7\%$ increase.</span>
 <span id="cb10-324"><a href="#cb10-324"></a></span>
 <span id="cb10-325"><a href="#cb10-325"></a><span class="ss">* </span>**Body Mass Index ($x_2$ in $\text{kg/m}^2$)**:  </span>
-<span id="cb10-326"><a href="#cb10-326"></a>  $\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.174$.  </span>
-<span id="cb10-327"><a href="#cb10-327"></a>  Every $+1\,\text{kg/m}^2$ increase in BMI multiplies the odds of diabetes by $1.174$ (a $+17.4\%$ increase).</span>
+<span id="cb10-326"><a href="#cb10-326"></a>  $\theta_{\text{bmi}} = 0.16 \longrightarrow \text{OR} = e^{0.16} \approx 1.17$  </span>
+<span id="cb10-327"><a href="#cb10-327"></a>  Every $+1\,\text{kg/m}^2$ increase in BMI multiplies the odds by $1.17$, a $17.4\%$ increase.</span>
 <span id="cb10-328"><a href="#cb10-328"></a>:::</span>
 <span id="cb10-329"><a href="#cb10-329"></a></span>
 <span id="cb10-330"><a href="#cb10-330"></a>---</span>
