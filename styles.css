@@ -35,3 +35,9 @@ div.cell-output pre {
   max-width: 100% !important;
   height: auto !important;
 }
+
+/* 4. Left-align table captions */
+caption, table caption, .table caption, .quarto-float-tbl figcaption {
+  text-align: left !important;
+}
+

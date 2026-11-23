@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2027-01-20">
+<meta name="description" content="From Belief Updating to Generative Classification and MAP Estimation">
+
+<title>14 Bayesian Foundations &amp; Naive Bayes – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/04_linear_regression_flexibility/lecture.html">
+ <span class="dropdown-text">04 Linear Regression: Flexibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/05_linear_regression_regularization/lecture.html">
+ <span class="dropdown-text">05 Linear Regression: Regularization</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/06_logistic_regression_classification/lecture.html">
+ <span class="dropdown-text">06 Logistic Regression: Classification</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
+ <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04a_tutorial/assignment.html">
+ <span class="dropdown-text">04a Tutorial (Breast Cancer)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04b_tutorial/assignment.html">
+ <span class="dropdown-text">04b Tutorial (Heart Disease)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/probabilities_and_odds.html">
+ <span class="dropdown-text">Probabilities, Odds &amp; Log-Odds</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#pre-class-preparation" id="toc-pre-class-preparation" class="nav-link active" data-scroll-target="#pre-class-preparation">0. Pre-Class Preparation</a></li>
+  <li><a href="#the-bayesian-shift-latent-random-variables" id="toc-the-bayesian-shift-latent-random-variables" class="nav-link" data-scroll-target="#the-bayesian-shift-latent-random-variables">1. The Bayesian Shift: Latent Random Variables</a></li>
+  <li><a href="#bayes-theorem-as-a-belief-updating-engine" id="toc-bayes-theorem-as-a-belief-updating-engine" class="nav-link" data-scroll-target="#bayes-theorem-as-a-belief-updating-engine">2. Bayes’ Theorem as a Belief Updating Engine</a>
+  <ul class="collapse">
+  <li><a href="#the-bayes-optimal-classification-rule" id="toc-the-bayes-optimal-classification-rule" class="nav-link" data-scroll-target="#the-bayes-optimal-classification-rule">2.1 The Bayes Optimal Classification Rule</a></li>
+  </ul></li>
+  <li><a href="#the-naive-conditional-independence-assumption" id="toc-the-naive-conditional-independence-assumption" class="nav-link" data-scroll-target="#the-naive-conditional-independence-assumption">3. The “Naive” Conditional Independence Assumption</a>
+  <ul class="collapse">
+  <li><a href="#the-parameter-explosion-paradox" id="toc-the-parameter-explosion-paradox" class="nav-link" data-scroll-target="#the-parameter-explosion-paradox">3.1 The Parameter Explosion Paradox</a></li>
+  </ul></li>
+  <li><a href="#bernoulli-naive-bayes-and-the-logistic-link" id="toc-bernoulli-naive-bayes-and-the-logistic-link" class="nav-link" data-scroll-target="#bernoulli-naive-bayes-and-the-logistic-link">4. Bernoulli Naive Bayes and the Logistic Link</a>
+  <ul class="collapse">
+  <li><a href="#step-by-step-patient-classification" id="toc-step-by-step-patient-classification" class="nav-link" data-scroll-target="#step-by-step-patient-classification">4.1 Step-by-Step Patient Classification</a></li>
+  <li><a href="#parameter-estimation-laplace-smoothing" id="toc-parameter-estimation-laplace-smoothing" class="nav-link" data-scroll-target="#parameter-estimation-laplace-smoothing">4.2 Parameter Estimation &amp; Laplace Smoothing</a></li>
+  <li><a href="#the-surprising-equivalence-to-logistic-regression" id="toc-the-surprising-equivalence-to-logistic-regression" class="nav-link" data-scroll-target="#the-surprising-equivalence-to-logistic-regression">4.3 The Surprising Equivalence to Logistic Regression</a></li>
+  </ul></li>
+  <li><a href="#implementations-and-visual-illustrations" id="toc-implementations-and-visual-illustrations" class="nav-link" data-scroll-target="#implementations-and-visual-illustrations">5. Implementations and Visual Illustrations</a>
+  <ul class="collapse">
+  <li><a href="#generative-density-contours-vs.-discriminative-hyperplanes" id="toc-generative-density-contours-vs.-discriminative-hyperplanes" class="nav-link" data-scroll-target="#generative-density-contours-vs.-discriminative-hyperplanes">5.1 Generative Density Contours vs.&nbsp;Discriminative Hyperplanes</a></li>
+  <li><a href="#violation-of-conditional-independence-correlated-features" id="toc-violation-of-conditional-independence-correlated-features" class="nav-link" data-scroll-target="#violation-of-conditional-independence-correlated-features">5.2 Violation of Conditional Independence: Correlated Features</a></li>
+  <li><a href="#reliability-and-probability-calibration" id="toc-reliability-and-probability-calibration" class="nav-link" data-scroll-target="#reliability-and-probability-calibration">5.3 Reliability and Probability Calibration</a></li>
+  </ul></li>
+  <li><a href="#continuous-features-and-the-map-regularization-bridge" id="toc-continuous-features-and-the-map-regularization-bridge" class="nav-link" data-scroll-target="#continuous-features-and-the-map-regularization-bridge">6. Continuous Features and The MAP Regularization Bridge</a>
+  <ul class="collapse">
+  <li><a href="#the-bridge-to-parameter-inference-maximum-a-posteriori-map" id="toc-the-bridge-to-parameter-inference-maximum-a-posteriori-map" class="nav-link" data-scroll-target="#the-bridge-to-parameter-inference-maximum-a-posteriori-map">6.1 The Bridge to Parameter Inference: Maximum A Posteriori (MAP)</a></li>
+  <li><a href="#analytical-proof-gaussian-prior-equivalence-to-l_2-ridge-regularization" id="toc-analytical-proof-gaussian-prior-equivalence-to-l_2-ridge-regularization" class="nav-link" data-scroll-target="#analytical-proof-gaussian-prior-equivalence-to-l_2-ridge-regularization">6.2 Analytical Proof: Gaussian Prior Equivalence to <span class="math inline">\(L_2\)</span> Ridge Regularization</a></li>
+  </ul></li>
+  <li><a href="#review-the-bridge-to-computational-bayes" id="toc-review-the-bridge-to-computational-bayes" class="nav-link" data-scroll-target="#review-the-bridge-to-computational-bayes">7. Review &amp; The Bridge to Computational Bayes</a>
+  <ul class="collapse">
+  <li><a href="#the-normalizer-dilemma-summation-vs.-intractable-integration" id="toc-the-normalizer-dilemma-summation-vs.-intractable-integration" class="nav-link" data-scroll-target="#the-normalizer-dilemma-summation-vs.-intractable-integration">7.1 The Normalizer Dilemma: Summation vs.&nbsp;Intractable Integration</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">14 Bayesian Foundations &amp; Naive Bayes</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning</p>
+</div>
+
+<div>
+  <div class="description">
+    From Belief Updating to Generative Classification and MAP Estimation
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 20, 2027</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Clinical Cohort Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">from</span> sklearn.naive_bayes <span class="im">import</span> GaussianNB</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">from</span> sklearn.calibration <span class="im">import</span> calibration_curve</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> scipy.stats <span class="im">import</span> multivariate_normal</span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co"># Generate synthetic clinical cohort (n = 160 patients)</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-15"><a href="#cb1-15"></a>n_each <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co"># Healthy cohort (y = 0): Normal fasting glucose [mg/dL] and systolic blood pressure [mmHg]</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>mean_h <span class="op">=</span> [<span class="fl">95.0</span>, <span class="fl">118.0</span>]</span>
+<span id="cb1-19"><a href="#cb1-19"></a>cov_h <span class="op">=</span> [[<span class="fl">120.0</span>, <span class="fl">35.0</span>], [<span class="fl">35.0</span>, <span class="fl">80.0</span>]]  <span class="co"># Slight positive physiological correlation</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>X_h <span class="op">=</span> np.random.multivariate_normal(mean_h, cov_h, n_each)</span>
+<span id="cb1-21"><a href="#cb1-21"></a>y_h <span class="op">=</span> np.zeros(n_each, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co"># Diseased cohort (y = 1): Elevated fasting glucose and blood pressure</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>mean_d <span class="op">=</span> [<span class="fl">135.0</span>, <span class="fl">142.0</span>]</span>
+<span id="cb1-25"><a href="#cb1-25"></a>cov_d <span class="op">=</span> [[<span class="fl">220.0</span>, <span class="fl">60.0</span>], [<span class="fl">60.0</span>, <span class="fl">140.0</span>]]</span>
+<span id="cb1-26"><a href="#cb1-26"></a>X_d <span class="op">=</span> np.random.multivariate_normal(mean_d, cov_d, n_each)</span>
+<span id="cb1-27"><a href="#cb1-27"></a>y_d <span class="op">=</span> np.ones(n_each, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb1-28"><a href="#cb1-28"></a></span>
+<span id="cb1-29"><a href="#cb1-29"></a>X_clinical <span class="op">=</span> np.vstack([X_h, X_d])</span>
+<span id="cb1-30"><a href="#cb1-30"></a>y_clinical <span class="op">=</span> np.concatenate([y_h, y_d])</span>
+<span id="cb1-31"><a href="#cb1-31"></a>glucose <span class="op">=</span> X_clinical[:, <span class="dv">0</span>]</span>
+<span id="cb1-32"><a href="#cb1-32"></a>bp <span class="op">=</span> X_clinical[:, <span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="pre-class-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="pre-class-preparation">0. Pre-Class Preparation</h2>
+<p><em>Before attending this lecture, please complete the following preparation tasks:</em></p>
+<ul class="task-list">
+<li><p><label><input type="checkbox"><strong>Video Overview:</strong> <a href="https://www.youtube.com/watch?v=O2L2Uv9pdDA" target="_blank" rel="noopener">StatQuest: Naive Bayes, Clearly Explained</a> (15 min walkthrough of conditional probabilities and classification).</label></p></li>
+<li><p><label><input type="checkbox"><strong>Foundational Lecture:</strong> <a href="https://www.youtube.com/watch?v=nt63k3bfXS0" target="_blank" rel="noopener">Stanford CS229: Lecture 4 - Generative Learning Algorithms</a> (Andrew Ng on generative vs.&nbsp;discriminative classifiers).</label></p></li>
+<li><p><label><input type="checkbox"><strong>Textbook Reading:</strong> Read Chapter 4.4 (<em>Generative Models for Classification</em>) from <em>An Introduction to Statistical Learning</em> (ISLP by James, Witten, Hastie, Tibshirani) and Section 6.3 (<em>Bayes’ Theorem</em>) from <em>Mathematics for Machine Learning</em> (Deisenroth et al.).</label></p></li>
+<li><p><label><input type="checkbox"><strong>Concept Check:</strong> Review Bayes’ rule for events <span class="math inline">\(P(A \mid B) = \frac{P(B \mid A)P(A)}{P(B)}\)</span> and the definition of odds <span class="math inline">\(\frac{p}{1-p}\)</span>.</label></p></li>
+</ul>
+<hr>
+</section>
+<section id="the-bayesian-shift-latent-random-variables" class="level2">
+<h2 class="anchored" data-anchor-id="the-bayesian-shift-latent-random-variables">1. The Bayesian Shift: Latent Random Variables</h2>
+<p>In our previous studies of linear regression, logistic regression, and neural networks, machine learning operated under a <strong>frequentist, discriminative framework</strong>:</p>
+<p><span class="math display">\[
+(X, y) \xrightarrow{\text{optimization}} \hat{\boldsymbol{\theta}} \in \mathbb{R}^{p+1},
+\qquad
+x_{\text{new}} \xrightarrow{\hat{\boldsymbol{\theta}}} \widehat{P}(Y = 1 \mid x) = \sigma(x^\top \hat{\boldsymbol{\theta}})
+\]</span></p>
+<p>Parameters <span class="math inline">\(\boldsymbol{\theta}\)</span> were treated as fixed, deterministic constants, and models learned decision boundaries directly by conditioning on observed features <span class="math inline">\(X\)</span>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Core Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>What if, rather than learning a boundary between classes, we first learned what an observation from each class typically looks like?</p>
+</div>
+</div>
+<p>In the <strong>Bayesian framework</strong>, we make a profound philosophical shift: <strong>unobserved entities are treated as random variables</strong> described by probability distributions.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Modeling Dimension</th>
+<th style="text-align: left;">Discriminative Approach (Logistic Regression)</th>
+<th style="text-align: left;">Generative Approach (Naive Bayes / Bayesian)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Object Modeled</strong></td>
+<td style="text-align: left;">Conditional probability: <span class="math inline">\(P(Y \mid X)\)</span></td>
+<td style="text-align: left;">Joint probability: <span class="math inline">\(P(X, Y) = P(X \mid Y)P(Y)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Philosophical Goal</strong></td>
+<td style="text-align: left;">Find the separating boundary between classes</td>
+<td style="text-align: left;">Model the data-generating mechanism of each class</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Input Features <span class="math inline">\(X\)</span></strong></td>
+<td style="text-align: left;">Treated as given constants without distributions</td>
+<td style="text-align: left;">Modeled probabilistically via class densities <span class="math inline">\(P(X \mid Y)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Prediction Engine</strong></td>
+<td style="text-align: left;">Direct evaluation: <span class="math inline">\(\sigma(x^\top \boldsymbol{\theta})\)</span></td>
+<td style="text-align: left;">Probability inversion via <strong>Bayes’ Theorem</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Sampling Ability</strong></td>
+<td style="text-align: left;">Cannot generate synthetic patient observations</td>
+<td style="text-align: left;">Can sample realistic new observations <span class="math inline">\((X, Y)\)</span></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="bayes-theorem-as-a-belief-updating-engine" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-theorem-as-a-belief-updating-engine">2. Bayes’ Theorem as a Belief Updating Engine</h2>
+<p>To predict an unobserved class <span class="math inline">\(Y \in \{0, 1\}\)</span> from observed patient measurements <span class="math inline">\(x\)</span>, Bayes’ theorem provides the formal probability inversion:</p>
+<p><span class="math display">\[
+P(Y = c \mid X = x) = \frac{P(X = x \mid Y = c) \, P(Y = c)}{P(X = x)} = \frac{P(X = x \mid Y = c) \, P(Y = c)}{\sum_{c'} P(X = x \mid Y = c') \, P(Y = c')}
+\]</span></p>
+<p>The four components of Bayesian inference are:</p>
+<ol type="1">
+<li><strong>Prior Probability <span class="math inline">\(P(Y = c)\)</span>:</strong> Prevalence of class <span class="math inline">\(c\)</span> in the population <em>before</em> observing patient biomarkers.</li>
+<li><strong>Likelihood <span class="math inline">\(P(X = x \mid Y = c)\)</span>:</strong> Probability (or probability density) of observing measurements <span class="math inline">\(x\)</span> <em>given</em> the patient belongs to class <span class="math inline">\(c\)</span>.</li>
+<li><strong>Posterior Probability <span class="math inline">\(P(Y = c \mid X = x)\)</span>:</strong> Updated degree of belief that the patient belongs to class <span class="math inline">\(c\)</span> <em>after</em> incorporating biomarker evidence.</li>
+<li><strong>Evidence / Normalizing Constant <span class="math inline">\(P(X = x)\)</span>:</strong> Total marginal probability of observing features <span class="math inline">\(x\)</span>, summing across all possible classes.</li>
+</ol>
+<section id="the-bayes-optimal-classification-rule" class="level3">
+<h3 class="anchored" data-anchor-id="the-bayes-optimal-classification-rule">2.1 The Bayes Optimal Classification Rule</h3>
+<p>Because the evidence denominator <span class="math inline">\(P(X = x)\)</span> is identical for all classes, comparing relative posterior plausibility requires only the numerator:</p>
+<p><span class="math display">\[
+\hat{y}(x) = \arg\max_{c} P(Y = c) \, P(X = x \mid Y = c)
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Base-Rate Fallacy in Clinical Medicine
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose a disease affects <span class="math inline">\(1\%\)</span> of a population (<span class="math inline">\(P(Y=1) = 0.01\)</span>). A diagnostic biomarker test has <span class="math inline">\(95\%\)</span> sensitivity (<span class="math inline">\(P(X=1 \mid Y=1) = 0.95\)</span>) and <span class="math inline">\(95\%\)</span> specificity (<span class="math inline">\(P(X=0 \mid Y=0) = 0.95\)</span>). If a patient tests positive (<span class="math inline">\(X = 1\)</span>), what is the probability they have the disease?</p>
+<p><span class="math display">\[
+P(Y=1 \mid X=1) = \frac{0.95 \times 0.01}{(0.95 \times 0.01) + (0.05 \times 0.99)} = \frac{0.0095}{0.0095 + 0.0495} \approx \mathbf{16.1\%}
+\]</span></p>
+<p>Despite a <span class="math inline">\(95\%\)</span> accurate test, a positive result implies only a <span class="math inline">\(16\%\)</span> posterior probability. Neglecting the prior base rate leads to catastrophic over-diagnosis.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="the-naive-conditional-independence-assumption" class="level2">
+<h2 class="anchored" data-anchor-id="the-naive-conditional-independence-assumption">3. The “Naive” Conditional Independence Assumption</h2>
+<p>When a patient possesses multiple symptoms or biomarkers <span class="math inline">\(\mathbf{x} = (x_1, \dots, x_p)\)</span>, the joint likelihood by the probability chain rule is:</p>
+<p><span class="math display">\[
+P(x_1, \dots, x_p \mid Y = c) = P(x_1 \mid Y = c) \prod_{j=2}^p P(x_j \mid x_1, \dots, x_{j-1}, Y = c)
+\]</span></p>
+<p>Modeling all high-order conditional dependencies requires an astronomical number of observations. <strong>Naive Bayes</strong> introduces a simplifying assumption: <strong>all features are conditionally independent given the class label</strong>:</p>
+<p><span class="math display">\[
+\boxed{P(\mathbf{x} \mid Y = c) = \prod_{j=1}^p P(x_j \mid Y = c)}
+\]</span></p>
+<p>This yields the Naive Bayes posterior decision rule:</p>
+<p><span class="math display">\[
+P(Y = c \mid \mathbf{x}) \propto P(Y = c) \prod_{j=1}^p P(x_j \mid Y = c)
+\]</span></p>
+<section id="the-parameter-explosion-paradox" class="level3">
+<h3 class="anchored" data-anchor-id="the-parameter-explosion-paradox">3.1 The Parameter Explosion Paradox</h3>
+<p>Why make an assumption that seems biologically or physically unrealistic?</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Feature Dimension (<span class="math inline">\(p\)</span> binary markers)</th>
+<th style="text-align: center;">Unrestricted Joint Model Parameters (<span class="math inline">\(2^p - 1\)</span>)</th>
+<th style="text-align: center;">Naive Bayes Parameters (<span class="math inline">\(p\)</span>)</th>
+<th style="text-align: left;">Computational Growth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 1\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(2^1 - 1 = 1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: left;">Identical baseline</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 2\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(2^2 - 1 = 3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2\)</span></td>
+<td style="text-align: left;">Joint requires contingency tables</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 5\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(2^5 - 1 = 31\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(6\times\)</span> parameter reduction</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 10\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(2^{10} - 1 = 1{,}023\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(100\times\)</span> parameter reduction</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 20\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(2^{20} - 1 \approx 1{,}048{,}575\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: left;">Exponential collapse to linear</td>
+</tr>
+</tbody>
+</table>
+<p>Without the independence assumption, <span class="math inline">\(20\)</span> binary features require estimating over <strong>1 million parameters</strong> per class. Naive Bayes requires estimating only <strong>20 parameters</strong> per class.</p>
+<blockquote class="blockquote">
+<p><strong>Critical Distinction:</strong> Conditional independence <em>within a class</em> (<span class="math inline">\(X_1 \perp X_2 \mid Y\)</span>) does <strong>not</strong> imply unconditional independence in the pooled population. Two symptoms can be strongly correlated overall simply because both are caused by the underlying disease.</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="bernoulli-naive-bayes-and-the-logistic-link" class="level2">
+<h2 class="anchored" data-anchor-id="bernoulli-naive-bayes-and-the-logistic-link">4. Bernoulli Naive Bayes and the Logistic Link</h2>
+<p>Consider a clinical screening setup with binary symptom indicators <span class="math inline">\(X_j \in \{0, 1\}\)</span> (e.g., <span class="math inline">\(X_1\)</span>: High Fasting Glucose <span class="math inline">\(\ge 126\,\text{mg/dL}\)</span>; <span class="math inline">\(X_2\)</span>: Systolic Hypertension <span class="math inline">\(\ge 140\,\text{mmHg}\)</span>):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 35%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: center;">Diseased (<span class="math inline">\(Y = 1\)</span>)</th>
+<th style="text-align: center;">Healthy (<span class="math inline">\(Y = 0\)</span>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prior Prevalence <span class="math inline">\(P(Y = c)\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.80\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Elevated Glucose <span class="math inline">\(P(X_1 = 1 \mid Y = c)\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.80\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.20\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Elevated Blood Pressure <span class="math inline">\(P(X_2 = 1 \mid Y = c)\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.75\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.25\)</span></td>
+</tr>
+</tbody>
+</table>
+<section id="step-by-step-patient-classification" class="level3">
+<h3 class="anchored" data-anchor-id="step-by-step-patient-classification">4.1 Step-by-Step Patient Classification</h3>
+<p>A new patient arrives at the clinic with both risk markers present: <span class="math inline">\(\mathbf{x}^* = (1, 1)\)</span>.</p>
+<ol type="1">
+<li><p>Compute unnormalized joint score for the Diseased class (<span class="math inline">\(s_1\)</span>): <span class="math display">\[s_1 = P(Y=1) \cdot P(X_1=1 \mid Y=1) \cdot P(X_2=1 \mid Y=1) = 0.20 \times 0.80 \times 0.75 = \mathbf{0.12}\]</span></p></li>
+<li><p>Compute unnormalized joint score for the Healthy class (<span class="math inline">\(s_0\)</span>): <span class="math display">\[s_0 = P(Y=0) \cdot P(X_1=1 \mid Y=0) \cdot P(X_2=1 \mid Y=0) = 0.80 \times 0.20 \times 0.25 = \mathbf{0.04}\]</span></p></li>
+<li><p>Normalize by the total evidence: <span class="math display">\[P(Y=1 \mid \mathbf{x}^*) = \frac{s_1}{s_1 + s_0} = \frac{0.12}{0.12 + 0.04} = \frac{0.12}{0.16} = \mathbf{0.75} \quad (75\%)\]</span></p></li>
+</ol>
+</section>
+<section id="parameter-estimation-laplace-smoothing" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-estimation-laplace-smoothing">4.2 Parameter Estimation &amp; Laplace Smoothing</h3>
+<p>From a training set of <span class="math inline">\(N\)</span> patients, class priors and feature probabilities are estimated by empirical proportions:</p>
+<p><span class="math display">\[
+\widehat{P}(Y=c) = \frac{N_c}{N}, \qquad \hat{q}_{jc} = \widehat{P}(X_j = 1 \mid Y = c) = \frac{N_{jc}}{N_c}
+\]</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The Zero-Frequency Trap &amp; Laplace Smoothing
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If a symptom never appears in training patients of class <span class="math inline">\(c\)</span> (<span class="math inline">\(N_{jc} = 0\)</span>), then <span class="math inline">\(\hat{q}_{jc} = 0\)</span>. In Naive Bayes, this zero multiplies through the entire product, forcing the posterior to zero regardless of all other evidence.</p>
+<p>We prevent this by adding pseudo-counts via <strong>Laplace / additive smoothing</strong> (<span class="math inline">\(\alpha = 1\)</span>): <span class="math display">\[\hat{q}_{jc} = \frac{N_{jc} + \alpha}{N_c + 2\alpha}\]</span></p>
+</div>
+</div>
+</section>
+<section id="the-surprising-equivalence-to-logistic-regression" class="level3">
+<h3 class="anchored" data-anchor-id="the-surprising-equivalence-to-logistic-regression">4.3 The Surprising Equivalence to Logistic Regression</h3>
+<p>For binary outcomes, examine the <strong>posterior log-odds</strong>:</p>
+<p><span class="math display">\[
+\log \frac{P(Y=1 \mid \mathbf{x})}{P(Y=0 \mid \mathbf{x})} = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \log \frac{P(x_j \mid Y=1)}{P(x_j \mid Y=0)}
+\]</span></p>
+<p>Because <span class="math inline">\(P(x_j \mid Y=c) = q_{jc}^{x_j} (1 - q_{jc})^{1 - x_j}\)</span> for binary indicators, algebraic substitution yields:</p>
+<p><span class="math display">\[
+\boxed{log \frac{P(Y=1 \mid \mathbf{x})}{P(Y=0 \mid \mathbf{x})} = \beta_0 + \sum_{j=1}^p \beta_j x_j}
+\]</span></p>
+<p>where the feature weights are the log-odds ratios:</p>
+<p><span class="math display">\[
+\beta_j = \log \left( \frac{q_{j1} (1 - q_{j0})}{q_{j0} (1 - q_{j1})} \right),
+\qquad
+\beta_0 = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \log \frac{1 - q_{j1}}{1 - q_{j0}}
+\]</span></p>
+<p>Taking the sigmoid inversion of the log-odds proves that:</p>
+<p><span class="math display">\[
+P(Y = 1 \mid \mathbf{x}) = \sigma\left(\beta_0 + \sum_{j=1}^p \beta_j x_j\right)
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Fundamental Insight
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Bernoulli Naive Bayes and Logistic Regression possess the <strong>exact same linear mathematical functional form</strong>. However, they arrive at their coefficients through contrasting paradigms: - <strong>Logistic Regression</strong> directly maximizes conditional likelihood <span class="math inline">\(\prod P(y_i \mid x_i)\)</span> via numerical gradient descent. - <strong>Naive Bayes</strong> factors the joint distribution and computes closed-form counting estimates.</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="implementations-and-visual-illustrations" class="level2">
+<h2 class="anchored" data-anchor-id="implementations-and-visual-illustrations">5. Implementations and Visual Illustrations</h2>
+<p>Let us verify these mathematical principles on our clinical cohort using <code>scikit-learn</code>.</p>
+<section id="generative-density-contours-vs.-discriminative-hyperplanes" class="level3">
+<h3 class="anchored" data-anchor-id="generative-density-contours-vs.-discriminative-hyperplanes">5.1 Generative Density Contours vs.&nbsp;Discriminative Hyperplanes</h3>
+<div id="cell-fig-generative-vs-discriminative" class="cell" data-fig-height="4.2" data-fig-width="11" data-execution_count="2">
+<details class="code-fold">
+<summary>Plot Discriminative Boundary vs.&nbsp;Generative Contours</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># Grid for decision boundaries</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>x_min, x_max <span class="op">=</span> glucose.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">10</span>, glucose.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">10</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>y_min, y_max <span class="op">=</span> bp.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">10</span>, bp.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">10</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>xx, yy <span class="op">=</span> np.meshgrid(np.linspace(x_min, x_max, <span class="dv">250</span>), np.linspace(y_min, y_max, <span class="dv">250</span>))</span>
+<span id="cb2-7"><a href="#cb2-7"></a>grid_points <span class="op">=</span> np.c_[xx.ravel(), yy.ravel()]</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># 1. Discriminative: Logistic Regression</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>lr <span class="op">=</span> LogisticRegression().fit(X_clinical, y_clinical)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>Z_lr <span class="op">=</span> lr.predict_proba(grid_points)[:, <span class="dv">1</span>].reshape(xx.shape)</span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a>ax1.contourf(xx, yy, Z_lr, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>ax1.contour(xx, yy, Z_lr, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="dv">2</span>, linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb2-15"><a href="#cb2-15"></a>ax1.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">0</span>], bp[y_clinical <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb2-16"><a href="#cb2-16"></a>ax1.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">1</span>], bp[y_clinical <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diseased ($y = 1$)'</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a>ax1.set_title(<span class="st">"Logistic Regression: Discriminative Hyperplane"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>ax1.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-19"><a href="#cb2-19"></a>ax1.set_ylabel(<span class="st">"Systolic Blood Pressure [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-21"><a href="#cb2-21"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb2-22"><a href="#cb2-22"></a></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co"># 2. Generative: Gaussian Naive Bayes</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a>gnb <span class="op">=</span> GaussianNB().fit(X_clinical, y_clinical)</span>
+<span id="cb2-25"><a href="#cb2-25"></a>Z_gnb <span class="op">=</span> gnb.predict_proba(grid_points)[:, <span class="dv">1</span>].reshape(xx.shape)</span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a>ax2.contourf(xx, yy, Z_gnb, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb2-28"><a href="#cb2-28"></a>ax2.contour(xx, yy, Z_gnb, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="dv">2</span>, linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb2-29"><a href="#cb2-29"></a>ax2.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">0</span>], bp[y_clinical <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>ax2.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">1</span>], bp[y_clinical <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diseased ($y = 1$)'</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a></span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co"># Overlay class-conditional Gaussian density ellipses</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a><span class="cf">for</span> c_idx, color <span class="kw">in</span> [(<span class="dv">0</span>, <span class="st">'#1b9e77'</span>), (<span class="dv">1</span>, <span class="st">'#d62728'</span>)]:</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    mu <span class="op">=</span> gnb.theta_[c_idx]</span>
+<span id="cb2-35"><a href="#cb2-35"></a>    sigma <span class="op">=</span> np.sqrt(gnb.var_[c_idx])</span>
+<span id="cb2-36"><a href="#cb2-36"></a>    <span class="co"># Axis-aligned ellipse due to conditional independence assumption</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a>    t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span><span class="op">*</span>np.pi, <span class="dv">100</span>)</span>
+<span id="cb2-38"><a href="#cb2-38"></a>    <span class="cf">for</span> radius <span class="kw">in</span> [<span class="fl">1.0</span>, <span class="fl">2.0</span>]:</span>
+<span id="cb2-39"><a href="#cb2-39"></a>        e_x <span class="op">=</span> mu[<span class="dv">0</span>] <span class="op">+</span> radius <span class="op">*</span> sigma[<span class="dv">0</span>] <span class="op">*</span> np.cos(t)</span>
+<span id="cb2-40"><a href="#cb2-40"></a>        e_y <span class="op">=</span> mu[<span class="dv">1</span>] <span class="op">+</span> radius <span class="op">*</span> sigma[<span class="dv">1</span>] <span class="op">*</span> np.sin(t)</span>
+<span id="cb2-41"><a href="#cb2-41"></a>        ax2.plot(e_x, e_y, color<span class="op">=</span>color, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb2-42"><a href="#cb2-42"></a></span>
+<span id="cb2-43"><a href="#cb2-43"></a>ax2.set_title(<span class="st">"Gaussian Naive Bayes: Class Densities &amp; Boundary"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-44"><a href="#cb2-44"></a>ax2.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-45"><a href="#cb2-45"></a>ax2.set_ylabel(<span class="st">"Systolic Blood Pressure [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-46"><a href="#cb2-46"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-47"><a href="#cb2-47"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb2-48"><a href="#cb2-48"></a></span>
+<span id="cb2-49"><a href="#cb2-49"></a>plt.tight_layout()</span>
+<span id="cb2-50"><a href="#cb2-50"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-generative-vs-discriminative" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-generative-vs-discriminative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-generative-vs-discriminative-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="606">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-generative-vs-discriminative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Comparison of discriminative and generative paradigms on clinical patient data: Logistic Regression fits a direct separating hyperplane, whereas Gaussian Naive Bayes models the data-generating density contours of each class before computing posterior boundaries.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="violation-of-conditional-independence-correlated-features" class="level3">
+<h3 class="anchored" data-anchor-id="violation-of-conditional-independence-correlated-features">5.2 Violation of Conditional Independence: Correlated Features</h3>
+<div id="cell-fig-correlation-violation" class="cell" data-fig-height="4.2" data-fig-width="11" data-execution_count="3">
+<details class="code-fold">
+<summary>Plot Correlated Density vs.&nbsp;Naive Bayes Axis-Aligned Model</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># True bivariate Gaussian with correlation rho = 0.75</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>rv_true <span class="op">=</span> multivariate_normal(mean<span class="op">=</span>[<span class="fl">135.0</span>, <span class="fl">142.0</span>], cov<span class="op">=</span>[[<span class="fl">200.0</span>, <span class="fl">120.0</span>], [<span class="fl">120.0</span>, <span class="fl">150.0</span>]])</span>
+<span id="cb3-5"><a href="#cb3-5"></a>pos <span class="op">=</span> np.dstack((xx, yy))</span>
+<span id="cb3-6"><a href="#cb3-6"></a>Z_true <span class="op">=</span> rv_true.pdf(pos)</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>ax1.contour(xx, yy, Z_true, levels<span class="op">=</span><span class="dv">5</span>, cmap<span class="op">=</span><span class="st">'Reds'</span>, linewidths<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb3-9"><a href="#cb3-9"></a>ax1.scatter(X_d[:, <span class="dv">0</span>], X_d[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">25</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">'Observed Patients ($Y = 1$)'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10"></a>ax1.set_title(<span class="st">"True Class Density: Tilted Covariance ($</span><span class="ch">\\</span><span class="st">rho = 0.69$)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>ax1.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>ax1.set_ylabel(<span class="st">"Systolic BP [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-14"><a href="#cb3-14"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co"># Naive Bayes model: Diagonal covariance (rho = 0)</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a>rv_nb <span class="op">=</span> multivariate_normal(mean<span class="op">=</span>gnb.theta_[<span class="dv">1</span>], cov<span class="op">=</span>np.diag(gnb.var_[<span class="dv">1</span>]))</span>
+<span id="cb3-18"><a href="#cb3-18"></a>Z_nb <span class="op">=</span> rv_nb.pdf(pos)</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>ax2.contour(xx, yy, Z_nb, levels<span class="op">=</span><span class="dv">5</span>, cmap<span class="op">=</span><span class="st">'Reds'</span>, linewidths<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb3-21"><a href="#cb3-21"></a>ax2.scatter(X_d[:, <span class="dv">0</span>], X_d[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">25</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">'Observed Patients ($Y = 1$)'</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>ax2.set_title(<span class="st">"Naive Bayes Assumption: Forced Axis-Aligned Density ($</span><span class="ch">\\</span><span class="st">rho = 0$)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-23"><a href="#cb3-23"></a>ax2.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>ax2.set_ylabel(<span class="st">"Systolic BP [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-26"><a href="#cb3-26"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-27"><a href="#cb3-27"></a></span>
+<span id="cb3-28"><a href="#cb3-28"></a>plt.tight_layout()</span>
+<span id="cb3-29"><a href="#cb3-29"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-correlation-violation" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlation-violation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-correlation-violation-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="605">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlation-violation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Impact of feature correlation: When features are physiologically correlated within a class (left), the true density is a tilted covariance ellipse. Naive Bayes (right) forces axis-aligned contours, double-counting shared evidence and distorting posterior probabilities.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="reliability-and-probability-calibration" class="level3">
+<h3 class="anchored" data-anchor-id="reliability-and-probability-calibration">5.3 Reliability and Probability Calibration</h3>
+<div id="cell-fig-calibration-curve" class="cell" data-fig-height="4.2" data-fig-width="10" data-execution_count="4">
+<details class="code-fold">
+<summary>Plot Probability Calibration Curves</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>prob_lr <span class="op">=</span> lr.predict_proba(X_clinical)[:, <span class="dv">1</span>]</span>
+<span id="cb4-2"><a href="#cb4-2"></a>prob_gnb <span class="op">=</span> gnb.predict_proba(X_clinical)[:, <span class="dv">1</span>]</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a>frac_pos_lr, mean_prob_lr <span class="op">=</span> calibration_curve(y_clinical, prob_lr, n_bins<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>frac_pos_gnb, mean_prob_gnb <span class="op">=</span> calibration_curve(y_clinical, prob_gnb, n_bins<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a></span>
+<span id="cb4-7"><a href="#cb4-7"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.2</span>))</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a>ax.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">'k:'</span>, label<span class="op">=</span><span class="st">'Perfect Calibration (Empirical Frequency = Predicted Probability)'</span>)</span>
+<span id="cb4-10"><a href="#cb4-10"></a>ax.plot(mean_prob_lr, frac_pos_lr, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Logistic Regression (Well-Calibrated)'</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a>ax.plot(mean_prob_gnb, frac_pos_gnb, <span class="st">'o--'</span>, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Gaussian Naive Bayes (Sigmoidal Distortion / Overconfident)'</span>)</span>
+<span id="cb4-12"><a href="#cb4-12"></a></span>
+<span id="cb4-13"><a href="#cb4-13"></a>ax.set_title(<span class="st">"Probability Calibration: Logistic Regression vs. Naive Bayes"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>ax.set_xlabel(<span class="st">"Mean Predicted Posterior Probability $</span><span class="ch">\\</span><span class="st">widehat</span><span class="sc">{P}</span><span class="st">(Y = 1 </span><span class="ch">\\</span><span class="st">mid x)$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a>ax.set_ylabel(<span class="st">"Empirical Fraction of Positives"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb4-16"><a href="#cb4-16"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-17"><a href="#cb4-17"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a>plt.tight_layout()</span>
+<span id="cb4-20"><a href="#cb4-20"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-calibration-curve" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-calibration-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-calibration-curve-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="606">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-calibration-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Reliability diagram: Logistic Regression produces well-calibrated posterior probabilities following the diagonal. Because Naive Bayes treats correlated features as independent, it repeatedly multiplies redundant evidence, pushing probabilities toward 0 and 1 (overconfidence).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="continuous-features-and-the-map-regularization-bridge" class="level2">
+<h2 class="anchored" data-anchor-id="continuous-features-and-the-map-regularization-bridge">6. Continuous Features and The MAP Regularization Bridge</h2>
+<p>When biomarkers are continuous (e.g.&nbsp;glucose in <span class="math inline">\(\text{mg/dL}\)</span> and blood pressure in <span class="math inline">\(\text{mmHg}\)</span>), <strong>Gaussian Naive Bayes</strong> models feature likelihoods using one-dimensional normal densities:</p>
+<p><span class="math display">\[
+X_j \mid (Y = c) \sim \mathcal{N}(\mu_{jc}, \sigma_{jc}^2)
+\implies
+P(x_j \mid Y = c) = \frac{1}{\sqrt{2\pi \sigma_{jc}^2}} \exp\left( -\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2} \right)
+\]</span></p>
+<p>This model restricts the full covariance matrix to a <strong>diagonal matrix</strong>:</p>
+<p><span class="math display">\[
+\boldsymbol{\Sigma}_c = \operatorname{diag}(\sigma_{c1}^2, \dots, \sigma_{cp}^2)
+\]</span></p>
+<p>Geometrically: - If feature variances are equal across classes (<span class="math inline">\(\sigma_{j1}^2 = \sigma_{j0}^2\)</span>), the quadratic terms <span class="math inline">\((x_j - \mu)^2\)</span> cancel in the log-odds ratio, creating a <strong>linear decision hyperplane</strong> (identical to Linear Discriminant Analysis with diagonal covariance). - If variances differ (<span class="math inline">\(\sigma_{j1}^2 \neq \sigma_{j0}^2\)</span>), quadratic terms remain, yielding <strong>curved parabolic or elliptical decision boundaries</strong>.</p>
+<section id="the-bridge-to-parameter-inference-maximum-a-posteriori-map" class="level3">
+<h3 class="anchored" data-anchor-id="the-bridge-to-parameter-inference-maximum-a-posteriori-map">6.1 The Bridge to Parameter Inference: Maximum A Posteriori (MAP)</h3>
+<p>Having used Bayes’ theorem to infer an unobserved <em>class state</em> <span class="math inline">\(Y\)</span>, we now apply the identical probability inversion to infer unobserved <em>model parameters</em> <span class="math inline">\(\boldsymbol{\theta} \in \mathbb{R}^p\)</span>:</p>
+<p><span class="math display">\[
+p(\boldsymbol{\theta} \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})}{p(\mathcal{D})} \propto p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})
+\]</span></p>
+<p>Rather than seeking only the Maximum Likelihood Estimate (MLE), <strong>Maximum A Posteriori (MAP)</strong> estimation maximizes the posterior distribution over parameters:</p>
+<p><span class="math display">\[
+\hat{\boldsymbol{\theta}}_{\text{MAP}} = \arg\max_{\boldsymbol{\theta}} \left[ \sum_{i=1}^n \log p(y_i \mid x_i, \boldsymbol{\theta}) + \log p(\boldsymbol{\theta}) \right]
+\]</span></p>
+</section>
+<section id="analytical-proof-gaussian-prior-equivalence-to-l_2-ridge-regularization" class="level3">
+<h3 class="anchored" data-anchor-id="analytical-proof-gaussian-prior-equivalence-to-l_2-ridge-regularization">6.2 Analytical Proof: Gaussian Prior Equivalence to <span class="math inline">\(L_2\)</span> Ridge Regularization</h3>
+<p>In linear regression with Gaussian noise <span class="math inline">\(y_i \sim \mathcal{N}(x_i^\top \boldsymbol{\theta}, \sigma^2)\)</span>, suppose we place an independent zero-mean <strong>Gaussian prior</strong> on the parameter vector:</p>
+<p><span class="math display">\[
+\boldsymbol{\theta} \sim \mathcal{N}(\mathbf{0}, \tau^2 \mathbf{I})
+\implies
+p(\boldsymbol{\theta}) = \frac{1}{(2\pi \tau^2)^{p/2}} \exp\left( -\frac{1}{2\tau^2} \|\boldsymbol{\theta}\|_2^2 \right)
+\]</span></p>
+<p>Taking the logarithm of the posterior objective:</p>
+<p><span class="math display">\[
+\log p(\boldsymbol{\theta} \mid \mathcal{D}) = \underbrace{-\frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - x_i^\top \boldsymbol{\theta})^2}_{\text{Log-Likelihood (OLS)}} - \underbrace{\frac{1}{2\tau^2} \|\boldsymbol{\theta}\|_2^2}_{\text{Log-Prior}} - \text{const}
+\]</span></p>
+<p>Multiplying by <span class="math inline">\(-2\sigma^2\)</span> converts maximization of the posterior into minimization of a penalized loss:</p>
+<p><span class="math display">\[
+\hat{\boldsymbol{\theta}}_{\text{MAP}} = \arg\min_{\boldsymbol{\theta}} \left[ \sum_{i=1}^n (y_i - x_i^\top \boldsymbol{\theta})^2 + \frac{\sigma^2}{\tau^2} \|\boldsymbol{\theta}\|_2^2 \right]
+\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Regularization Bridge
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Maximizing the Bayesian posterior under a Gaussian prior is <strong>mathematically identical to <span class="math inline">\(L_2\)</span> Ridge Regression</strong>! <span class="math display">\[\lambda_{\text{Ridge}} = \frac{\sigma^2}{\tau^2} = \frac{\text{Observation Noise Variance}}{\text{Prior Parameter Variance}}\]</span> - A narrow, skeptical prior (<span class="math inline">\(\tau^2 \to 0\)</span>) forces strong regularization (<span class="math inline">\(\lambda \to \infty\)</span>). - An uninformative diffuse prior (<span class="math inline">\(\tau^2 \to \infty\)</span>) recovers classical unregularized OLS (<span class="math inline">\(\lambda \to 0\)</span>).</p>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="review-the-bridge-to-computational-bayes" class="level2">
+<h2 class="anchored" data-anchor-id="review-the-bridge-to-computational-bayes">7. Review &amp; The Bridge to Computational Bayes</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Aspect</th>
+<th style="text-align: left;">Logistic Regression</th>
+<th style="text-align: left;">Naive Bayes</th>
+<th style="text-align: left;">Full Bayesian Inference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Model Type</strong></td>
+<td style="text-align: left;">Discriminative</td>
+<td style="text-align: left;">Generative Classifier</td>
+<td style="text-align: left;">Fully Probabilistic</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Parameters <span class="math inline">\(\boldsymbol{\theta}\)</span></strong></td>
+<td style="text-align: left;">Fixed weights <span class="math inline">\(\hat{\boldsymbol{\theta}}\)</span></td>
+<td style="text-align: left;">Class counts / Gaussian <span class="math inline">\((\mu, \sigma^2)\)</span></td>
+<td style="text-align: left;"><strong>Random variables</strong> <span class="math inline">\(p(\boldsymbol{\theta} \mid \mathcal{D})\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prediction Function</strong></td>
+<td style="text-align: left;"><span class="math inline">\(\sigma(x^\top \hat{\boldsymbol{\theta}})\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\arg\max_c P(Y=c)\prod P(x_j \mid c)\)</span></td>
+<td style="text-align: left;">Posterior predictive distribution</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Independence Assumption</strong></td>
+<td style="text-align: left;">None on features <span class="math inline">\(X\)</span></td>
+<td style="text-align: left;">Strict: <span class="math inline">\(X_j \perp X_k \mid Y\)</span></td>
+<td style="text-align: left;">Explicitly defined in graphical model</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Sample Efficiency</strong></td>
+<td style="text-align: left;">Requires <span class="math inline">\(\mathcal{O}(p)\)</span> samples</td>
+<td style="text-align: left;">Converges in <span class="math inline">\(\mathcal{O}(\log p)\)</span> samples</td>
+<td style="text-align: left;">Optimal with informative priors</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Calibration</strong></td>
+<td style="text-align: left;">Well-calibrated probabilities</td>
+<td style="text-align: left;">Overconfident / extreme probabilities</td>
+<td style="text-align: left;">Full predictive uncertainty credible intervals</td>
+</tr>
+</tbody>
+</table>
+<section id="the-normalizer-dilemma-summation-vs.-intractable-integration" class="level3">
+<h3 class="anchored" data-anchor-id="the-normalizer-dilemma-summation-vs.-intractable-integration">7.1 The Normalizer Dilemma: Summation vs.&nbsp;Intractable Integration</h3>
+<p>In Naive Bayes, computing the posterior denominator is trivial because classes are discrete and small in number:</p>
+<p><span class="math display">\[
+P(X = x) = \sum_{c=1}^K P(X = x \mid Y = c) \, P(Y = c) \quad \text{(Simple summation)}
+\]</span></p>
+<p>However, when estimating continuous model parameters <span class="math inline">\(\boldsymbol{\theta} \in \mathbb{R}^p\)</span>, the marginal likelihood normalizer requires integrating across high-dimensional parameter space:</p>
+<p><span class="math display">\[
+p(\mathcal{D}) = \int_{\mathbb{R}^p} p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta}) \, d\boldsymbol{\theta}
+\]</span></p>
+<p>For non-trivial models (generalized linear models, hierarchical networks), this integral has <strong>no closed-form analytical solution</strong>.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Bridge to Week 15: Computational Bayesian Inference &amp; PyMC
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If we cannot compute the high-dimensional normalizer integral <span class="math inline">\(p(\mathcal{D})\)</span>, how can we perform Bayesian inference?</p>
+<p>Instead of integrating analytically, modern machine learning utilizes <strong>Markov Chain Monte Carlo (MCMC)</strong> to draw numerical samples directly from the unnormalized posterior: <span class="math display">\[p(\boldsymbol{\theta} \mid \mathcal{D}) \propto p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})\]</span></p>
+<p>This motivates our next module in <strong>Week 15: Computational Bayesian Inference and Probabilistic Programming with PyMC</strong>.</p>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">---</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="an">title:</span><span class="co"> "14 Bayesian Foundations &amp; Naive Bayes"</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="an">description:</span><span class="co"> "From Belief Updating to Generative Classification and MAP Estimation"</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="an">date:</span><span class="co"> "2027-01-20"</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="an">format:</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">  html:</span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">    toc: true</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">---</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="in">```{python}</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb5-22"><a href="#cb5-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb5-23"><a href="#cb5-23"></a><span class="co">#| code-summary: "Imports &amp; Clinical Cohort Setup"</span></span>
+<span id="cb5-24"><a href="#cb5-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb5-25"><a href="#cb5-25"></a></span>
+<span id="cb5-26"><a href="#cb5-26"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-29"><a href="#cb5-29"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb5-30"><a href="#cb5-30"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb5-31"><a href="#cb5-31"></a><span class="im">from</span> sklearn.naive_bayes <span class="im">import</span> GaussianNB</span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="im">from</span> sklearn.calibration <span class="im">import</span> calibration_curve</span>
+<span id="cb5-33"><a href="#cb5-33"></a><span class="im">from</span> scipy.stats <span class="im">import</span> multivariate_normal</span>
+<span id="cb5-34"><a href="#cb5-34"></a></span>
+<span id="cb5-35"><a href="#cb5-35"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb5-36"><a href="#cb5-36"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb5-37"><a href="#cb5-37"></a></span>
+<span id="cb5-38"><a href="#cb5-38"></a><span class="co"># Generate synthetic clinical cohort (n = 160 patients)</span></span>
+<span id="cb5-39"><a href="#cb5-39"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb5-40"><a href="#cb5-40"></a>n_each <span class="op">=</span> <span class="dv">80</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a></span>
+<span id="cb5-42"><a href="#cb5-42"></a><span class="co"># Healthy cohort (y = 0): Normal fasting glucose [mg/dL] and systolic blood pressure [mmHg]</span></span>
+<span id="cb5-43"><a href="#cb5-43"></a>mean_h <span class="op">=</span> [<span class="fl">95.0</span>, <span class="fl">118.0</span>]</span>
+<span id="cb5-44"><a href="#cb5-44"></a>cov_h <span class="op">=</span> [[<span class="fl">120.0</span>, <span class="fl">35.0</span>], [<span class="fl">35.0</span>, <span class="fl">80.0</span>]]  <span class="co"># Slight positive physiological correlation</span></span>
+<span id="cb5-45"><a href="#cb5-45"></a>X_h <span class="op">=</span> np.random.multivariate_normal(mean_h, cov_h, n_each)</span>
+<span id="cb5-46"><a href="#cb5-46"></a>y_h <span class="op">=</span> np.zeros(n_each, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb5-47"><a href="#cb5-47"></a></span>
+<span id="cb5-48"><a href="#cb5-48"></a><span class="co"># Diseased cohort (y = 1): Elevated fasting glucose and blood pressure</span></span>
+<span id="cb5-49"><a href="#cb5-49"></a>mean_d <span class="op">=</span> [<span class="fl">135.0</span>, <span class="fl">142.0</span>]</span>
+<span id="cb5-50"><a href="#cb5-50"></a>cov_d <span class="op">=</span> [[<span class="fl">220.0</span>, <span class="fl">60.0</span>], [<span class="fl">60.0</span>, <span class="fl">140.0</span>]]</span>
+<span id="cb5-51"><a href="#cb5-51"></a>X_d <span class="op">=</span> np.random.multivariate_normal(mean_d, cov_d, n_each)</span>
+<span id="cb5-52"><a href="#cb5-52"></a>y_d <span class="op">=</span> np.ones(n_each, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb5-53"><a href="#cb5-53"></a></span>
+<span id="cb5-54"><a href="#cb5-54"></a>X_clinical <span class="op">=</span> np.vstack([X_h, X_d])</span>
+<span id="cb5-55"><a href="#cb5-55"></a>y_clinical <span class="op">=</span> np.concatenate([y_h, y_d])</span>
+<span id="cb5-56"><a href="#cb5-56"></a>glucose <span class="op">=</span> X_clinical[:, <span class="dv">0</span>]</span>
+<span id="cb5-57"><a href="#cb5-57"></a>bp <span class="op">=</span> X_clinical[:, <span class="dv">1</span>]</span>
+<span id="cb5-58"><a href="#cb5-58"></a><span class="in">```</span></span>
+<span id="cb5-59"><a href="#cb5-59"></a></span>
+<span id="cb5-60"><a href="#cb5-60"></a><span class="fu">## 0. Pre-Class Preparation</span></span>
+<span id="cb5-61"><a href="#cb5-61"></a></span>
+<span id="cb5-62"><a href="#cb5-62"></a>*Before attending this lecture, please complete the following preparation tasks:*</span>
+<span id="cb5-63"><a href="#cb5-63"></a></span>
+<span id="cb5-64"><a href="#cb5-64"></a><span class="ss">- </span><span class="va">[ ]</span> **Video Overview:** <span class="co">[</span><span class="ot">StatQuest: Naive Bayes, Clearly Explained</span><span class="co">](https://www.youtube.com/watch?v=O2L2Uv9pdDA)</span>{target="_blank" rel="noopener"} (15 min walkthrough of conditional probabilities and classification).</span>
+<span id="cb5-65"><a href="#cb5-65"></a></span>
+<span id="cb5-66"><a href="#cb5-66"></a><span class="ss">- </span><span class="va">[ ]</span> **Foundational Lecture:** <span class="co">[</span><span class="ot">Stanford CS229: Lecture 4 - Generative Learning Algorithms</span><span class="co">](https://www.youtube.com/watch?v=nt63k3bfXS0)</span>{target="_blank" rel="noopener"} (Andrew Ng on generative vs. discriminative classifiers).</span>
+<span id="cb5-67"><a href="#cb5-67"></a></span>
+<span id="cb5-68"><a href="#cb5-68"></a><span class="ss">- </span><span class="va">[ ]</span> **Textbook Reading:** Read Chapter 4.4 (*Generative Models for Classification*) from *An Introduction to Statistical Learning* (ISLP by James, Witten, Hastie, Tibshirani) and Section 6.3 (*Bayes' Theorem*) from *Mathematics for Machine Learning* (Deisenroth et al.).</span>
+<span id="cb5-69"><a href="#cb5-69"></a></span>
+<span id="cb5-70"><a href="#cb5-70"></a><span class="ss">- </span><span class="va">[ ]</span> **Concept Check:** Review Bayes' rule for events $P(A \mid B) = \frac{P(B \mid A)P(A)}{P(B)}$ and the definition of odds $\frac{p}{1-p}$.</span>
+<span id="cb5-71"><a href="#cb5-71"></a></span>
+<span id="cb5-72"><a href="#cb5-72"></a>---</span>
+<span id="cb5-73"><a href="#cb5-73"></a></span>
+<span id="cb5-74"><a href="#cb5-74"></a><span class="fu">## 1. The Bayesian Shift: Latent Random Variables</span></span>
+<span id="cb5-75"><a href="#cb5-75"></a></span>
+<span id="cb5-76"><a href="#cb5-76"></a>In our previous studies of linear regression, logistic regression, and neural networks, machine learning operated under a **frequentist, discriminative framework**:</span>
+<span id="cb5-77"><a href="#cb5-77"></a></span>
+<span id="cb5-78"><a href="#cb5-78"></a>$$</span>
+<span id="cb5-79"><a href="#cb5-79"></a>(X, y) \xrightarrow{\text{optimization}} \hat{\boldsymbol{\theta}} \in \mathbb{R}^{p+1},</span>
+<span id="cb5-80"><a href="#cb5-80"></a>\qquad</span>
+<span id="cb5-81"><a href="#cb5-81"></a>x_{\text{new}} \xrightarrow{\hat{\boldsymbol{\theta}}} \widehat{P}(Y = 1 \mid x) = \sigma(x^\top \hat{\boldsymbol{\theta}})</span>
+<span id="cb5-82"><a href="#cb5-82"></a>$$</span>
+<span id="cb5-83"><a href="#cb5-83"></a></span>
+<span id="cb5-84"><a href="#cb5-84"></a>Parameters $\boldsymbol{\theta}$ were treated as fixed, deterministic constants, and models learned decision boundaries directly by conditioning on observed features $X$.</span>
+<span id="cb5-85"><a href="#cb5-85"></a></span>
+<span id="cb5-86"><a href="#cb5-86"></a>::: {.callout-note}</span>
+<span id="cb5-87"><a href="#cb5-87"></a><span class="fu">### The Core Question</span></span>
+<span id="cb5-88"><a href="#cb5-88"></a>What if, rather than learning a boundary between classes, we first learned what an observation from each class typically looks like?</span>
+<span id="cb5-89"><a href="#cb5-89"></a>:::</span>
+<span id="cb5-90"><a href="#cb5-90"></a></span>
+<span id="cb5-91"><a href="#cb5-91"></a>In the **Bayesian framework**, we make a profound philosophical shift: **unobserved entities are treated as random variables** described by probability distributions.</span>
+<span id="cb5-92"><a href="#cb5-92"></a></span>
+<span id="cb5-93"><a href="#cb5-93"></a><span class="pp">|</span> Modeling Dimension <span class="pp">|</span> Discriminative Approach (Logistic Regression) <span class="pp">|</span> Generative Approach (Naive Bayes / Bayesian) <span class="pp">|</span></span>
+<span id="cb5-94"><a href="#cb5-94"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb5-95"><a href="#cb5-95"></a><span class="pp">|</span> **Object Modeled** <span class="pp">|</span> Conditional probability: $P(Y \mid X)$ <span class="pp">|</span> Joint probability: $P(X, Y) = P(X \mid Y)P(Y)$ <span class="pp">|</span></span>
+<span id="cb5-96"><a href="#cb5-96"></a><span class="pp">|</span> **Philosophical Goal** <span class="pp">|</span> Find the separating boundary between classes <span class="pp">|</span> Model the data-generating mechanism of each class <span class="pp">|</span></span>
+<span id="cb5-97"><a href="#cb5-97"></a><span class="pp">|</span> **Input Features $X$** <span class="pp">|</span> Treated as given constants without distributions <span class="pp">|</span> Modeled probabilistically via class densities $P(X \mid Y)$ <span class="pp">|</span></span>
+<span id="cb5-98"><a href="#cb5-98"></a><span class="pp">|</span> **Prediction Engine** | Direct evaluation: $\sigma(x^\top \boldsymbol{\theta})$ | Probability inversion via **Bayes' Theorem** <span class="pp">|</span></span>
+<span id="cb5-99"><a href="#cb5-99"></a><span class="pp">|</span> **Sampling Ability** <span class="pp">|</span> Cannot generate synthetic patient observations <span class="pp">|</span> Can sample realistic new observations $(X, Y)$ <span class="pp">|</span></span>
+<span id="cb5-100"><a href="#cb5-100"></a></span>
+<span id="cb5-101"><a href="#cb5-101"></a>---</span>
+<span id="cb5-102"><a href="#cb5-102"></a></span>
+<span id="cb5-103"><a href="#cb5-103"></a><span class="fu">## 2. Bayes' Theorem as a Belief Updating Engine</span></span>
+<span id="cb5-104"><a href="#cb5-104"></a></span>
+<span id="cb5-105"><a href="#cb5-105"></a>To predict an unobserved class $Y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ from observed patient measurements $x$, Bayes' theorem provides the formal probability inversion:</span>
+<span id="cb5-106"><a href="#cb5-106"></a></span>
+<span id="cb5-107"><a href="#cb5-107"></a>$$</span>
+<span id="cb5-108"><a href="#cb5-108"></a>P(Y = c \mid X = x) = \frac{P(X = x \mid Y = c) \, P(Y = c)}{P(X = x)} = \frac{P(X = x \mid Y = c) \, P(Y = c)}{\sum_{c'} P(X = x \mid Y = c') \, P(Y = c')}</span>
+<span id="cb5-109"><a href="#cb5-109"></a>$$</span>
+<span id="cb5-110"><a href="#cb5-110"></a></span>
+<span id="cb5-111"><a href="#cb5-111"></a>The four components of Bayesian inference are:</span>
+<span id="cb5-112"><a href="#cb5-112"></a></span>
+<span id="cb5-113"><a href="#cb5-113"></a><span class="ss">1. </span>**Prior Probability $P(Y = c)$:** Prevalence of class $c$ in the population *before* observing patient biomarkers.</span>
+<span id="cb5-114"><a href="#cb5-114"></a><span class="ss">2. </span>**Likelihood $P(X = x \mid Y = c)$:** Probability (or probability density) of observing measurements $x$ *given* the patient belongs to class $c$.</span>
+<span id="cb5-115"><a href="#cb5-115"></a><span class="ss">3. </span>**Posterior Probability $P(Y = c \mid X = x)$:** Updated degree of belief that the patient belongs to class $c$ *after* incorporating biomarker evidence.</span>
+<span id="cb5-116"><a href="#cb5-116"></a><span class="ss">4. </span>**Evidence / Normalizing Constant $P(X = x)$:** Total marginal probability of observing features $x$, summing across all possible classes.</span>
+<span id="cb5-117"><a href="#cb5-117"></a></span>
+<span id="cb5-118"><a href="#cb5-118"></a><span class="fu">### 2.1 The Bayes Optimal Classification Rule</span></span>
+<span id="cb5-119"><a href="#cb5-119"></a></span>
+<span id="cb5-120"><a href="#cb5-120"></a>Because the evidence denominator $P(X = x)$ is identical for all classes, comparing relative posterior plausibility requires only the numerator:</span>
+<span id="cb5-121"><a href="#cb5-121"></a></span>
+<span id="cb5-122"><a href="#cb5-122"></a>$$</span>
+<span id="cb5-123"><a href="#cb5-123"></a>\hat{y}(x) = \arg\max_{c} P(Y = c) \, P(X = x \mid Y = c)</span>
+<span id="cb5-124"><a href="#cb5-124"></a>$$</span>
+<span id="cb5-125"><a href="#cb5-125"></a></span>
+<span id="cb5-126"><a href="#cb5-126"></a>::: {.callout-important}</span>
+<span id="cb5-127"><a href="#cb5-127"></a><span class="fu">### The Base-Rate Fallacy in Clinical Medicine</span></span>
+<span id="cb5-128"><a href="#cb5-128"></a>Suppose a disease affects $1\%$ of a population ($P(Y=1) = 0.01$). A diagnostic biomarker test has $95\%$ sensitivity ($P(X=1 \mid Y=1) = 0.95$) and $95\%$ specificity ($P(X=0 \mid Y=0) = 0.95$). If a patient tests positive ($X = 1$), what is the probability they have the disease?</span>
+<span id="cb5-129"><a href="#cb5-129"></a></span>
+<span id="cb5-130"><a href="#cb5-130"></a>$$</span>
+<span id="cb5-131"><a href="#cb5-131"></a>P(Y=1 \mid X=1) = \frac{0.95 \times 0.01}{(0.95 \times 0.01) + (0.05 \times 0.99)} = \frac{0.0095}{0.0095 + 0.0495} \approx \mathbf{16.1\%}</span>
+<span id="cb5-132"><a href="#cb5-132"></a>$$</span>
+<span id="cb5-133"><a href="#cb5-133"></a></span>
+<span id="cb5-134"><a href="#cb5-134"></a>Despite a $95\%$ accurate test, a positive result implies only a $16\%$ posterior probability. Neglecting the prior base rate leads to catastrophic over-diagnosis.</span>
+<span id="cb5-135"><a href="#cb5-135"></a>:::</span>
+<span id="cb5-136"><a href="#cb5-136"></a></span>
+<span id="cb5-137"><a href="#cb5-137"></a>---</span>
+<span id="cb5-138"><a href="#cb5-138"></a></span>
+<span id="cb5-139"><a href="#cb5-139"></a><span class="fu">## 3. The "Naive" Conditional Independence Assumption</span></span>
+<span id="cb5-140"><a href="#cb5-140"></a></span>
+<span id="cb5-141"><a href="#cb5-141"></a>When a patient possesses multiple symptoms or biomarkers $\mathbf{x} = (x_1, \dots, x_p)$, the joint likelihood by the probability chain rule is:</span>
+<span id="cb5-142"><a href="#cb5-142"></a></span>
+<span id="cb5-143"><a href="#cb5-143"></a>$$</span>
+<span id="cb5-144"><a href="#cb5-144"></a>P(x_1, \dots, x_p \mid Y = c) = P(x_1 \mid Y = c) \prod_{j=2}^p P(x_j \mid x_1, \dots, x_{j-1}, Y = c)</span>
+<span id="cb5-145"><a href="#cb5-145"></a>$$</span>
+<span id="cb5-146"><a href="#cb5-146"></a></span>
+<span id="cb5-147"><a href="#cb5-147"></a>Modeling all high-order conditional dependencies requires an astronomical number of observations. **Naive Bayes** introduces a simplifying assumption: **all features are conditionally independent given the class label**:</span>
+<span id="cb5-148"><a href="#cb5-148"></a></span>
+<span id="cb5-149"><a href="#cb5-149"></a>$$</span>
+<span id="cb5-150"><a href="#cb5-150"></a>\boxed{P(\mathbf{x} \mid Y = c) = \prod_{j=1}^p P(x_j \mid Y = c)}</span>
+<span id="cb5-151"><a href="#cb5-151"></a>$$</span>
+<span id="cb5-152"><a href="#cb5-152"></a></span>
+<span id="cb5-153"><a href="#cb5-153"></a>This yields the Naive Bayes posterior decision rule:</span>
+<span id="cb5-154"><a href="#cb5-154"></a></span>
+<span id="cb5-155"><a href="#cb5-155"></a>$$</span>
+<span id="cb5-156"><a href="#cb5-156"></a>P(Y = c \mid \mathbf{x}) \propto P(Y = c) \prod_{j=1}^p P(x_j \mid Y = c)</span>
+<span id="cb5-157"><a href="#cb5-157"></a>$$</span>
+<span id="cb5-158"><a href="#cb5-158"></a></span>
+<span id="cb5-159"><a href="#cb5-159"></a><span class="fu">### 3.1 The Parameter Explosion Paradox</span></span>
+<span id="cb5-160"><a href="#cb5-160"></a></span>
+<span id="cb5-161"><a href="#cb5-161"></a>Why make an assumption that seems biologically or physically unrealistic?</span>
+<span id="cb5-162"><a href="#cb5-162"></a></span>
+<span id="cb5-163"><a href="#cb5-163"></a><span class="pp">|</span> Feature Dimension ($p$ binary markers) <span class="pp">|</span> Unrestricted Joint Model Parameters ($2^p - 1$) <span class="pp">|</span> Naive Bayes Parameters ($p$) <span class="pp">|</span> Computational Growth <span class="pp">|</span></span>
+<span id="cb5-164"><a href="#cb5-164"></a><span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb5-165"><a href="#cb5-165"></a><span class="pp">|</span> **$p = 1$** <span class="pp">|</span> $2^1 - 1 = 1$ <span class="pp">|</span> $1$ <span class="pp">|</span> Identical baseline <span class="pp">|</span></span>
+<span id="cb5-166"><a href="#cb5-166"></a><span class="pp">|</span> **$p = 2$** <span class="pp">|</span> $2^2 - 1 = 3$ <span class="pp">|</span> $2$ <span class="pp">|</span> Joint requires contingency tables <span class="pp">|</span></span>
+<span id="cb5-167"><a href="#cb5-167"></a><span class="pp">|</span> **$p = 5$** <span class="pp">|</span> $2^5 - 1 = 31$ <span class="pp">|</span> $5$ <span class="pp">|</span> $6\times$ parameter reduction <span class="pp">|</span></span>
+<span id="cb5-168"><a href="#cb5-168"></a><span class="pp">|</span> **$p = 10$** <span class="pp">|</span> $2^{10} - 1 = 1{,}023$ <span class="pp">|</span> $10$ <span class="pp">|</span> $100\times$ parameter reduction <span class="pp">|</span></span>
+<span id="cb5-169"><a href="#cb5-169"></a><span class="pp">|</span> **$p = 20$** <span class="pp">|</span> $2^{20} - 1 \approx 1{,}048{,}575$ <span class="pp">|</span> $20$ <span class="pp">|</span> Exponential collapse to linear <span class="pp">|</span></span>
+<span id="cb5-170"><a href="#cb5-170"></a></span>
+<span id="cb5-171"><a href="#cb5-171"></a>Without the independence assumption, $20$ binary features require estimating over **1 million parameters** per class. Naive Bayes requires estimating only **20 parameters** per class.</span>
+<span id="cb5-172"><a href="#cb5-172"></a></span>
+<span id="cb5-173"><a href="#cb5-173"></a><span class="at">&gt; **Critical Distinction:** Conditional independence *within a class* ($X_1 \perp X_2 \mid Y$) does **not** imply unconditional independence in the pooled population. Two symptoms can be strongly correlated overall simply because both are caused by the underlying disease.</span></span>
+<span id="cb5-174"><a href="#cb5-174"></a></span>
+<span id="cb5-175"><a href="#cb5-175"></a>---</span>
+<span id="cb5-176"><a href="#cb5-176"></a></span>
+<span id="cb5-177"><a href="#cb5-177"></a><span class="fu">## 4. Bernoulli Naive Bayes and the Logistic Link</span></span>
+<span id="cb5-178"><a href="#cb5-178"></a></span>
+<span id="cb5-179"><a href="#cb5-179"></a>Consider a clinical screening setup with binary symptom indicators $X_j \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ (e.g., $X_1$: High Fasting Glucose $\ge 126\,\text{mg/dL}$; $X_2$: Systolic Hypertension $\ge 140\,\text{mmHg}$):</span>
+<span id="cb5-180"><a href="#cb5-180"></a></span>
+<span id="cb5-181"><a href="#cb5-181"></a><span class="pp">|</span> Parameter <span class="pp">|</span> Diseased ($Y = 1$) <span class="pp">|</span> Healthy ($Y = 0$) <span class="pp">|</span></span>
+<span id="cb5-182"><a href="#cb5-182"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">|</span></span>
+<span id="cb5-183"><a href="#cb5-183"></a><span class="pp">|</span> **Prior Prevalence $P(Y = c)$** <span class="pp">|</span> $0.20$ <span class="pp">|</span> $0.80$ <span class="pp">|</span></span>
+<span id="cb5-184"><a href="#cb5-184"></a><span class="pp">|</span> **Elevated Glucose $P(X_1 = 1 \mid Y = c)$** <span class="pp">|</span> $0.80$ <span class="pp">|</span> $0.20$ <span class="pp">|</span></span>
+<span id="cb5-185"><a href="#cb5-185"></a><span class="pp">|</span> **Elevated Blood Pressure $P(X_2 = 1 \mid Y = c)$** <span class="pp">|</span> $0.75$ <span class="pp">|</span> $0.25$ <span class="pp">|</span></span>
+<span id="cb5-186"><a href="#cb5-186"></a></span>
+<span id="cb5-187"><a href="#cb5-187"></a><span class="fu">### 4.1 Step-by-Step Patient Classification</span></span>
+<span id="cb5-188"><a href="#cb5-188"></a></span>
+<span id="cb5-189"><a href="#cb5-189"></a>A new patient arrives at the clinic with both risk markers present: $\mathbf{x}^* = (1, 1)$.</span>
+<span id="cb5-190"><a href="#cb5-190"></a></span>
+<span id="cb5-191"><a href="#cb5-191"></a><span class="ss">1. </span>Compute unnormalized joint score for the Diseased class ($s_1$):</span>
+<span id="cb5-192"><a href="#cb5-192"></a>   $$s_1 = P(Y=1) \cdot P(X_1=1 \mid Y=1) \cdot P(X_2=1 \mid Y=1) = 0.20 \times 0.80 \times 0.75 = \mathbf{0.12}$$</span>
+<span id="cb5-193"><a href="#cb5-193"></a></span>
+<span id="cb5-194"><a href="#cb5-194"></a><span class="ss">2. </span>Compute unnormalized joint score for the Healthy class ($s_0$):</span>
+<span id="cb5-195"><a href="#cb5-195"></a>   $$s_0 = P(Y=0) \cdot P(X_1=1 \mid Y=0) \cdot P(X_2=1 \mid Y=0) = 0.80 \times 0.20 \times 0.25 = \mathbf{0.04}$$</span>
+<span id="cb5-196"><a href="#cb5-196"></a></span>
+<span id="cb5-197"><a href="#cb5-197"></a><span class="ss">3. </span>Normalize by the total evidence:</span>
+<span id="cb5-198"><a href="#cb5-198"></a>   $$P(Y=1 \mid \mathbf{x}^*) = \frac{s_1}{s_1 + s_0} = \frac{0.12}{0.12 + 0.04} = \frac{0.12}{0.16} = \mathbf{0.75} \quad (75\%)$$</span>
+<span id="cb5-199"><a href="#cb5-199"></a></span>
+<span id="cb5-200"><a href="#cb5-200"></a><span class="fu">### 4.2 Parameter Estimation &amp; Laplace Smoothing</span></span>
+<span id="cb5-201"><a href="#cb5-201"></a></span>
+<span id="cb5-202"><a href="#cb5-202"></a>From a training set of $N$ patients, class priors and feature probabilities are estimated by empirical proportions:</span>
+<span id="cb5-203"><a href="#cb5-203"></a></span>
+<span id="cb5-204"><a href="#cb5-204"></a>$$</span>
+<span id="cb5-205"><a href="#cb5-205"></a>\widehat{P}(Y=c) = \frac{N_c}{N}, \qquad \hat{q}_{jc} = \widehat{P}(X_j = 1 \mid Y = c) = \frac{N_{jc}}{N_c}</span>
+<span id="cb5-206"><a href="#cb5-206"></a>$$</span>
+<span id="cb5-207"><a href="#cb5-207"></a></span>
+<span id="cb5-208"><a href="#cb5-208"></a>::: {.callout-warning}</span>
+<span id="cb5-209"><a href="#cb5-209"></a><span class="fu">### The Zero-Frequency Trap &amp; Laplace Smoothing</span></span>
+<span id="cb5-210"><a href="#cb5-210"></a>If a symptom never appears in training patients of class $c$ ($N_{jc} = 0$), then $\hat{q}_{jc} = 0$. In Naive Bayes, this zero multiplies through the entire product, forcing the posterior to zero regardless of all other evidence.</span>
+<span id="cb5-211"><a href="#cb5-211"></a></span>
+<span id="cb5-212"><a href="#cb5-212"></a>We prevent this by adding pseudo-counts via **Laplace / additive smoothing** ($\alpha = 1$):</span>
+<span id="cb5-213"><a href="#cb5-213"></a>$$\hat{q}_{jc} = \frac{N_{jc} + \alpha}{N_c + 2\alpha}$$</span>
+<span id="cb5-214"><a href="#cb5-214"></a>:::</span>
+<span id="cb5-215"><a href="#cb5-215"></a></span>
+<span id="cb5-216"><a href="#cb5-216"></a><span class="fu">### 4.3 The Surprising Equivalence to Logistic Regression</span></span>
+<span id="cb5-217"><a href="#cb5-217"></a></span>
+<span id="cb5-218"><a href="#cb5-218"></a>For binary outcomes, examine the **posterior log-odds**:</span>
+<span id="cb5-219"><a href="#cb5-219"></a></span>
+<span id="cb5-220"><a href="#cb5-220"></a>$$</span>
+<span id="cb5-221"><a href="#cb5-221"></a>\log \frac{P(Y=1 \mid \mathbf{x})}{P(Y=0 \mid \mathbf{x})} = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \log \frac{P(x_j \mid Y=1)}{P(x_j \mid Y=0)}</span>
+<span id="cb5-222"><a href="#cb5-222"></a>$$</span>
+<span id="cb5-223"><a href="#cb5-223"></a></span>
+<span id="cb5-224"><a href="#cb5-224"></a>Because $P(x_j \mid Y=c) = q_{jc}^{x_j} (1 - q_{jc})^{1 - x_j}$ for binary indicators, algebraic substitution yields:</span>
+<span id="cb5-225"><a href="#cb5-225"></a></span>
+<span id="cb5-226"><a href="#cb5-226"></a>$$</span>
+<span id="cb5-227"><a href="#cb5-227"></a>\boxed{log \frac{P(Y=1 \mid \mathbf{x})}{P(Y=0 \mid \mathbf{x})} = \beta_0 + \sum_{j=1}^p \beta_j x_j}</span>
+<span id="cb5-228"><a href="#cb5-228"></a>$$</span>
+<span id="cb5-229"><a href="#cb5-229"></a></span>
+<span id="cb5-230"><a href="#cb5-230"></a>where the feature weights are the log-odds ratios:</span>
+<span id="cb5-231"><a href="#cb5-231"></a></span>
+<span id="cb5-232"><a href="#cb5-232"></a>$$</span>
+<span id="cb5-233"><a href="#cb5-233"></a>\beta_j = \log \left( \frac{q_{j1} (1 - q_{j0})}{q_{j0} (1 - q_{j1})} \right),</span>
+<span id="cb5-234"><a href="#cb5-234"></a>\qquad</span>
+<span id="cb5-235"><a href="#cb5-235"></a>\beta_0 = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \log \frac{1 - q_{j1}}{1 - q_{j0}}</span>
+<span id="cb5-236"><a href="#cb5-236"></a>$$</span>
+<span id="cb5-237"><a href="#cb5-237"></a></span>
+<span id="cb5-238"><a href="#cb5-238"></a>Taking the sigmoid inversion of the log-odds proves that:</span>
+<span id="cb5-239"><a href="#cb5-239"></a></span>
+<span id="cb5-240"><a href="#cb5-240"></a>$$</span>
+<span id="cb5-241"><a href="#cb5-241"></a>P(Y = 1 \mid \mathbf{x}) = \sigma\left(\beta_0 + \sum_{j=1}^p \beta_j x_j\right)</span>
+<span id="cb5-242"><a href="#cb5-242"></a>$$</span>
+<span id="cb5-243"><a href="#cb5-243"></a></span>
+<span id="cb5-244"><a href="#cb5-244"></a>::: {.callout-important}</span>
+<span id="cb5-245"><a href="#cb5-245"></a><span class="fu">### Fundamental Insight</span></span>
+<span id="cb5-246"><a href="#cb5-246"></a>Bernoulli Naive Bayes and Logistic Regression possess the **exact same linear mathematical functional form**. However, they arrive at their coefficients through contrasting paradigms:</span>
+<span id="cb5-247"><a href="#cb5-247"></a><span class="ss">- </span>**Logistic Regression** directly maximizes conditional likelihood $\prod P(y_i \mid x_i)$ via numerical gradient descent.</span>
+<span id="cb5-248"><a href="#cb5-248"></a><span class="ss">- </span>**Naive Bayes** factors the joint distribution and computes closed-form counting estimates.</span>
+<span id="cb5-249"><a href="#cb5-249"></a>:::</span>
+<span id="cb5-250"><a href="#cb5-250"></a></span>
+<span id="cb5-251"><a href="#cb5-251"></a>---</span>
+<span id="cb5-252"><a href="#cb5-252"></a></span>
+<span id="cb5-253"><a href="#cb5-253"></a><span class="fu">## 5. Implementations and Visual Illustrations</span></span>
+<span id="cb5-254"><a href="#cb5-254"></a></span>
+<span id="cb5-255"><a href="#cb5-255"></a>Let us verify these mathematical principles on our clinical cohort using <span class="in">`scikit-learn`</span>.</span>
+<span id="cb5-256"><a href="#cb5-256"></a></span>
+<span id="cb5-257"><a href="#cb5-257"></a><span class="fu">### 5.1 Generative Density Contours vs. Discriminative Hyperplanes</span></span>
+<span id="cb5-258"><a href="#cb5-258"></a></span>
+<span id="cb5-261"><a href="#cb5-261"></a><span class="in">```{python}</span></span>
+<span id="cb5-262"><a href="#cb5-262"></a><span class="co">#| label: fig-generative-vs-discriminative</span></span>
+<span id="cb5-263"><a href="#cb5-263"></a><span class="co">#| fig-cap: "Comparison of discriminative and generative paradigms on clinical patient data: Logistic Regression fits a direct separating hyperplane, whereas Gaussian Naive Bayes models the data-generating density contours of each class before computing posterior boundaries."</span></span>
+<span id="cb5-264"><a href="#cb5-264"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb5-265"><a href="#cb5-265"></a><span class="co">#| code-summary: "Plot Discriminative Boundary vs. Generative Contours"</span></span>
+<span id="cb5-266"><a href="#cb5-266"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb5-267"><a href="#cb5-267"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb5-268"><a href="#cb5-268"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb5-269"><a href="#cb5-269"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb5-270"><a href="#cb5-270"></a></span>
+<span id="cb5-271"><a href="#cb5-271"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb5-272"><a href="#cb5-272"></a></span>
+<span id="cb5-273"><a href="#cb5-273"></a><span class="co"># Grid for decision boundaries</span></span>
+<span id="cb5-274"><a href="#cb5-274"></a>x_min, x_max <span class="op">=</span> glucose.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">10</span>, glucose.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">10</span></span>
+<span id="cb5-275"><a href="#cb5-275"></a>y_min, y_max <span class="op">=</span> bp.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">10</span>, bp.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">10</span></span>
+<span id="cb5-276"><a href="#cb5-276"></a>xx, yy <span class="op">=</span> np.meshgrid(np.linspace(x_min, x_max, <span class="dv">250</span>), np.linspace(y_min, y_max, <span class="dv">250</span>))</span>
+<span id="cb5-277"><a href="#cb5-277"></a>grid_points <span class="op">=</span> np.c_[xx.ravel(), yy.ravel()]</span>
+<span id="cb5-278"><a href="#cb5-278"></a></span>
+<span id="cb5-279"><a href="#cb5-279"></a><span class="co"># 1. Discriminative: Logistic Regression</span></span>
+<span id="cb5-280"><a href="#cb5-280"></a>lr <span class="op">=</span> LogisticRegression().fit(X_clinical, y_clinical)</span>
+<span id="cb5-281"><a href="#cb5-281"></a>Z_lr <span class="op">=</span> lr.predict_proba(grid_points)[:, <span class="dv">1</span>].reshape(xx.shape)</span>
+<span id="cb5-282"><a href="#cb5-282"></a></span>
+<span id="cb5-283"><a href="#cb5-283"></a>ax1.contourf(xx, yy, Z_lr, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb5-284"><a href="#cb5-284"></a>ax1.contour(xx, yy, Z_lr, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="dv">2</span>, linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb5-285"><a href="#cb5-285"></a>ax1.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">0</span>], bp[y_clinical <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb5-286"><a href="#cb5-286"></a>ax1.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">1</span>], bp[y_clinical <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diseased ($y = 1$)'</span>)</span>
+<span id="cb5-287"><a href="#cb5-287"></a>ax1.set_title(<span class="st">"Logistic Regression: Discriminative Hyperplane"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-288"><a href="#cb5-288"></a>ax1.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-289"><a href="#cb5-289"></a>ax1.set_ylabel(<span class="st">"Systolic Blood Pressure [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-290"><a href="#cb5-290"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-291"><a href="#cb5-291"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-292"><a href="#cb5-292"></a></span>
+<span id="cb5-293"><a href="#cb5-293"></a><span class="co"># 2. Generative: Gaussian Naive Bayes</span></span>
+<span id="cb5-294"><a href="#cb5-294"></a>gnb <span class="op">=</span> GaussianNB().fit(X_clinical, y_clinical)</span>
+<span id="cb5-295"><a href="#cb5-295"></a>Z_gnb <span class="op">=</span> gnb.predict_proba(grid_points)[:, <span class="dv">1</span>].reshape(xx.shape)</span>
+<span id="cb5-296"><a href="#cb5-296"></a></span>
+<span id="cb5-297"><a href="#cb5-297"></a>ax2.contourf(xx, yy, Z_gnb, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb5-298"><a href="#cb5-298"></a>ax2.contour(xx, yy, Z_gnb, levels<span class="op">=</span>[<span class="fl">0.5</span>], colors<span class="op">=</span><span class="st">'black'</span>, linewidths<span class="op">=</span><span class="dv">2</span>, linestyles<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb5-299"><a href="#cb5-299"></a>ax2.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">0</span>], bp[y_clinical <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb5-300"><a href="#cb5-300"></a>ax2.scatter(glucose[y_clinical <span class="op">==</span> <span class="dv">1</span>], bp[y_clinical <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diseased ($y = 1$)'</span>)</span>
+<span id="cb5-301"><a href="#cb5-301"></a></span>
+<span id="cb5-302"><a href="#cb5-302"></a><span class="co"># Overlay class-conditional Gaussian density ellipses</span></span>
+<span id="cb5-303"><a href="#cb5-303"></a><span class="cf">for</span> c_idx, color <span class="kw">in</span> [(<span class="dv">0</span>, <span class="st">'#1b9e77'</span>), (<span class="dv">1</span>, <span class="st">'#d62728'</span>)]:</span>
+<span id="cb5-304"><a href="#cb5-304"></a>    mu <span class="op">=</span> gnb.theta_[c_idx]</span>
+<span id="cb5-305"><a href="#cb5-305"></a>    sigma <span class="op">=</span> np.sqrt(gnb.var_[c_idx])</span>
+<span id="cb5-306"><a href="#cb5-306"></a>    <span class="co"># Axis-aligned ellipse due to conditional independence assumption</span></span>
+<span id="cb5-307"><a href="#cb5-307"></a>    t <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span><span class="op">*</span>np.pi, <span class="dv">100</span>)</span>
+<span id="cb5-308"><a href="#cb5-308"></a>    <span class="cf">for</span> radius <span class="kw">in</span> [<span class="fl">1.0</span>, <span class="fl">2.0</span>]:</span>
+<span id="cb5-309"><a href="#cb5-309"></a>        e_x <span class="op">=</span> mu[<span class="dv">0</span>] <span class="op">+</span> radius <span class="op">*</span> sigma[<span class="dv">0</span>] <span class="op">*</span> np.cos(t)</span>
+<span id="cb5-310"><a href="#cb5-310"></a>        e_y <span class="op">=</span> mu[<span class="dv">1</span>] <span class="op">+</span> radius <span class="op">*</span> sigma[<span class="dv">1</span>] <span class="op">*</span> np.sin(t)</span>
+<span id="cb5-311"><a href="#cb5-311"></a>        ax2.plot(e_x, e_y, color<span class="op">=</span>color, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb5-312"><a href="#cb5-312"></a></span>
+<span id="cb5-313"><a href="#cb5-313"></a>ax2.set_title(<span class="st">"Gaussian Naive Bayes: Class Densities &amp; Boundary"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-314"><a href="#cb5-314"></a>ax2.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-315"><a href="#cb5-315"></a>ax2.set_ylabel(<span class="st">"Systolic Blood Pressure [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-316"><a href="#cb5-316"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-317"><a href="#cb5-317"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-318"><a href="#cb5-318"></a></span>
+<span id="cb5-319"><a href="#cb5-319"></a>plt.tight_layout()</span>
+<span id="cb5-320"><a href="#cb5-320"></a>plt.show()</span>
+<span id="cb5-321"><a href="#cb5-321"></a><span class="in">```</span></span>
+<span id="cb5-322"><a href="#cb5-322"></a></span>
+<span id="cb5-323"><a href="#cb5-323"></a><span class="fu">### 5.2 Violation of Conditional Independence: Correlated Features</span></span>
+<span id="cb5-324"><a href="#cb5-324"></a></span>
+<span id="cb5-327"><a href="#cb5-327"></a><span class="in">```{python}</span></span>
+<span id="cb5-328"><a href="#cb5-328"></a><span class="co">#| label: fig-correlation-violation</span></span>
+<span id="cb5-329"><a href="#cb5-329"></a><span class="co">#| fig-cap: "Impact of feature correlation: When features are physiologically correlated within a class (left), the true density is a tilted covariance ellipse. Naive Bayes (right) forces axis-aligned contours, double-counting shared evidence and distorting posterior probabilities."</span></span>
+<span id="cb5-330"><a href="#cb5-330"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb5-331"><a href="#cb5-331"></a><span class="co">#| code-summary: "Plot Correlated Density vs. Naive Bayes Axis-Aligned Model"</span></span>
+<span id="cb5-332"><a href="#cb5-332"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb5-333"><a href="#cb5-333"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb5-334"><a href="#cb5-334"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb5-335"><a href="#cb5-335"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb5-336"><a href="#cb5-336"></a></span>
+<span id="cb5-337"><a href="#cb5-337"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb5-338"><a href="#cb5-338"></a></span>
+<span id="cb5-339"><a href="#cb5-339"></a><span class="co"># True bivariate Gaussian with correlation rho = 0.75</span></span>
+<span id="cb5-340"><a href="#cb5-340"></a>rv_true <span class="op">=</span> multivariate_normal(mean<span class="op">=</span>[<span class="fl">135.0</span>, <span class="fl">142.0</span>], cov<span class="op">=</span>[[<span class="fl">200.0</span>, <span class="fl">120.0</span>], [<span class="fl">120.0</span>, <span class="fl">150.0</span>]])</span>
+<span id="cb5-341"><a href="#cb5-341"></a>pos <span class="op">=</span> np.dstack((xx, yy))</span>
+<span id="cb5-342"><a href="#cb5-342"></a>Z_true <span class="op">=</span> rv_true.pdf(pos)</span>
+<span id="cb5-343"><a href="#cb5-343"></a></span>
+<span id="cb5-344"><a href="#cb5-344"></a>ax1.contour(xx, yy, Z_true, levels<span class="op">=</span><span class="dv">5</span>, cmap<span class="op">=</span><span class="st">'Reds'</span>, linewidths<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-345"><a href="#cb5-345"></a>ax1.scatter(X_d[:, <span class="dv">0</span>], X_d[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">25</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">'Observed Patients ($Y = 1$)'</span>)</span>
+<span id="cb5-346"><a href="#cb5-346"></a>ax1.set_title(<span class="st">"True Class Density: Tilted Covariance ($</span><span class="ch">\\</span><span class="st">rho = 0.69$)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-347"><a href="#cb5-347"></a>ax1.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-348"><a href="#cb5-348"></a>ax1.set_ylabel(<span class="st">"Systolic BP [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-349"><a href="#cb5-349"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-350"><a href="#cb5-350"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-351"><a href="#cb5-351"></a></span>
+<span id="cb5-352"><a href="#cb5-352"></a><span class="co"># Naive Bayes model: Diagonal covariance (rho = 0)</span></span>
+<span id="cb5-353"><a href="#cb5-353"></a>rv_nb <span class="op">=</span> multivariate_normal(mean<span class="op">=</span>gnb.theta_[<span class="dv">1</span>], cov<span class="op">=</span>np.diag(gnb.var_[<span class="dv">1</span>]))</span>
+<span id="cb5-354"><a href="#cb5-354"></a>Z_nb <span class="op">=</span> rv_nb.pdf(pos)</span>
+<span id="cb5-355"><a href="#cb5-355"></a></span>
+<span id="cb5-356"><a href="#cb5-356"></a>ax2.contour(xx, yy, Z_nb, levels<span class="op">=</span><span class="dv">5</span>, cmap<span class="op">=</span><span class="st">'Reds'</span>, linewidths<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb5-357"><a href="#cb5-357"></a>ax2.scatter(X_d[:, <span class="dv">0</span>], X_d[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">25</span>, alpha<span class="op">=</span><span class="fl">0.6</span>, label<span class="op">=</span><span class="st">'Observed Patients ($Y = 1$)'</span>)</span>
+<span id="cb5-358"><a href="#cb5-358"></a>ax2.set_title(<span class="st">"Naive Bayes Assumption: Forced Axis-Aligned Density ($</span><span class="ch">\\</span><span class="st">rho = 0$)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-359"><a href="#cb5-359"></a>ax2.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-360"><a href="#cb5-360"></a>ax2.set_ylabel(<span class="st">"Systolic BP [mmHg]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-361"><a href="#cb5-361"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-362"><a href="#cb5-362"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-363"><a href="#cb5-363"></a></span>
+<span id="cb5-364"><a href="#cb5-364"></a>plt.tight_layout()</span>
+<span id="cb5-365"><a href="#cb5-365"></a>plt.show()</span>
+<span id="cb5-366"><a href="#cb5-366"></a><span class="in">```</span></span>
+<span id="cb5-367"><a href="#cb5-367"></a></span>
+<span id="cb5-368"><a href="#cb5-368"></a><span class="fu">### 5.3 Reliability and Probability Calibration</span></span>
+<span id="cb5-369"><a href="#cb5-369"></a></span>
+<span id="cb5-372"><a href="#cb5-372"></a><span class="in">```{python}</span></span>
+<span id="cb5-373"><a href="#cb5-373"></a><span class="co">#| label: fig-calibration-curve</span></span>
+<span id="cb5-374"><a href="#cb5-374"></a><span class="co">#| fig-cap: "Reliability diagram: Logistic Regression produces well-calibrated posterior probabilities following the diagonal. Because Naive Bayes treats correlated features as independent, it repeatedly multiplies redundant evidence, pushing probabilities toward 0 and 1 (overconfidence)."</span></span>
+<span id="cb5-375"><a href="#cb5-375"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb5-376"><a href="#cb5-376"></a><span class="co">#| code-summary: "Plot Probability Calibration Curves"</span></span>
+<span id="cb5-377"><a href="#cb5-377"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb5-378"><a href="#cb5-378"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb5-379"><a href="#cb5-379"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb5-380"><a href="#cb5-380"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb5-381"><a href="#cb5-381"></a></span>
+<span id="cb5-382"><a href="#cb5-382"></a>prob_lr <span class="op">=</span> lr.predict_proba(X_clinical)[:, <span class="dv">1</span>]</span>
+<span id="cb5-383"><a href="#cb5-383"></a>prob_gnb <span class="op">=</span> gnb.predict_proba(X_clinical)[:, <span class="dv">1</span>]</span>
+<span id="cb5-384"><a href="#cb5-384"></a></span>
+<span id="cb5-385"><a href="#cb5-385"></a>frac_pos_lr, mean_prob_lr <span class="op">=</span> calibration_curve(y_clinical, prob_lr, n_bins<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb5-386"><a href="#cb5-386"></a>frac_pos_gnb, mean_prob_gnb <span class="op">=</span> calibration_curve(y_clinical, prob_gnb, n_bins<span class="op">=</span><span class="dv">6</span>)</span>
+<span id="cb5-387"><a href="#cb5-387"></a></span>
+<span id="cb5-388"><a href="#cb5-388"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.2</span>))</span>
+<span id="cb5-389"><a href="#cb5-389"></a></span>
+<span id="cb5-390"><a href="#cb5-390"></a>ax.plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">'k:'</span>, label<span class="op">=</span><span class="st">'Perfect Calibration (Empirical Frequency = Predicted Probability)'</span>)</span>
+<span id="cb5-391"><a href="#cb5-391"></a>ax.plot(mean_prob_lr, frac_pos_lr, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Logistic Regression (Well-Calibrated)'</span>)</span>
+<span id="cb5-392"><a href="#cb5-392"></a>ax.plot(mean_prob_gnb, frac_pos_gnb, <span class="st">'o--'</span>, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Gaussian Naive Bayes (Sigmoidal Distortion / Overconfident)'</span>)</span>
+<span id="cb5-393"><a href="#cb5-393"></a></span>
+<span id="cb5-394"><a href="#cb5-394"></a>ax.set_title(<span class="st">"Probability Calibration: Logistic Regression vs. Naive Bayes"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-395"><a href="#cb5-395"></a>ax.set_xlabel(<span class="st">"Mean Predicted Posterior Probability $</span><span class="ch">\\</span><span class="st">widehat</span><span class="sc">{P}</span><span class="st">(Y = 1 </span><span class="ch">\\</span><span class="st">mid x)$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-396"><a href="#cb5-396"></a>ax.set_ylabel(<span class="st">"Empirical Fraction of Positives"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-397"><a href="#cb5-397"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-398"><a href="#cb5-398"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-399"><a href="#cb5-399"></a></span>
+<span id="cb5-400"><a href="#cb5-400"></a>plt.tight_layout()</span>
+<span id="cb5-401"><a href="#cb5-401"></a>plt.show()</span>
+<span id="cb5-402"><a href="#cb5-402"></a><span class="in">```</span></span>
+<span id="cb5-403"><a href="#cb5-403"></a></span>
+<span id="cb5-404"><a href="#cb5-404"></a>---</span>
+<span id="cb5-405"><a href="#cb5-405"></a></span>
+<span id="cb5-406"><a href="#cb5-406"></a><span class="fu">## 6. Continuous Features and The MAP Regularization Bridge</span></span>
+<span id="cb5-407"><a href="#cb5-407"></a></span>
+<span id="cb5-408"><a href="#cb5-408"></a>When biomarkers are continuous (e.g. glucose in $\text{mg/dL}$ and blood pressure in $\text{mmHg}$), **Gaussian Naive Bayes** models feature likelihoods using one-dimensional normal densities:</span>
+<span id="cb5-409"><a href="#cb5-409"></a></span>
+<span id="cb5-410"><a href="#cb5-410"></a>$$</span>
+<span id="cb5-411"><a href="#cb5-411"></a>X_j \mid (Y = c) \sim \mathcal{N}(\mu_{jc}, \sigma_{jc}^2)</span>
+<span id="cb5-412"><a href="#cb5-412"></a>\implies</span>
+<span id="cb5-413"><a href="#cb5-413"></a>P(x_j \mid Y = c) = \frac{1}{\sqrt{2\pi \sigma_{jc}^2}} \exp\left( -\frac{(x_j - \mu_{jc})^2}{2\sigma_{jc}^2} \right)</span>
+<span id="cb5-414"><a href="#cb5-414"></a>$$</span>
+<span id="cb5-415"><a href="#cb5-415"></a></span>
+<span id="cb5-416"><a href="#cb5-416"></a>This model restricts the full covariance matrix to a **diagonal matrix**:</span>
+<span id="cb5-417"><a href="#cb5-417"></a></span>
+<span id="cb5-418"><a href="#cb5-418"></a>$$</span>
+<span id="cb5-419"><a href="#cb5-419"></a>\boldsymbol{\Sigma}_c = \operatorname{diag}(\sigma_{c1}^2, \dots, \sigma_{cp}^2)</span>
+<span id="cb5-420"><a href="#cb5-420"></a>$$</span>
+<span id="cb5-421"><a href="#cb5-421"></a></span>
+<span id="cb5-422"><a href="#cb5-422"></a>Geometrically:</span>
+<span id="cb5-423"><a href="#cb5-423"></a><span class="ss">- </span>If feature variances are equal across classes ($\sigma_{j1}^2 = \sigma_{j0}^2$), the quadratic terms $(x_j - \mu)^2$ cancel in the log-odds ratio, creating a **linear decision hyperplane** (identical to Linear Discriminant Analysis with diagonal covariance).</span>
+<span id="cb5-424"><a href="#cb5-424"></a><span class="ss">- </span>If variances differ ($\sigma_{j1}^2 \neq \sigma_{j0}^2$), quadratic terms remain, yielding **curved parabolic or elliptical decision boundaries**.</span>
+<span id="cb5-425"><a href="#cb5-425"></a></span>
+<span id="cb5-426"><a href="#cb5-426"></a><span class="fu">### 6.1 The Bridge to Parameter Inference: Maximum A Posteriori (MAP)</span></span>
+<span id="cb5-427"><a href="#cb5-427"></a></span>
+<span id="cb5-428"><a href="#cb5-428"></a>Having used Bayes' theorem to infer an unobserved *class state* $Y$, we now apply the identical probability inversion to infer unobserved *model parameters* $\boldsymbol{\theta} \in \mathbb{R}^p$:</span>
+<span id="cb5-429"><a href="#cb5-429"></a></span>
+<span id="cb5-430"><a href="#cb5-430"></a>$$</span>
+<span id="cb5-431"><a href="#cb5-431"></a>p(\boldsymbol{\theta} \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})}{p(\mathcal{D})} \propto p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})</span>
+<span id="cb5-432"><a href="#cb5-432"></a>$$</span>
+<span id="cb5-433"><a href="#cb5-433"></a></span>
+<span id="cb5-434"><a href="#cb5-434"></a>Rather than seeking only the Maximum Likelihood Estimate (MLE), **Maximum A Posteriori (MAP)** estimation maximizes the posterior distribution over parameters:</span>
+<span id="cb5-435"><a href="#cb5-435"></a></span>
+<span id="cb5-436"><a href="#cb5-436"></a>$$</span>
+<span id="cb5-437"><a href="#cb5-437"></a>\hat{\boldsymbol{\theta}}_{\text{MAP}} = \arg\max_{\boldsymbol{\theta}} \left[ \sum_{i=1}^n \log p(y_i \mid x_i, \boldsymbol{\theta}) + \log p(\boldsymbol{\theta}) \right]</span>
+<span id="cb5-438"><a href="#cb5-438"></a>$$</span>
+<span id="cb5-439"><a href="#cb5-439"></a></span>
+<span id="cb5-440"><a href="#cb5-440"></a><span class="fu">### 6.2 Analytical Proof: Gaussian Prior Equivalence to $L_2$ Ridge Regularization</span></span>
+<span id="cb5-441"><a href="#cb5-441"></a></span>
+<span id="cb5-442"><a href="#cb5-442"></a>In linear regression with Gaussian noise $y_i \sim \mathcal{N}(x_i^\top \boldsymbol{\theta}, \sigma^2)$, suppose we place an independent zero-mean **Gaussian prior** on the parameter vector:</span>
+<span id="cb5-443"><a href="#cb5-443"></a></span>
+<span id="cb5-444"><a href="#cb5-444"></a>$$</span>
+<span id="cb5-445"><a href="#cb5-445"></a>\boldsymbol{\theta} \sim \mathcal{N}(\mathbf{0}, \tau^2 \mathbf{I})</span>
+<span id="cb5-446"><a href="#cb5-446"></a>\implies</span>
+<span id="cb5-447"><a href="#cb5-447"></a>p(\boldsymbol{\theta}) = \frac{1}{(2\pi \tau^2)^{p/2}} \exp\left( -\frac{1}{2\tau^2} <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_2^2 \right)</span>
+<span id="cb5-448"><a href="#cb5-448"></a>$$</span>
+<span id="cb5-449"><a href="#cb5-449"></a></span>
+<span id="cb5-450"><a href="#cb5-450"></a>Taking the logarithm of the posterior objective:</span>
+<span id="cb5-451"><a href="#cb5-451"></a></span>
+<span id="cb5-452"><a href="#cb5-452"></a>$$</span>
+<span id="cb5-453"><a href="#cb5-453"></a>\log p(\boldsymbol{\theta} \mid \mathcal{D}) = \underbrace{-\frac{1}{2\sigma^2} \sum_{i=1}^n (y_i - x_i^\top \boldsymbol{\theta})^2}_{\text{Log-Likelihood (OLS)}} - \underbrace{\frac{1}{2\tau^2} \|\boldsymbol{\theta}\|_2^2}_{\text{Log-Prior}} - \text{const}</span>
+<span id="cb5-454"><a href="#cb5-454"></a>$$</span>
+<span id="cb5-455"><a href="#cb5-455"></a></span>
+<span id="cb5-456"><a href="#cb5-456"></a>Multiplying by $-2\sigma^2$ converts maximization of the posterior into minimization of a penalized loss:</span>
+<span id="cb5-457"><a href="#cb5-457"></a></span>
+<span id="cb5-458"><a href="#cb5-458"></a>$$</span>
+<span id="cb5-459"><a href="#cb5-459"></a>\hat{\boldsymbol{\theta}}_{\text{MAP}} = \arg\min_{\boldsymbol{\theta}} \left[ \sum_{i=1}^n (y_i - x_i^\top \boldsymbol{\theta})^2 + \frac{\sigma^2}{\tau^2} <span class="sc">\|</span>\boldsymbol{\theta}<span class="sc">\|</span>_2^2 \right]</span>
+<span id="cb5-460"><a href="#cb5-460"></a>$$</span>
+<span id="cb5-461"><a href="#cb5-461"></a></span>
+<span id="cb5-462"><a href="#cb5-462"></a>::: {.callout-note}</span>
+<span id="cb5-463"><a href="#cb5-463"></a><span class="fu">### The Regularization Bridge</span></span>
+<span id="cb5-464"><a href="#cb5-464"></a>Maximizing the Bayesian posterior under a Gaussian prior is **mathematically identical to $L_2$ Ridge Regression**!</span>
+<span id="cb5-465"><a href="#cb5-465"></a>$$\lambda_{\text{Ridge}} = \frac{\sigma^2}{\tau^2} = \frac{\text{Observation Noise Variance}}{\text{Prior Parameter Variance}}$$</span>
+<span id="cb5-466"><a href="#cb5-466"></a><span class="ss">- </span>A narrow, skeptical prior ($\tau^2 \to 0$) forces strong regularization ($\lambda \to \infty$).</span>
+<span id="cb5-467"><a href="#cb5-467"></a><span class="ss">- </span>An uninformative diffuse prior ($\tau^2 \to \infty$) recovers classical unregularized OLS ($\lambda \to 0$).</span>
+<span id="cb5-468"><a href="#cb5-468"></a>:::</span>
+<span id="cb5-469"><a href="#cb5-469"></a></span>
+<span id="cb5-470"><a href="#cb5-470"></a>---</span>
+<span id="cb5-471"><a href="#cb5-471"></a></span>
+<span id="cb5-472"><a href="#cb5-472"></a><span class="fu">## 7. Review &amp; The Bridge to Computational Bayes</span></span>
+<span id="cb5-473"><a href="#cb5-473"></a></span>
+<span id="cb5-474"><a href="#cb5-474"></a><span class="pp">|</span> Aspect <span class="pp">|</span> Logistic Regression <span class="pp">|</span> Naive Bayes <span class="pp">|</span> Full Bayesian Inference <span class="pp">|</span></span>
+<span id="cb5-475"><a href="#cb5-475"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb5-476"><a href="#cb5-476"></a><span class="pp">|</span> **Model Type** <span class="pp">|</span> Discriminative <span class="pp">|</span> Generative Classifier <span class="pp">|</span> Fully Probabilistic <span class="pp">|</span></span>
+<span id="cb5-477"><a href="#cb5-477"></a><span class="pp">|</span> **Parameters $\boldsymbol{\theta}$** | Fixed weights $\hat{\boldsymbol{\theta}}$ | Class counts / Gaussian $(\mu, \sigma^2)$ | **Random variables** $p(\boldsymbol{\theta} \mid \mathcal{D})$ <span class="pp">|</span></span>
+<span id="cb5-478"><a href="#cb5-478"></a><span class="pp">|</span> **Prediction Function** <span class="pp">|</span> $\sigma(x^\top \hat{\boldsymbol{\theta}})$ <span class="pp">|</span> $\arg\max_c P(Y=c)\prod P(x_j \mid c)$ <span class="pp">|</span> Posterior predictive distribution <span class="pp">|</span></span>
+<span id="cb5-479"><a href="#cb5-479"></a><span class="pp">|</span> **Independence Assumption** <span class="pp">|</span> None on features $X$ <span class="pp">|</span> Strict: $X_j \perp X_k \mid Y$ <span class="pp">|</span> Explicitly defined in graphical model <span class="pp">|</span></span>
+<span id="cb5-480"><a href="#cb5-480"></a><span class="pp">|</span> **Sample Efficiency** <span class="pp">|</span> Requires $\mathcal{O}(p)$ samples <span class="pp">|</span> Converges in $\mathcal{O}(\log p)$ samples <span class="pp">|</span> Optimal with informative priors <span class="pp">|</span></span>
+<span id="cb5-481"><a href="#cb5-481"></a><span class="pp">|</span> **Calibration** <span class="pp">|</span> Well-calibrated probabilities <span class="pp">|</span> Overconfident / extreme probabilities <span class="pp">|</span> Full predictive uncertainty credible intervals <span class="pp">|</span></span>
+<span id="cb5-482"><a href="#cb5-482"></a></span>
+<span id="cb5-483"><a href="#cb5-483"></a><span class="fu">### 7.1 The Normalizer Dilemma: Summation vs. Intractable Integration</span></span>
+<span id="cb5-484"><a href="#cb5-484"></a></span>
+<span id="cb5-485"><a href="#cb5-485"></a>In Naive Bayes, computing the posterior denominator is trivial because classes are discrete and small in number:</span>
+<span id="cb5-486"><a href="#cb5-486"></a></span>
+<span id="cb5-487"><a href="#cb5-487"></a>$$</span>
+<span id="cb5-488"><a href="#cb5-488"></a>P(X = x) = \sum_{c=1}^K P(X = x \mid Y = c) \, P(Y = c) \quad \text{(Simple summation)}</span>
+<span id="cb5-489"><a href="#cb5-489"></a>$$</span>
+<span id="cb5-490"><a href="#cb5-490"></a></span>
+<span id="cb5-491"><a href="#cb5-491"></a>However, when estimating continuous model parameters $\boldsymbol{\theta} \in \mathbb{R}^p$, the marginal likelihood normalizer requires integrating across high-dimensional parameter space:</span>
+<span id="cb5-492"><a href="#cb5-492"></a></span>
+<span id="cb5-493"><a href="#cb5-493"></a>$$</span>
+<span id="cb5-494"><a href="#cb5-494"></a>p(\mathcal{D}) = \int_{\mathbb{R}^p} p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta}) \, d\boldsymbol{\theta}</span>
+<span id="cb5-495"><a href="#cb5-495"></a>$$</span>
+<span id="cb5-496"><a href="#cb5-496"></a></span>
+<span id="cb5-497"><a href="#cb5-497"></a>For non-trivial models (generalized linear models, hierarchical networks), this integral has **no closed-form analytical solution**.</span>
+<span id="cb5-498"><a href="#cb5-498"></a></span>
+<span id="cb5-499"><a href="#cb5-499"></a>::: {.callout-important}</span>
+<span id="cb5-500"><a href="#cb5-500"></a><span class="fu">### Bridge to Week 15: Computational Bayesian Inference &amp; PyMC</span></span>
+<span id="cb5-501"><a href="#cb5-501"></a>If we cannot compute the high-dimensional normalizer integral $p(\mathcal{D})$, how can we perform Bayesian inference?</span>
+<span id="cb5-502"><a href="#cb5-502"></a></span>
+<span id="cb5-503"><a href="#cb5-503"></a>Instead of integrating analytically, modern machine learning utilizes **Markov Chain Monte Carlo (MCMC)** to draw numerical samples directly from the unnormalized posterior:</span>
+<span id="cb5-504"><a href="#cb5-504"></a>$$p(\boldsymbol{\theta} \mid \mathcal{D}) \propto p(\mathcal{D} \mid \boldsymbol{\theta}) \, p(\boldsymbol{\theta})$$</span>
+<span id="cb5-505"><a href="#cb5-505"></a></span>
+<span id="cb5-506"><a href="#cb5-506"></a>This motivates our next module in **Week 15: Computational Bayesian Inference and Probabilistic Programming with PyMC**.</span>
+<span id="cb5-507"><a href="#cb5-507"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

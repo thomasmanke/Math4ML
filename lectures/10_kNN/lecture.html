@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Thomas Manke">
+<meta name="dcterms.date" content="2026-11-20">
+<meta name="description" content="Instance-Based Learning, Metric Geometry, and the Curse of Dimensionality">
+
+<title>10 k-Nearest Neighbors – Mathematics for Machine Learning</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-67ccb303fdf517965cecd366c360faea.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-a98773d3a8b5ed9ad48f3c18b08f81bb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Mathematics for Machine Learning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-lectures" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Lectures</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-lectures">    
+        <li>
+    <a class="dropdown-item" href="../../lectures/01_linear_regression/lecture.html">
+ <span class="dropdown-text">01 Linear Regression</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/02_linear_regression_model_spaces/lecture.html">
+ <span class="dropdown-text">02 Linear Regression: Model Spaces</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/03_linear_regression_uncertainties/lecture.html">
+ <span class="dropdown-text">03 Linear Regression: Uncertainties</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/04_linear_regression_flexibility/lecture.html">
+ <span class="dropdown-text">04 Linear Regression: Flexibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/05_linear_regression_regularization/lecture.html">
+ <span class="dropdown-text">05 Linear Regression: Regularization</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/06_logistic_regression_classification/lecture.html">
+ <span class="dropdown-text">06 Logistic Regression: Classification</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
+ <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/01_tutorial/assignment.html">
+ <span class="dropdown-text">01 Tutorial</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02a_tutorial/assignment.html">
+ <span class="dropdown-text">02a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/02b_tutorial/assignment.html">
+ <span class="dropdown-text">02b Tutorial (Medical Costs)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03a_tutorial/assignment.html">
+ <span class="dropdown-text">03a Tutorial (Diabetes)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/03b_tutorial/assignment.html">
+ <span class="dropdown-text">03b Tutorial (Prostate Cancer)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04a_tutorial/assignment.html">
+ <span class="dropdown-text">04a Tutorial (Breast Cancer)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/04b_tutorial/assignment.html">
+ <span class="dropdown-text">04b Tutorial (Heart Disease)</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-references" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">References</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-references">    
+        <li>
+    <a class="dropdown-item" href="../../references/math_to_numpy.html">
+ <span class="dropdown-text">Maths to NumPy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/feature_engineering.html">
+ <span class="dropdown-text">Feature Engineering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/probabilities_and_odds.html">
+ <span class="dropdown-text">Probabilities, Odds &amp; Log-Odds</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../references/correlations.html">
+ <span class="dropdown-text">Correlations</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../general/Chalkboard.html"> <i class="bi bi-clipboard-fill" role="img">
+</i> 
+<span class="menu-text">Chalkboard</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/thomasmanke/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#pre-class-preparation" id="toc-pre-class-preparation" class="nav-link active" data-scroll-target="#pre-class-preparation">0. Pre-Class Preparation</a></li>
+  <li><a href="#beyond-parameter-learning-the-motivating-hook" id="toc-beyond-parameter-learning-the-motivating-hook" class="nav-link" data-scroll-target="#beyond-parameter-learning-the-motivating-hook">1. Beyond Parameter Learning: The Motivating Hook</a></li>
+  <li><a href="#the-knn-prediction-rule" id="toc-the-knn-prediction-rule" class="nav-link" data-scroll-target="#the-knn-prediction-rule">2. The kNN Prediction Rule</a>
+  <ul class="collapse">
+  <li><a href="#the-neighborhood-index-set" id="toc-the-neighborhood-index-set" class="nav-link" data-scroll-target="#the-neighborhood-index-set">2.1 The Neighborhood Index Set</a></li>
+  <li><a href="#classification-majority-voting" id="toc-classification-majority-voting" class="nav-link" data-scroll-target="#classification-majority-voting">2.2 Classification: Majority Voting</a></li>
+  <li><a href="#class-probabilities-vs.-logistic-regression" id="toc-class-probabilities-vs.-logistic-regression" class="nav-link" data-scroll-target="#class-probabilities-vs.-logistic-regression">2.3 Class Probabilities vs.&nbsp;Logistic Regression</a></li>
+  <li><a href="#knn-regression-local-averaging" id="toc-knn-regression-local-averaging" class="nav-link" data-scroll-target="#knn-regression-local-averaging">2.4 kNN Regression: Local Averaging</a></li>
+  <li><a href="#worked-clinical-example" id="toc-worked-clinical-example" class="nav-link" data-scroll-target="#worked-clinical-example">2.5 Worked Clinical Example</a></li>
+  </ul></li>
+  <li><a href="#distance-metrics-and-feature-scaling" id="toc-distance-metrics-and-feature-scaling" class="nav-link" data-scroll-target="#distance-metrics-and-feature-scaling">3. Distance Metrics and Feature Scaling</a>
+  <ul class="collapse">
+  <li><a href="#euclidean-metric" id="toc-euclidean-metric" class="nav-link" data-scroll-target="#euclidean-metric">3.1 Euclidean Metric</a></li>
+  <li><a href="#the-unit-distortion-dilemma" id="toc-the-unit-distortion-dilemma" class="nav-link" data-scroll-target="#the-unit-distortion-dilemma">3.2 The Unit Distortion Dilemma</a></li>
+  <li><a href="#standardization-z-scores" id="toc-standardization-z-scores" class="nav-link" data-scroll-target="#standardization-z-scores">3.3 Standardization (<span class="math inline">\(Z\)</span>-Scores)</a></li>
+  </ul></li>
+  <li><a href="#model-complexity-bias-variance-and-choosing-k" id="toc-model-complexity-bias-variance-and-choosing-k" class="nav-link" data-scroll-target="#model-complexity-bias-variance-and-choosing-k">4. Model Complexity: Bias, Variance, and Choosing <span class="math inline">\(k\)</span></a>
+  <ul class="collapse">
+  <li><a href="#the-overfitting-paradox" id="toc-the-overfitting-paradox" class="nav-link" data-scroll-target="#the-overfitting-paradox">4.1 The Overfitting Paradox</a></li>
+  <li><a href="#tuning-k-via-cross-validation" id="toc-tuning-k-via-cross-validation" class="nav-link" data-scroll-target="#tuning-k-via-cross-validation">4.2 Tuning <span class="math inline">\(k\)</span> via Cross-Validation</a></li>
+  </ul></li>
+  <li><a href="#implementations-and-visual-illustrations" id="toc-implementations-and-visual-illustrations" class="nav-link" data-scroll-target="#implementations-and-visual-illustrations">5. Implementations and Visual Illustrations</a>
+  <ul class="collapse">
+  <li><a href="#comparing-decision-surfaces-logistic-regression-vs.-knn" id="toc-comparing-decision-surfaces-logistic-regression-vs.-knn" class="nav-link" data-scroll-target="#comparing-decision-surfaces-logistic-regression-vs.-knn">5.1 Comparing Decision Surfaces: Logistic Regression vs.&nbsp;kNN</a></li>
+  <li><a href="#the-concrete-impact-of-feature-standardization" id="toc-the-concrete-impact-of-feature-standardization" class="nav-link" data-scroll-target="#the-concrete-impact-of-feature-standardization">5.2 The Concrete Impact of Feature Standardization</a></li>
+  <li><a href="#bias-variance-validation-curve" id="toc-bias-variance-validation-curve" class="nav-link" data-scroll-target="#bias-variance-validation-curve">5.3 Bias-Variance Validation Curve</a></li>
+  </ul></li>
+  <li><a href="#high-dimensions-and-bridge-to-pca" id="toc-high-dimensions-and-bridge-to-pca" class="nav-link" data-scroll-target="#high-dimensions-and-bridge-to-pca">6. High Dimensions and Bridge to PCA</a>
+  <ul class="collapse">
+  <li><a href="#the-volume-dilemma" id="toc-the-volume-dilemma" class="nav-link" data-scroll-target="#the-volume-dilemma">6.1 The Volume Dilemma</a></li>
+  <li><a href="#the-bridge-to-principal-component-analysis-pca" id="toc-the-bridge-to-principal-component-analysis-pca" class="nav-link" data-scroll-target="#the-bridge-to-principal-component-analysis-pca">6.2 The Bridge to Principal Component Analysis (PCA)</a></li>
+  </ul></li>
+  <li><a href="#review-grand-comparison" id="toc-review-grand-comparison" class="nav-link" data-scroll-target="#review-grand-comparison">7. Review &amp; Grand Comparison</a>
+  <ul class="collapse">
+  <li><a href="#concluding-synthesis" id="toc-concluding-synthesis" class="nav-link" data-scroll-target="#concluding-synthesis">Concluding Synthesis</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">10 k-Nearest Neighbors</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Mathematics for Machine Learning</p>
+</div>
+
+<div>
+  <div class="description">
+    Instance-Based Learning, Metric Geometry, and the Curse of Dimensionality
+  </div>
+</div>
+
+
+<div class="quarto-title-meta column-page-left">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Thomas Manke </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 20, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="sec-imports" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Imports &amp; Clinical Cohort Setup</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsClassifier</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score, train_test_split</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb1-13"><a href="#cb1-13"></a></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co"># Generate synthetic clinical cohort (n = 120 patients)</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-16"><a href="#cb1-16"></a>n_patients <span class="op">=</span> <span class="dv">120</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co"># Healthy cohort (Cluster 1: normal glucose and BMI)</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a>glucose_h <span class="op">=</span> np.random.normal(<span class="dv">92</span>, <span class="dv">10</span>, <span class="dv">60</span>)</span>
+<span id="cb1-20"><a href="#cb1-20"></a>bmi_h <span class="op">=</span> np.random.normal(<span class="fl">23.5</span>, <span class="fl">2.5</span>, <span class="dv">60</span>)</span>
+<span id="cb1-21"><a href="#cb1-21"></a>y_h <span class="op">=</span> np.zeros(<span class="dv">60</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co"># Diabetic cohort (Nonlinear clustered pattern: high glucose or high BMI)</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>glucose_d1 <span class="op">=</span> np.random.normal(<span class="dv">142</span>, <span class="dv">14</span>, <span class="dv">35</span>)</span>
+<span id="cb1-25"><a href="#cb1-25"></a>bmi_d1 <span class="op">=</span> np.random.normal(<span class="fl">26.0</span>, <span class="fl">2.8</span>, <span class="dv">35</span>)</span>
+<span id="cb1-26"><a href="#cb1-26"></a></span>
+<span id="cb1-27"><a href="#cb1-27"></a>glucose_d2 <span class="op">=</span> np.random.normal(<span class="dv">118</span>, <span class="dv">11</span>, <span class="dv">25</span>)</span>
+<span id="cb1-28"><a href="#cb1-28"></a>bmi_d2 <span class="op">=</span> np.random.normal(<span class="fl">34.0</span>, <span class="fl">3.2</span>, <span class="dv">25</span>)</span>
+<span id="cb1-29"><a href="#cb1-29"></a></span>
+<span id="cb1-30"><a href="#cb1-30"></a>glucose_d <span class="op">=</span> np.concatenate([glucose_d1, glucose_d2])</span>
+<span id="cb1-31"><a href="#cb1-31"></a>bmi_d <span class="op">=</span> np.concatenate([bmi_d1, bmi_d2])</span>
+<span id="cb1-32"><a href="#cb1-32"></a>y_d <span class="op">=</span> np.ones(<span class="dv">60</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb1-33"><a href="#cb1-33"></a></span>
+<span id="cb1-34"><a href="#cb1-34"></a>glucose <span class="op">=</span> np.concatenate([glucose_h, glucose_d])</span>
+<span id="cb1-35"><a href="#cb1-35"></a>bmi <span class="op">=</span> np.concatenate([bmi_h, bmi_d])</span>
+<span id="cb1-36"><a href="#cb1-36"></a>y <span class="op">=</span> np.concatenate([y_h, y_d])</span>
+<span id="cb1-37"><a href="#cb1-37"></a></span>
+<span id="cb1-38"><a href="#cb1-38"></a>X_clinical <span class="op">=</span> np.column_stack([glucose, bmi])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="pre-class-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="pre-class-preparation">0. Pre-Class Preparation</h2>
+<p><em>Before attending this lecture, please complete the following preparation tasks:</em></p>
+<ul class="task-list">
+<li><p><label><input type="checkbox"><strong>Video Overview:</strong> <a href="https://www.youtube.com/watch?v=HVXime0nQ4s" target="_blank" rel="noopener">StatQuest: K-nearest neighbors, Clearly Explained</a> (5 min review of distance and majority voting).</label></p></li>
+<li><p><label><input type="checkbox"><strong>Textbook Reading:</strong> Read Chapter 2.2.3 (<em>The K-Nearest Neighbors Classifier</em>) from <em>An Introduction to Statistical Learning</em> (ISLP by James, Witten, Hastie, Tibshirani).</label></p></li>
+<li><p><label><input type="checkbox"><strong>Concept Check:</strong> Review Euclidean vector norms <span class="math inline">\(\lVert x \rVert_2\)</span> in <span class="math inline">\(\mathbb{R}^p\)</span> and variable standardization (<span class="math inline">\(Z\)</span>-scores).</label></p></li>
+</ul>
+<hr>
+</section>
+<section id="beyond-parameter-learning-the-motivating-hook" class="level2">
+<h2 class="anchored" data-anchor-id="beyond-parameter-learning-the-motivating-hook">1. Beyond Parameter Learning: The Motivating Hook</h2>
+<p>In our study of linear regression and logistic regression, machine learning followed a consistent parametric workflow:</p>
+<p><span class="math display">\[
+(X, y) \xrightarrow{\text{training}} \hat{\theta} \in \mathbb{R}^{p+1},
+\qquad
+x_{\text{new}} \xrightarrow{\hat{\theta}} \hat{y} = \sigma\left(x_{\text{new}}^\top \hat{\theta}\right)
+\]</span></p>
+<p>The entire training dataset is compressed into a fixed parameter vector <span class="math inline">\(\hat{\theta}\)</span>. Once <span class="math inline">\(\hat{\theta}\)</span> is estimated, the original training data can be discarded.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Core Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Must machine learning always mean estimating a fixed vector of parameters?</p>
+</div>
+</div>
+<p><strong>k-Nearest Neighbors (kNN)</strong> provides an intuitive counterexample: it is an <strong>instance-based</strong> (or <em>lazy</em>) learning method. Instead of fitting a global equation, kNN stores the training observations and resolves queries by inspecting local neighborhoods.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Parameter-Based Models (Linear / Logistic)</th>
+<th style="text-align: left;">Instance-Based Models (kNN)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Model State</strong></td>
+<td style="text-align: left;">Fixed parameter vector <span class="math inline">\(\hat{\theta}\)</span></td>
+<td style="text-align: left;">Retained training data <span class="math inline">\(\mathcal{D} = \{(x_i, y_i)\}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Training Cost</strong></td>
+<td style="text-align: left;">Iterative optimization (e.g., gradient descent)</td>
+<td style="text-align: left;">Minimal (<span class="math inline">\(\mathcal{O}(1)\)</span> storage)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Prediction Cost</strong></td>
+<td style="text-align: left;">Quick inner product: <span class="math inline">\(\mathcal{O}(p)\)</span></td>
+<td style="text-align: left;">Distance search across dataset: <span class="math inline">\(\mathcal{O}(n \cdot p)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Decision Surface</strong></td>
+<td style="text-align: left;">Global hyperplane: <span class="math inline">\(x^\top \theta = c\)</span></td>
+<td style="text-align: left;">Flexible, piece-wise local boundaries</td>
+</tr>
+</tbody>
+</table>
+<p>Consider our clinical cohort of <span class="math inline">\(n = 120\)</span> patients evaluated for diabetes based on <strong>Fasting Plasma Glucose</strong> (<span class="math inline">\(\text{mg/dL}\)</span>) and <strong>Body Mass Index (BMI)</strong> (<span class="math inline">\(\text{kg/m}^2\)</span>):</p>
+<div id="cell-fig-clinical-cohort" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="2">
+<details class="code-fold">
+<summary>Plot Clinical Cohort Scatter</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">55</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">55</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># Marked query patient</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>query_pt <span class="op">=</span> np.array([<span class="fl">122.0</span>, <span class="fl">27.5</span>])</span>
+<span id="cb2-8"><a href="#cb2-8"></a>ax.scatter([query_pt[<span class="dv">0</span>]], [query_pt[<span class="dv">1</span>]], color<span class="op">=</span><span class="st">'#2b5c8f'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">220</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, zorder<span class="op">=</span><span class="dv">6</span>, label<span class="op">=</span><span class="ss">f'New Patient $x^*$ (</span><span class="sc">{</span>query_pt[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> mg/dL, </span><span class="sc">{</span>query_pt[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> kg/m²)'</span>)</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a>ax.set_title(<span class="st">"Clinical Patient Cohort: Fasting Glucose vs. BMI"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>ax.set_ylabel(<span class="st">"Body Mass Index (BMI) [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a>plt.tight_layout()</span>
+<span id="cb2-17"><a href="#cb2-17"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-clinical-cohort" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clinical-cohort-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-clinical-cohort-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="651">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clinical-cohort-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Clinical cohort of 120 patients evaluated for Diabetes (<span class="math inline">\(y \in \{0, 1\}\)</span>) based on Fasting Plasma Glucose [mg/dL] and Body Mass Index (BMI) [kg/m²].
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>If a new patient <span class="math inline">\(x^*\)</span> arrives at the clinic with glucose <span class="math inline">\(122.0\,\text{mg/dL}\)</span> and BMI <span class="math inline">\(27.5\,\text{kg/m}^2\)</span>, how should we classify their diabetes status?</p>
+<hr>
+</section>
+<section id="the-knn-prediction-rule" class="level2">
+<h2 class="anchored" data-anchor-id="the-knn-prediction-rule">2. The kNN Prediction Rule</h2>
+<p>Rather than computing a global score <span class="math inline">\(x^{*\top}\theta\)</span>, kNN identifies the <span class="math inline">\(k\)</span> training observations that lie closest to <span class="math inline">\(x^*\)</span> according to a distance metric.</p>
+<section id="the-neighborhood-index-set" class="level3">
+<h3 class="anchored" data-anchor-id="the-neighborhood-index-set">2.1 The Neighborhood Index Set</h3>
+<p>Let <span class="math inline">\(N_k(x)\)</span> denote the set of indices corresponding to the <span class="math inline">\(k\)</span> nearest training points to query point <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[
+N_k(x) = \left\{ i \in \{1, \dots, n\} : d(x, x_i) \le d_{(k)}(x) \right\}
+\]</span></p>
+<p>where <span class="math inline">\(d_{(k)}(x)\)</span> represents the <span class="math inline">\(k\)</span>-th smallest distance from <span class="math inline">\(x\)</span> to all training observations.</p>
+</section>
+<section id="classification-majority-voting" class="level3">
+<h3 class="anchored" data-anchor-id="classification-majority-voting">2.2 Classification: Majority Voting</h3>
+<p>For categorical target variables (<span class="math inline">\(y \in \{0, 1\}\)</span>), the classification rule takes the statistical <strong>mode</strong> across neighboring labels:</p>
+<p><span class="math display">\[
+\hat{y}(x) = \operatorname{mode}\left\{ y_i : i \in N_k(x) \right\}
+\]</span></p>
+<p>To minimize binary voting ties, practitioners typically choose an <strong>odd</strong> integer for <span class="math inline">\(k\)</span> (e.g., <span class="math inline">\(k \in \{3, 5, 7\}\)</span>).</p>
+</section>
+<section id="class-probabilities-vs.-logistic-regression" class="level3">
+<h3 class="anchored" data-anchor-id="class-probabilities-vs.-logistic-regression">2.3 Class Probabilities vs.&nbsp;Logistic Regression</h3>
+<p>The local empirical proportion provides an intuitive estimate of class probability:</p>
+<p><span class="math display">\[
+\widehat{P}(Y = 1 \mid x) = \frac{1}{k}\sum_{i \in N_k(x)} \mathbb{1}(y_i = 1)
+\]</span></p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Parametric Logistic Regression:</strong> <span class="math display">\[
+P(Y = 1 \mid x) = \frac{1}{1 + e^{-(\theta_0 + x_1\theta_1 + x_2\theta_2)}}
+\]</span> Imposes a rigid global sigmoidal transition.</p>
+</div><div class="column" style="width:50%;">
+<p><strong>Non-Parametric kNN:</strong> <span class="math display">\[
+\widehat{P}(Y = 1 \mid x) = \frac{1}{k} \sum_{i \in N_k(x)} y_i
+\]</span> Estimates local empirical frequency directly.</p>
+</div>
+</div>
+</section>
+<section id="knn-regression-local-averaging" class="level3">
+<h3 class="anchored" data-anchor-id="knn-regression-local-averaging">2.4 kNN Regression: Local Averaging</h3>
+<p>The identical neighborhood principle applies to continuous outcomes (such as predicting Glycated Hemoglobin <span class="math inline">\(\text{HbA}_{1c}\)</span> in <span class="math inline">\(\%\)</span>):</p>
+<p><span class="math display">\[
+\hat{f}(x) = \frac{1}{k} \sum_{i \in N_k(x)} y_i
+\]</span></p>
+</section>
+<section id="worked-clinical-example" class="level3">
+<h3 class="anchored" data-anchor-id="worked-clinical-example">2.5 Worked Clinical Example</h3>
+<p>Suppose our query patient <span class="math inline">\(x^* = (122\,\text{mg/dL}, 27.5\,\text{kg/m}^2)\)</span> is evaluated against a mini-reference panel of 5 patients:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Patient <span class="math inline">\(i\)</span></th>
+<th style="text-align: center;">Glucose (<span class="math inline">\(x_{i1}\)</span> [<span class="math inline">\(\text{mg/dL}\)</span>])</th>
+<th style="text-align: center;">BMI (<span class="math inline">\(x_{i2}\)</span> [<span class="math inline">\(\text{kg/m}^2\)</span>])</th>
+<th style="text-align: center;">Euclidean Distance <span class="math inline">\(d(x^*, x_i)\)</span></th>
+<th style="text-align: center;">Label <span class="math inline">\(y_i\)</span></th>
+<th style="text-align: center;">Rank</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">120.0</td>
+<td style="text-align: center;">28.0</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{(2.0)^2 + (-0.5)^2} \approx 2.06\)</span></td>
+<td style="text-align: center;">Diabetic (<span class="math inline">\(1\)</span>)</td>
+<td style="text-align: center;"><strong>1</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">124.0</td>
+<td style="text-align: center;">26.5</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{(-2.0)^2 + (1.0)^2} \approx 2.24\)</span></td>
+<td style="text-align: center;">Diabetic (<span class="math inline">\(1\)</span>)</td>
+<td style="text-align: center;"><strong>2</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">119.0</td>
+<td style="text-align: center;">29.0</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{(3.0)^2 + (-1.5)^2} \approx 3.35\)</span></td>
+<td style="text-align: center;">Healthy (<span class="math inline">\(0\)</span>)</td>
+<td style="text-align: center;"><strong>3</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">115.0</td>
+<td style="text-align: center;">25.0</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{(7.0)^2 + (2.5)^2} \approx 7.43\)</span></td>
+<td style="text-align: center;">Healthy (<span class="math inline">\(0\)</span>)</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">135.0</td>
+<td style="text-align: center;">31.0</td>
+<td style="text-align: center;"><span class="math inline">\(\sqrt{(-13.0)^2 + (-3.5)^2} \approx 13.46\)</span></td>
+<td style="text-align: center;">Diabetic (<span class="math inline">\(1\)</span>)</td>
+<td style="text-align: center;">5</td>
+</tr>
+</tbody>
+</table>
+<p>For <span class="math inline">\(k = 3\)</span>, the nearest neighbors are patients <span class="math inline">\(\{1, 2, 3\}\)</span>: - Label votes: <span class="math inline">\(\{1, 1, 0\}\)</span> - Majority prediction: <span class="math inline">\(\hat{y}(x^*) = 1\)</span> (Diabetic) - Estimated probability: <span class="math inline">\(\widehat{P}(Y = 1 \mid x^*) = \frac{2}{3} \approx 66.7\%\)</span></p>
+<hr>
+</section>
+</section>
+<section id="distance-metrics-and-feature-scaling" class="level2">
+<h2 class="anchored" data-anchor-id="distance-metrics-and-feature-scaling">3. Distance Metrics and Feature Scaling</h2>
+<p>The core assumption of kNN is that geometrically close observations share similar outcomes. The definition of distance is therefore a primary modeling assumption.</p>
+<section id="euclidean-metric" class="level3">
+<h3 class="anchored" data-anchor-id="euclidean-metric">3.1 Euclidean Metric</h3>
+<p>For feature vectors <span class="math inline">\(x_i, x_j \in \mathbb{R}^p\)</span>, the standard Euclidean (<span class="math inline">\(L_2\)</span>) distance is:</p>
+<p><span class="math display">\[
+d(x_i, x_j) = \lVert x_i - x_j \rVert_2 = \sqrt{\sum_{m=1}^p (x_{im} - x_{jm})^2}
+\]</span></p>
+</section>
+<section id="the-unit-distortion-dilemma" class="level3">
+<h3 class="anchored" data-anchor-id="the-unit-distortion-dilemma">3.2 The Unit Distortion Dilemma</h3>
+<p>In clinical practice, features possess vastly different physical dimensions and measurement scales: - <strong>Fasting Glucose:</strong> values range from <span class="math inline">\(70\)</span> to <span class="math inline">\(200\,\text{mg/dL}\)</span> (<span class="math inline">\(\text{variance } \sigma^2 \approx 800\)</span>). - <strong>BMI:</strong> values range from <span class="math inline">\(18\)</span> to <span class="math inline">\(40\,\text{kg/m}^2\)</span> (<span class="math inline">\(\text{variance } \sigma^2 \approx 16\)</span>).</p>
+<p>When computing squared Euclidean differences:</p>
+<p><span class="math display">\[
+d^2(x_i, x_j) = \underbrace{(x_{i,\text{glucose}} - x_{j,\text{glucose}})^2}_{\approx 100 - 2500\,[\text{mg/dL}]^2} + \underbrace{(x_{i,\text{BMI}} - x_{j,\text{BMI}})^2}_{\approx 1 - 25\,[\text{kg/m}^2]^2}
+\]</span></p>
+<p>The glucose coordinate completely dominates the sum! Without standardization, nearest neighbors are selected almost exclusively along the glucose axis, effectively discarding the clinical information contained in BMI.</p>
+</section>
+<section id="standardization-z-scores" class="level3">
+<h3 class="anchored" data-anchor-id="standardization-z-scores">3.3 Standardization (<span class="math inline">\(Z\)</span>-Scores)</h3>
+<p>To give each feature equal geometric weighting, we standardize each coordinate using its sample mean <span class="math inline">\(\mu_j\)</span> and sample standard deviation <span class="math inline">\(s_j\)</span>:</p>
+<p><span class="math display">\[
+z_{ij} = \frac{x_{ij} - \mu_j}{s_j}
+\]</span></p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Data Leakage Prevention via Scikit-Learn Pipelines
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Scaling statistics (<span class="math inline">\(\mu_j, s_j\)</span>) must be computed strictly on the <strong>training set</strong> and then applied unchanged to validation or test queries.</p>
+<p>In <code>scikit-learn</code>, always encapsulate preprocessing and modeling inside a <code>Pipeline</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>pipeline <span class="op">=</span> Pipeline([</span>
+<span id="cb3-2"><a href="#cb3-2"></a>    (<span class="st">"scaler"</span>, StandardScaler()),</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))</span>
+<span id="cb3-4"><a href="#cb3-4"></a>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="model-complexity-bias-variance-and-choosing-k" class="level2">
+<h2 class="anchored" data-anchor-id="model-complexity-bias-variance-and-choosing-k">4. Model Complexity: Bias, Variance, and Choosing <span class="math inline">\(k\)</span></h2>
+<p>In parametric regression, we control complexity via regularization penalties (<span class="math inline">\(\lambda\)</span>). In kNN, <strong>the neighborhood size <span class="math inline">\(k\)</span> is the primary complexity lever</strong>.</p>
+<section id="the-overfitting-paradox" class="level3">
+<h3 class="anchored" data-anchor-id="the-overfitting-paradox">4.1 The Overfitting Paradox</h3>
+<p>How can a model that merely stores training data overfit?</p>
+<ul>
+<li><p><strong>Extreme Flexibility (<span class="math inline">\(k = 1\)</span>):</strong> Each training point is its own nearest neighbor. The training error is zero (<span class="math inline">\(0\%\)</span>). However, the decision boundary contorts around isolated outliers and noisy observations, yielding <strong>high variance and low bias</strong>.</p></li>
+<li><p><strong>Extreme Rigidity (<span class="math inline">\(k = n\)</span>):</strong> The neighborhood includes all <span class="math inline">\(n\)</span> training observations. The prediction collapses to the global sample majority class everywhere, yielding <strong>high bias and zero variance</strong>.</p></li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Neighborhood Size</th>
+<th style="text-align: center;">Flexibility</th>
+<th style="text-align: center;">Effective Degrees of Freedom (<span class="math inline">\(\mathrm{df} \approx n/k\)</span>)</th>
+<th style="text-align: center;">Bias</th>
+<th style="text-align: center;">Variance</th>
+<th style="text-align: center;">Clinical Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Small (<span class="math inline">\(k = 1\)</span>)</strong></td>
+<td style="text-align: center;">High</td>
+<td style="text-align: center;">High (<span class="math inline">\(\approx n\)</span>)</td>
+<td style="text-align: center;">Low</td>
+<td style="text-align: center;">High</td>
+<td style="text-align: center;">Overfitting to measurement noise</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Intermediate (<span class="math inline">\(k \approx \sqrt{n}\)</span>)</strong></td>
+<td style="text-align: center;">Balanced</td>
+<td style="text-align: center;">Moderate</td>
+<td style="text-align: center;">Moderate</td>
+<td style="text-align: center;">Moderate</td>
+<td style="text-align: center;">Optimal generalization</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Large (<span class="math inline">\(k \to n\)</span>)</strong></td>
+<td style="text-align: center;">Low</td>
+<td style="text-align: center;">Low (<span class="math inline">\(\to 1\)</span>)</td>
+<td style="text-align: center;">High</td>
+<td style="text-align: center;">Low</td>
+<td style="text-align: center;">Underfitting (misses local risk clusters)</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tuning-k-via-cross-validation" class="level3">
+<h3 class="anchored" data-anchor-id="tuning-k-via-cross-validation">4.2 Tuning <span class="math inline">\(k\)</span> via Cross-Validation</h3>
+<p>The hyperparameter <span class="math inline">\(k\)</span> cannot be chosen by minimizing training error (which trivially selects <span class="math inline">\(k = 1\)</span>). Instead, <span class="math inline">\(k\)</span> must be evaluated using <span class="math inline">\(K\)</span>-fold cross-validation on unseen validation folds.</p>
+<hr>
+</section>
+</section>
+<section id="implementations-and-visual-illustrations" class="level2">
+<h2 class="anchored" data-anchor-id="implementations-and-visual-illustrations">5. Implementations and Visual Illustrations</h2>
+<p>Let us verify these geometric properties using our clinical cohort in <code>scikit-learn</code>.</p>
+<section id="comparing-decision-surfaces-logistic-regression-vs.-knn" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-decision-surfaces-logistic-regression-vs.-knn">5.1 Comparing Decision Surfaces: Logistic Regression vs.&nbsp;kNN</h3>
+<div id="cell-fig-decision-surfaces" class="cell" data-fig-height="4" data-fig-width="11" data-execution_count="3">
+<details class="code-fold">
+<summary>Plot Decision Boundaries for Logistic Regression and kNN</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co"># Meshgrid for visualization</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>x_min, x_max <span class="op">=</span> glucose.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">5</span>, glucose.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">5</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>y_min, y_max <span class="op">=</span> bmi.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">2</span>, bmi.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>xx, yy <span class="op">=</span> np.meshgrid(np.linspace(x_min, x_max, <span class="dv">200</span>), np.linspace(y_min, y_max, <span class="dv">200</span>))</span>
+<span id="cb4-7"><a href="#cb4-7"></a>grid_points <span class="op">=</span> np.c_[xx.ravel(), yy.ravel()]</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co"># Models to compare</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>models <span class="op">=</span> [</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    (<span class="st">"Logistic Regression"</span>, LogisticRegression()),</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    (<span class="st">"kNN (k = 1)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">1</span>))])),</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    (<span class="st">"kNN (k = 5)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))])),</span>
+<span id="cb4-14"><a href="#cb4-14"></a>    (<span class="st">"kNN (k = 35)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">35</span>))]))</span>
+<span id="cb4-15"><a href="#cb4-15"></a>]</span>
+<span id="cb4-16"><a href="#cb4-16"></a></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="cf">for</span> ax, (title, model) <span class="kw">in</span> <span class="bu">zip</span>(axes, models):</span>
+<span id="cb4-18"><a href="#cb4-18"></a>    model.fit(X_clinical, y)</span>
+<span id="cb4-19"><a href="#cb4-19"></a>    Z <span class="op">=</span> model.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb4-20"><a href="#cb4-20"></a>    </span>
+<span id="cb4-21"><a href="#cb4-21"></a>    ax.contourf(xx, yy, Z, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb4-22"><a href="#cb4-22"></a>    ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">20</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-23"><a href="#cb4-23"></a>    ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">20</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb4-24"><a href="#cb4-24"></a>    </span>
+<span id="cb4-25"><a href="#cb4-25"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>, pad<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb4-26"><a href="#cb4-26"></a>    ax.set_xlabel(<span class="st">"Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-27"><a href="#cb4-27"></a>    <span class="cf">if</span> ax <span class="op">==</span> axes[<span class="dv">0</span>]:</span>
+<span id="cb4-28"><a href="#cb4-28"></a>        ax.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb4-29"><a href="#cb4-29"></a>    ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb4-30"><a href="#cb4-30"></a></span>
+<span id="cb4-31"><a href="#cb4-31"></a>plt.tight_layout()</span>
+<span id="cb4-32"><a href="#cb4-32"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-decision-surfaces" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-decision-surfaces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-decision-surfaces-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="575">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-decision-surfaces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Comparison of decision boundaries on the clinical cohort: Logistic Regression imposes a linear separation, while kNN adapts to non-linear clusters with flexibility controlled by <span class="math inline">\(k\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="the-concrete-impact-of-feature-standardization" class="level3">
+<h3 class="anchored" data-anchor-id="the-concrete-impact-of-feature-standardization">5.2 The Concrete Impact of Feature Standardization</h3>
+<div id="cell-fig-scaling-impact" class="cell" data-fig-height="4.2" data-fig-width="11" data-execution_count="4">
+<details class="code-fold">
+<summary>Plot Effect of Feature Scaling on kNN Boundaries</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># 1. Unscaled kNN (k = 5)</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>knn_unscaled <span class="op">=</span> KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>).fit(X_clinical, y)</span>
+<span id="cb5-5"><a href="#cb5-5"></a>Z_unscaled <span class="op">=</span> knn_unscaled.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a>ax1.contourf(xx, yy, Z_unscaled, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb5-8"><a href="#cb5-8"></a>ax1.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($0$)'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>ax1.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($1$)'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10"></a>ax1.set_title(<span class="st">"Unscaled kNN (k = 5): Glucose Scale Dominates"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-11"><a href="#cb5-11"></a>ax1.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-12"><a href="#cb5-12"></a>ax1.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-13"><a href="#cb5-13"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-14"><a href="#cb5-14"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-15"><a href="#cb5-15"></a></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co"># 2. Standardized kNN (k = 5) via Pipeline</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a>knn_scaled <span class="op">=</span> Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))]).fit(X_clinical, y)</span>
+<span id="cb5-18"><a href="#cb5-18"></a>Z_scaled <span class="op">=</span> knn_scaled.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>ax2.contourf(xx, yy, Z_scaled, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb5-21"><a href="#cb5-21"></a>ax2.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($0$)'</span>)</span>
+<span id="cb5-22"><a href="#cb5-22"></a>ax2.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($1$)'</span>)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>ax2.set_title(<span class="st">"Standardized kNN (k = 5): Balanced Geometric Distance"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-24"><a href="#cb5-24"></a>ax2.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-25"><a href="#cb5-25"></a>ax2.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-26"><a href="#cb5-26"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-27"><a href="#cb5-27"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-28"><a href="#cb5-28"></a></span>
+<span id="cb5-29"><a href="#cb5-29"></a>plt.tight_layout()</span>
+<span id="cb5-30"><a href="#cb5-30"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-scaling-impact" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scaling-impact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-scaling-impact-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1626" height="606">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scaling-impact-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Impact of feature standardization: without scaling (left), glucose dominates Euclidean distance, creating vertical decision bands. With standardization (right), true isotropic distance geometry is restored.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bias-variance-validation-curve" class="level3">
+<h3 class="anchored" data-anchor-id="bias-variance-validation-curve">5.3 Bias-Variance Validation Curve</h3>
+<div id="cell-fig-validation-curve" class="cell" data-fig-height="4.2" data-fig-width="10" data-execution_count="5">
+<details class="code-fold">
+<summary>Plot Training vs.&nbsp;Cross-Validation Accuracy Curve</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>k_values <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">41</span>, <span class="dv">2</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>train_scores <span class="op">=</span> []</span>
+<span id="cb6-3"><a href="#cb6-3"></a>cv_scores <span class="op">=</span> []</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="cf">for</span> k <span class="kw">in</span> k_values:</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb6-7"><a href="#cb6-7"></a>        (<span class="st">"scaler"</span>, StandardScaler()),</span>
+<span id="cb6-8"><a href="#cb6-8"></a>        (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span>k))</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    ])</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    pipe.fit(X_clinical, y)</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    train_scores.append(pipe.score(X_clinical, y))</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    cv_scores.append(np.mean(cross_val_score(pipe, X_clinical, y, cv<span class="op">=</span><span class="dv">5</span>)))</span>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a>best_k <span class="op">=</span> k_values[np.argmax(cv_scores)]</span>
+<span id="cb6-15"><a href="#cb6-15"></a></span>
+<span id="cb6-16"><a href="#cb6-16"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.2</span>))</span>
+<span id="cb6-17"><a href="#cb6-17"></a>ax.plot(k_values, train_scores, <span class="st">'o--'</span>, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb6-18"><a href="#cb6-18"></a>ax.plot(k_values, cv_scores, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'5-Fold Cross-Validation Accuracy'</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a></span>
+<span id="cb6-20"><a href="#cb6-20"></a>ax.axvline(best_k, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f'Optimal $k^* = </span><span class="sc">{</span>best_k<span class="sc">}</span><span class="ss">$'</span>)</span>
+<span id="cb6-21"><a href="#cb6-21"></a>ax.set_title(<span class="st">"Bias-Variance Trade-off: Accuracy vs. Neighborhood Size $k$"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-22"><a href="#cb6-22"></a>ax.set_xlabel(<span class="st">"Neighborhood Size $k$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-23"><a href="#cb6-23"></a>ax.set_ylabel(<span class="st">"Classification Accuracy"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-24"><a href="#cb6-24"></a>ax.set_xticks(k_values[::<span class="dv">2</span>])</span>
+<span id="cb6-25"><a href="#cb6-25"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-26"><a href="#cb6-26"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-27"><a href="#cb6-27"></a></span>
+<span id="cb6-28"><a href="#cb6-28"></a>plt.tight_layout()</span>
+<span id="cb6-29"><a href="#cb6-29"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-validation-curve" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-validation-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-validation-curve-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1476" height="605">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-validation-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Training accuracy vs.&nbsp;5-fold cross-validation accuracy across neighborhood sizes <span class="math inline">\(k \in [1, 40]\)</span>. At <span class="math inline">\(k=1\)</span>, training accuracy is <span class="math inline">\(100\%\)</span> (overfitting), while cross-validation identifies the optimal balance near <span class="math inline">\(k^* \approx 7-9\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="high-dimensions-and-bridge-to-pca" class="level2">
+<h2 class="anchored" data-anchor-id="high-dimensions-and-bridge-to-pca">6. High Dimensions and Bridge to PCA</h2>
+<p>While kNN is conceptually clean and highly flexible in low dimensions (<span class="math inline">\(p = 2\)</span> or <span class="math inline">\(3\)</span>), its local assumption deteriorates rapidly as dimensionality grows—a phenomenon known as the <strong>Curse of Dimensionality</strong>.</p>
+<section id="the-volume-dilemma" class="level3">
+<h3 class="anchored" data-anchor-id="the-volume-dilemma">6.1 The Volume Dilemma</h3>
+<p>Consider a unit hypercube in <span class="math inline">\(p\)</span> dimensions: <span class="math inline">\([0, 1]^p\)</span>, with total volume <span class="math inline">\(V = 1\)</span>. Suppose we wish to capture a target fraction <span class="math inline">\(q \in (0, 1)\)</span> of the data points using a sub-cube of side length <span class="math inline">\(r\)</span>:</p>
+<p><span class="math display">\[
+V_p(r) = r^p = q \implies r = q^{1/p}
+\]</span></p>
+<p>Let us calculate the side length <span class="math inline">\(r\)</span> required to capture just <strong><span class="math inline">\(10\%\)</span> of observations</strong> (<span class="math inline">\(q = 0.10\)</span>):</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Dimension <span class="math inline">\(p\)</span></th>
+<th style="text-align: center;">Formula <span class="math inline">\(r = 0.10^{1/p}\)</span></th>
+<th style="text-align: center;">Edge Length <span class="math inline">\(r\)</span> Required</th>
+<th style="text-align: left;">Geometric Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 1\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.10^1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0.10\)</span></td>
+<td style="text-align: left;">Truly local segment (<span class="math inline">\(10\%\)</span> of range)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 2\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.10^{1/2}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0.32\)</span></td>
+<td style="text-align: left;">Local box spanning <span class="math inline">\(32\%\)</span> of coordinate range</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 10\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.10^{1/10}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0.79\)</span></td>
+<td style="text-align: left;">Box spans <span class="math inline">\(79\%\)</span> of each coordinate!</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong><span class="math inline">\(p = 20\)</span></strong></td>
+<td style="text-align: center;"><span class="math inline">\(0.10^{1/20}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0.89\)</span></td>
+<td style="text-align: left;">Spans nearly the entire feature domain (<span class="math inline">\(89\%\)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p>In 20 dimensions, to capture even <span class="math inline">\(10\%\)</span> of neighboring points, our “neighborhood” must span almost the entirety of each coordinate axis! <strong>The neighborhood is no longer local.</strong></p>
+</section>
+<section id="the-bridge-to-principal-component-analysis-pca" class="level3">
+<h3 class="anchored" data-anchor-id="the-bridge-to-principal-component-analysis-pca">6.2 The Bridge to Principal Component Analysis (PCA)</h3>
+<p>If high-dimensional space creates extreme data sparsity, can we extract a lower-dimensional representation that retains the primary variance before predicting?</p>
+<p><span class="math display">\[
+X \in \mathbb{R}^{n \times p} \xrightarrow{\text{Standardize}} Z \xrightarrow{\text{PCA}} Z_{1:r} \in \mathbb{R}^{n \times r} \xrightarrow{\text{kNN}} \hat{y}
+\]</span></p>
+<p>This previews the fundamental motivation for <strong>Unsupervised Representation Learning</strong>: - PCA finds orthogonal axes of maximum variance without utilizing target labels <span class="math inline">\(y\)</span>. - Executing kNN in the reduced principal component space restores geometric density. - <em>Caveat:</em> Because PCA is unsupervised, directions of high variance do not necessarily guarantee optimal class separation.</p>
+<hr>
+</section>
+</section>
+<section id="review-grand-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="review-grand-comparison">7. Review &amp; Grand Comparison</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dimension</th>
+<th style="text-align: left;">Linear / Logistic Regression</th>
+<th style="text-align: left;">k-Nearest Neighbors (kNN)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Model State</strong></td>
+<td style="text-align: left;">Fixed parameter vector <span class="math inline">\(\hat{\theta} \in \mathbb{R}^{p+1}\)</span></td>
+<td style="text-align: left;">Retained training dataset <span class="math inline">\(\mathcal{D} = \{(x_i, y_i)\}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Prediction Function</strong></td>
+<td style="text-align: left;">Global formula: <span class="math inline">\(\hat{y} = \sigma(x^\top \theta)\)</span></td>
+<td style="text-align: left;">Local search: <span class="math inline">\(\hat{y} = \operatorname{mode}\{y_i : i \in N_k(x)\}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Non-Linearity</strong></td>
+<td style="text-align: left;">Requires manual basis expansions (<span class="math inline">\(x^2, x_1 x_2\)</span>)</td>
+<td style="text-align: left;">Inherently non-linear and adaptive</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Complexity Control</strong></td>
+<td style="text-align: left;">Regularization penalties (<span class="math inline">\(\lambda_{\text{Ridge}}, \lambda_{\text{Lasso}}\)</span>)</td>
+<td style="text-align: left;">Neighborhood size <span class="math inline">\(k\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Feature Scaling</strong></td>
+<td style="text-align: left;">Affects regularization penalties</td>
+<td style="text-align: left;"><strong>Critical</strong>: Directly distorts nearest neighbors</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>High Dimensions (<span class="math inline">\(p \gg 1\)</span>)</strong></td>
+<td style="text-align: left;">Controlled via <span class="math inline">\(L_1 / L_2\)</span> penalties</td>
+<td style="text-align: left;">Severe breakdown (Curse of Dimensionality)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Local Interpretability</strong></td>
+<td style="text-align: left;">Global weights <span class="math inline">\(\theta_j\)</span> (Odds Ratios <span class="math inline">\(e^{\theta_j}\)</span>)</td>
+<td style="text-align: left;">Direct inspection of neighboring patients</td>
+</tr>
+</tbody>
+</table>
+<section id="concluding-synthesis" class="level3">
+<h3 class="anchored" data-anchor-id="concluding-synthesis">Concluding Synthesis</h3>
+<ol type="1">
+<li><strong>Learning without Parameters:</strong> Machine learning does not require compressing data into a parameter vector. Instance-based models predict directly from local empirical evidence.</li>
+<li><strong>The Metric is the Model:</strong> In kNN, assumptions are encoded in the distance metric and feature scaling, rather than in an explicit loss equation.</li>
+<li><strong>Generalization over Memorization:</strong> Although kNN stores all data, tuning <span class="math inline">\(k\)</span> via cross-validation prevents memorization and controls the bias-variance trade-off.</li>
+</ol>
+
+
+<!-- -->
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">---</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="an">title:</span><span class="co"> "10 k-Nearest Neighbors"</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="an">description:</span><span class="co"> "Instance-Based Learning, Metric Geometry, and the Curse of Dimensionality"</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="an">subtitle:</span><span class="co"> "Mathematics for Machine Learning"</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="an">author:</span><span class="co"> "Thomas Manke"</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="an">date:</span><span class="co"> "2026-11-20"</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="an">draft:</span><span class="co"> false</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="an">jupyter:</span><span class="co"> mathe3</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="an">format:</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a><span class="co">  html:</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="co">    toc: true</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="co">    toc-location: right</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="co">    link-external-newwindow: true</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="co">    link-external-icon: true</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="co">---</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a></span>
+<span id="cb7-20"><a href="#cb7-20"></a><span class="in">```{python}</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a><span class="co">#| label: sec-imports</span></span>
+<span id="cb7-22"><a href="#cb7-22"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-23"><a href="#cb7-23"></a><span class="co">#| code-summary: "Imports &amp; Clinical Cohort Setup"</span></span>
+<span id="cb7-24"><a href="#cb7-24"></a><span class="co">#| warning: false</span></span>
+<span id="cb7-25"><a href="#cb7-25"></a></span>
+<span id="cb7-26"><a href="#cb7-26"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-27"><a href="#cb7-27"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-29"><a href="#cb7-29"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb7-30"><a href="#cb7-30"></a><span class="im">from</span> sklearn.neighbors <span class="im">import</span> KNeighborsClassifier</span>
+<span id="cb7-31"><a href="#cb7-31"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb7-33"><a href="#cb7-33"></a><span class="im">from</span> sklearn.pipeline <span class="im">import</span> Pipeline</span>
+<span id="cb7-34"><a href="#cb7-34"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> cross_val_score, train_test_split</span>
+<span id="cb7-35"><a href="#cb7-35"></a></span>
+<span id="cb7-36"><a href="#cb7-36"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb7-37"><a href="#cb7-37"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
+<span id="cb7-38"><a href="#cb7-38"></a></span>
+<span id="cb7-39"><a href="#cb7-39"></a><span class="co"># Generate synthetic clinical cohort (n = 120 patients)</span></span>
+<span id="cb7-40"><a href="#cb7-40"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-41"><a href="#cb7-41"></a>n_patients <span class="op">=</span> <span class="dv">120</span></span>
+<span id="cb7-42"><a href="#cb7-42"></a></span>
+<span id="cb7-43"><a href="#cb7-43"></a><span class="co"># Healthy cohort (Cluster 1: normal glucose and BMI)</span></span>
+<span id="cb7-44"><a href="#cb7-44"></a>glucose_h <span class="op">=</span> np.random.normal(<span class="dv">92</span>, <span class="dv">10</span>, <span class="dv">60</span>)</span>
+<span id="cb7-45"><a href="#cb7-45"></a>bmi_h <span class="op">=</span> np.random.normal(<span class="fl">23.5</span>, <span class="fl">2.5</span>, <span class="dv">60</span>)</span>
+<span id="cb7-46"><a href="#cb7-46"></a>y_h <span class="op">=</span> np.zeros(<span class="dv">60</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb7-47"><a href="#cb7-47"></a></span>
+<span id="cb7-48"><a href="#cb7-48"></a><span class="co"># Diabetic cohort (Nonlinear clustered pattern: high glucose or high BMI)</span></span>
+<span id="cb7-49"><a href="#cb7-49"></a>glucose_d1 <span class="op">=</span> np.random.normal(<span class="dv">142</span>, <span class="dv">14</span>, <span class="dv">35</span>)</span>
+<span id="cb7-50"><a href="#cb7-50"></a>bmi_d1 <span class="op">=</span> np.random.normal(<span class="fl">26.0</span>, <span class="fl">2.8</span>, <span class="dv">35</span>)</span>
+<span id="cb7-51"><a href="#cb7-51"></a></span>
+<span id="cb7-52"><a href="#cb7-52"></a>glucose_d2 <span class="op">=</span> np.random.normal(<span class="dv">118</span>, <span class="dv">11</span>, <span class="dv">25</span>)</span>
+<span id="cb7-53"><a href="#cb7-53"></a>bmi_d2 <span class="op">=</span> np.random.normal(<span class="fl">34.0</span>, <span class="fl">3.2</span>, <span class="dv">25</span>)</span>
+<span id="cb7-54"><a href="#cb7-54"></a></span>
+<span id="cb7-55"><a href="#cb7-55"></a>glucose_d <span class="op">=</span> np.concatenate([glucose_d1, glucose_d2])</span>
+<span id="cb7-56"><a href="#cb7-56"></a>bmi_d <span class="op">=</span> np.concatenate([bmi_d1, bmi_d2])</span>
+<span id="cb7-57"><a href="#cb7-57"></a>y_d <span class="op">=</span> np.ones(<span class="dv">60</span>, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb7-58"><a href="#cb7-58"></a></span>
+<span id="cb7-59"><a href="#cb7-59"></a>glucose <span class="op">=</span> np.concatenate([glucose_h, glucose_d])</span>
+<span id="cb7-60"><a href="#cb7-60"></a>bmi <span class="op">=</span> np.concatenate([bmi_h, bmi_d])</span>
+<span id="cb7-61"><a href="#cb7-61"></a>y <span class="op">=</span> np.concatenate([y_h, y_d])</span>
+<span id="cb7-62"><a href="#cb7-62"></a></span>
+<span id="cb7-63"><a href="#cb7-63"></a>X_clinical <span class="op">=</span> np.column_stack([glucose, bmi])</span>
+<span id="cb7-64"><a href="#cb7-64"></a><span class="in">```</span></span>
+<span id="cb7-65"><a href="#cb7-65"></a></span>
+<span id="cb7-66"><a href="#cb7-66"></a><span class="fu">## 0. Pre-Class Preparation</span></span>
+<span id="cb7-67"><a href="#cb7-67"></a></span>
+<span id="cb7-68"><a href="#cb7-68"></a>*Before attending this lecture, please complete the following preparation tasks:*</span>
+<span id="cb7-69"><a href="#cb7-69"></a></span>
+<span id="cb7-70"><a href="#cb7-70"></a><span class="ss">- </span><span class="va">[ ]</span> **Video Overview:** <span class="co">[</span><span class="ot">StatQuest: K-nearest neighbors, Clearly Explained</span><span class="co">](https://www.youtube.com/watch?v=HVXime0nQ4s)</span>{target="_blank" rel="noopener"} (5 min review of distance and majority voting).</span>
+<span id="cb7-71"><a href="#cb7-71"></a></span>
+<span id="cb7-72"><a href="#cb7-72"></a><span class="ss">- </span><span class="va">[ ]</span> **Textbook Reading:** Read Chapter 2.2.3 (*The K-Nearest Neighbors Classifier*) from *An Introduction to Statistical Learning* (ISLP by James, Witten, Hastie, Tibshirani).</span>
+<span id="cb7-73"><a href="#cb7-73"></a></span>
+<span id="cb7-74"><a href="#cb7-74"></a><span class="ss">- </span><span class="va">[ ]</span> **Concept Check:** Review Euclidean vector norms $\lVert x \rVert_2$ in $\mathbb{R}^p$ and variable standardization ($Z$-scores).</span>
+<span id="cb7-75"><a href="#cb7-75"></a></span>
+<span id="cb7-76"><a href="#cb7-76"></a>---</span>
+<span id="cb7-77"><a href="#cb7-77"></a></span>
+<span id="cb7-78"><a href="#cb7-78"></a><span class="fu">## 1. Beyond Parameter Learning: The Motivating Hook</span></span>
+<span id="cb7-79"><a href="#cb7-79"></a></span>
+<span id="cb7-80"><a href="#cb7-80"></a>In our study of linear regression and logistic regression, machine learning followed a consistent parametric workflow:</span>
+<span id="cb7-81"><a href="#cb7-81"></a></span>
+<span id="cb7-82"><a href="#cb7-82"></a>$$</span>
+<span id="cb7-83"><a href="#cb7-83"></a>(X, y) \xrightarrow{\text{training}} \hat{\theta} \in \mathbb{R}^{p+1},</span>
+<span id="cb7-84"><a href="#cb7-84"></a>\qquad</span>
+<span id="cb7-85"><a href="#cb7-85"></a>x_{\text{new}} \xrightarrow{\hat{\theta}} \hat{y} = \sigma\left(x_{\text{new}}^\top \hat{\theta}\right)</span>
+<span id="cb7-86"><a href="#cb7-86"></a>$$</span>
+<span id="cb7-87"><a href="#cb7-87"></a></span>
+<span id="cb7-88"><a href="#cb7-88"></a>The entire training dataset is compressed into a fixed parameter vector $\hat{\theta}$. Once $\hat{\theta}$ is estimated, the original training data can be discarded.</span>
+<span id="cb7-89"><a href="#cb7-89"></a></span>
+<span id="cb7-90"><a href="#cb7-90"></a>::: {.callout-note}</span>
+<span id="cb7-91"><a href="#cb7-91"></a><span class="fu">### The Core Question</span></span>
+<span id="cb7-92"><a href="#cb7-92"></a>Must machine learning always mean estimating a fixed vector of parameters?</span>
+<span id="cb7-93"><a href="#cb7-93"></a>:::</span>
+<span id="cb7-94"><a href="#cb7-94"></a></span>
+<span id="cb7-95"><a href="#cb7-95"></a>**k-Nearest Neighbors (kNN)** provides an intuitive counterexample: it is an **instance-based** (or *lazy*) learning method. Instead of fitting a global equation, kNN stores the training observations and resolves queries by inspecting local neighborhoods.</span>
+<span id="cb7-96"><a href="#cb7-96"></a></span>
+<span id="cb7-97"><a href="#cb7-97"></a><span class="pp">|</span> Property <span class="pp">|</span> Parameter-Based Models (Linear / Logistic) <span class="pp">|</span> Instance-Based Models (kNN) <span class="pp">|</span></span>
+<span id="cb7-98"><a href="#cb7-98"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb7-99"><a href="#cb7-99"></a><span class="pp">|</span> **Model State** <span class="pp">|</span> Fixed parameter vector $\hat{\theta}$ <span class="pp">|</span> Retained training data $\mathcal{D} = <span class="sc">\{</span>(x_i, y_i)<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb7-100"><a href="#cb7-100"></a><span class="pp">|</span> **Training Cost** <span class="pp">|</span> Iterative optimization (e.g., gradient descent) <span class="pp">|</span> Minimal ($\mathcal{O}(1)$ storage) <span class="pp">|</span></span>
+<span id="cb7-101"><a href="#cb7-101"></a><span class="pp">|</span> **Prediction Cost** <span class="pp">|</span> Quick inner product: $\mathcal{O}(p)$ <span class="pp">|</span> Distance search across dataset: $\mathcal{O}(n \cdot p)$ <span class="pp">|</span></span>
+<span id="cb7-102"><a href="#cb7-102"></a><span class="pp">|</span> **Decision Surface** <span class="pp">|</span> Global hyperplane: $x^\top \theta = c$ <span class="pp">|</span> Flexible, piece-wise local boundaries <span class="pp">|</span></span>
+<span id="cb7-103"><a href="#cb7-103"></a></span>
+<span id="cb7-104"><a href="#cb7-104"></a>Consider our clinical cohort of $n = 120$ patients evaluated for diabetes based on **Fasting Plasma Glucose** ($\text{mg/dL}$) and **Body Mass Index (BMI)** ($\text{kg/m}^2$):</span>
+<span id="cb7-105"><a href="#cb7-105"></a></span>
+<span id="cb7-108"><a href="#cb7-108"></a><span class="in">```{python}</span></span>
+<span id="cb7-109"><a href="#cb7-109"></a><span class="co">#| label: fig-clinical-cohort</span></span>
+<span id="cb7-110"><a href="#cb7-110"></a><span class="co">#| fig-cap: "Clinical cohort of 120 patients evaluated for Diabetes ($y \\in \\{0, 1\\}$) based on Fasting Plasma Glucose [mg/dL] and Body Mass Index (BMI) [kg/m²]."</span></span>
+<span id="cb7-111"><a href="#cb7-111"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-112"><a href="#cb7-112"></a><span class="co">#| code-summary: "Plot Clinical Cohort Scatter"</span></span>
+<span id="cb7-113"><a href="#cb7-113"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb7-114"><a href="#cb7-114"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb7-115"><a href="#cb7-115"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb7-116"><a href="#cb7-116"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb7-117"><a href="#cb7-117"></a></span>
+<span id="cb7-118"><a href="#cb7-118"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb7-119"><a href="#cb7-119"></a></span>
+<span id="cb7-120"><a href="#cb7-120"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">55</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">'Healthy ($y = 0$)'</span>)</span>
+<span id="cb7-121"><a href="#cb7-121"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">55</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">'Diabetic ($y = 1$)'</span>)</span>
+<span id="cb7-122"><a href="#cb7-122"></a></span>
+<span id="cb7-123"><a href="#cb7-123"></a><span class="co"># Marked query patient</span></span>
+<span id="cb7-124"><a href="#cb7-124"></a>query_pt <span class="op">=</span> np.array([<span class="fl">122.0</span>, <span class="fl">27.5</span>])</span>
+<span id="cb7-125"><a href="#cb7-125"></a>ax.scatter([query_pt[<span class="dv">0</span>]], [query_pt[<span class="dv">1</span>]], color<span class="op">=</span><span class="st">'#2b5c8f'</span>, marker<span class="op">=</span><span class="st">'*'</span>, s<span class="op">=</span><span class="dv">220</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, zorder<span class="op">=</span><span class="dv">6</span>, label<span class="op">=</span><span class="ss">f'New Patient $x^*$ (</span><span class="sc">{</span>query_pt[<span class="dv">0</span>]<span class="sc">}</span><span class="ss"> mg/dL, </span><span class="sc">{</span>query_pt[<span class="dv">1</span>]<span class="sc">}</span><span class="ss"> kg/m²)'</span>)</span>
+<span id="cb7-126"><a href="#cb7-126"></a></span>
+<span id="cb7-127"><a href="#cb7-127"></a>ax.set_title(<span class="st">"Clinical Patient Cohort: Fasting Glucose vs. BMI"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-128"><a href="#cb7-128"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-129"><a href="#cb7-129"></a>ax.set_ylabel(<span class="st">"Body Mass Index (BMI) [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-130"><a href="#cb7-130"></a>ax.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-131"><a href="#cb7-131"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb7-132"><a href="#cb7-132"></a></span>
+<span id="cb7-133"><a href="#cb7-133"></a>plt.tight_layout()</span>
+<span id="cb7-134"><a href="#cb7-134"></a>plt.show()</span>
+<span id="cb7-135"><a href="#cb7-135"></a><span class="in">```</span></span>
+<span id="cb7-136"><a href="#cb7-136"></a></span>
+<span id="cb7-137"><a href="#cb7-137"></a>If a new patient $x^*$ arrives at the clinic with glucose $122.0\,\text{mg/dL}$ and BMI $27.5\,\text{kg/m}^2$, how should we classify their diabetes status?</span>
+<span id="cb7-138"><a href="#cb7-138"></a></span>
+<span id="cb7-139"><a href="#cb7-139"></a>---</span>
+<span id="cb7-140"><a href="#cb7-140"></a></span>
+<span id="cb7-141"><a href="#cb7-141"></a><span class="fu">## 2. The kNN Prediction Rule</span></span>
+<span id="cb7-142"><a href="#cb7-142"></a></span>
+<span id="cb7-143"><a href="#cb7-143"></a>Rather than computing a global score $x^{*\top}\theta$, kNN identifies the $k$ training observations that lie closest to $x^*$ according to a distance metric.</span>
+<span id="cb7-144"><a href="#cb7-144"></a></span>
+<span id="cb7-145"><a href="#cb7-145"></a><span class="fu">### 2.1 The Neighborhood Index Set</span></span>
+<span id="cb7-146"><a href="#cb7-146"></a></span>
+<span id="cb7-147"><a href="#cb7-147"></a>Let $N_k(x)$ denote the set of indices corresponding to the $k$ nearest training points to query point $x$:</span>
+<span id="cb7-148"><a href="#cb7-148"></a></span>
+<span id="cb7-149"><a href="#cb7-149"></a>$$</span>
+<span id="cb7-150"><a href="#cb7-150"></a>N_k(x) = \left<span class="sc">\{</span> i \in <span class="sc">\{</span>1, \dots, n<span class="sc">\}</span> : d(x, x_i) \le d_{(k)}(x) \right<span class="sc">\}</span></span>
+<span id="cb7-151"><a href="#cb7-151"></a>$$</span>
+<span id="cb7-152"><a href="#cb7-152"></a></span>
+<span id="cb7-153"><a href="#cb7-153"></a>where $d_{(k)}(x)$ represents the $k$-th smallest distance from $x$ to all training observations.</span>
+<span id="cb7-154"><a href="#cb7-154"></a></span>
+<span id="cb7-155"><a href="#cb7-155"></a><span class="fu">### 2.2 Classification: Majority Voting</span></span>
+<span id="cb7-156"><a href="#cb7-156"></a></span>
+<span id="cb7-157"><a href="#cb7-157"></a>For categorical target variables ($y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$), the classification rule takes the statistical **mode** across neighboring labels:</span>
+<span id="cb7-158"><a href="#cb7-158"></a></span>
+<span id="cb7-159"><a href="#cb7-159"></a>$$</span>
+<span id="cb7-160"><a href="#cb7-160"></a>\hat{y}(x) = \operatorname{mode}\left<span class="sc">\{</span> y_i : i \in N_k(x) \right<span class="sc">\}</span></span>
+<span id="cb7-161"><a href="#cb7-161"></a>$$</span>
+<span id="cb7-162"><a href="#cb7-162"></a></span>
+<span id="cb7-163"><a href="#cb7-163"></a>To minimize binary voting ties, practitioners typically choose an **odd** integer for $k$ (e.g., $k \in <span class="sc">\{</span>3, 5, 7<span class="sc">\}</span>$).</span>
+<span id="cb7-164"><a href="#cb7-164"></a></span>
+<span id="cb7-165"><a href="#cb7-165"></a><span class="fu">### 2.3 Class Probabilities vs. Logistic Regression</span></span>
+<span id="cb7-166"><a href="#cb7-166"></a></span>
+<span id="cb7-167"><a href="#cb7-167"></a>The local empirical proportion provides an intuitive estimate of class probability:</span>
+<span id="cb7-168"><a href="#cb7-168"></a></span>
+<span id="cb7-169"><a href="#cb7-169"></a>$$</span>
+<span id="cb7-170"><a href="#cb7-170"></a>\widehat{P}(Y = 1 \mid x) = \frac{1}{k}\sum_{i \in N_k(x)} \mathbb{1}(y_i = 1)</span>
+<span id="cb7-171"><a href="#cb7-171"></a>$$</span>
+<span id="cb7-172"><a href="#cb7-172"></a></span>
+<span id="cb7-173"><a href="#cb7-173"></a>::: {.columns}</span>
+<span id="cb7-174"><a href="#cb7-174"></a>::: {.column width="50%"}</span>
+<span id="cb7-175"><a href="#cb7-175"></a>**Parametric Logistic Regression:**</span>
+<span id="cb7-176"><a href="#cb7-176"></a>$$</span>
+<span id="cb7-177"><a href="#cb7-177"></a>P(Y = 1 \mid x) = \frac{1}{1 + e^{-(\theta_0 + x_1\theta_1 + x_2\theta_2)}}</span>
+<span id="cb7-178"><a href="#cb7-178"></a>$$</span>
+<span id="cb7-179"><a href="#cb7-179"></a>Imposes a rigid global sigmoidal transition.</span>
+<span id="cb7-180"><a href="#cb7-180"></a>:::</span>
+<span id="cb7-181"><a href="#cb7-181"></a></span>
+<span id="cb7-182"><a href="#cb7-182"></a>::: {.column width="50%"}</span>
+<span id="cb7-183"><a href="#cb7-183"></a>**Non-Parametric kNN:**</span>
+<span id="cb7-184"><a href="#cb7-184"></a>$$</span>
+<span id="cb7-185"><a href="#cb7-185"></a>\widehat{P}(Y = 1 \mid x) = \frac{1}{k} \sum_{i \in N_k(x)} y_i</span>
+<span id="cb7-186"><a href="#cb7-186"></a>$$</span>
+<span id="cb7-187"><a href="#cb7-187"></a>Estimates local empirical frequency directly.</span>
+<span id="cb7-188"><a href="#cb7-188"></a>:::</span>
+<span id="cb7-189"><a href="#cb7-189"></a>:::</span>
+<span id="cb7-190"><a href="#cb7-190"></a></span>
+<span id="cb7-191"><a href="#cb7-191"></a><span class="fu">### 2.4 kNN Regression: Local Averaging</span></span>
+<span id="cb7-192"><a href="#cb7-192"></a></span>
+<span id="cb7-193"><a href="#cb7-193"></a>The identical neighborhood principle applies to continuous outcomes (such as predicting Glycated Hemoglobin $\text{HbA}_{1c}$ in $\%$):</span>
+<span id="cb7-194"><a href="#cb7-194"></a></span>
+<span id="cb7-195"><a href="#cb7-195"></a>$$</span>
+<span id="cb7-196"><a href="#cb7-196"></a>\hat{f}(x) = \frac{1}{k} \sum_{i \in N_k(x)} y_i</span>
+<span id="cb7-197"><a href="#cb7-197"></a>$$</span>
+<span id="cb7-198"><a href="#cb7-198"></a></span>
+<span id="cb7-199"><a href="#cb7-199"></a><span class="fu">### 2.5 Worked Clinical Example</span></span>
+<span id="cb7-200"><a href="#cb7-200"></a></span>
+<span id="cb7-201"><a href="#cb7-201"></a>Suppose our query patient $x^* = (122\,\text{mg/dL}, 27.5\,\text{kg/m}^2)$ is evaluated against a mini-reference panel of 5 patients:</span>
+<span id="cb7-202"><a href="#cb7-202"></a></span>
+<span id="cb7-203"><a href="#cb7-203"></a><span class="pp">|</span> Patient $i$ <span class="pp">|</span> Glucose ($x_{i1}$ <span class="co">[</span><span class="ot">$\text{mg/dL}$</span><span class="co">]</span>) <span class="pp">|</span> BMI ($x_{i2}$ <span class="co">[</span><span class="ot">$\text{kg/m}^2$</span><span class="co">]</span>) <span class="pp">|</span> Euclidean Distance $d(x^*, x_i)$ <span class="pp">|</span> Label $y_i$ <span class="pp">|</span> Rank <span class="pp">|</span></span>
+<span id="cb7-204"><a href="#cb7-204"></a><span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">|</span></span>
+<span id="cb7-205"><a href="#cb7-205"></a><span class="pp">|</span> 1 <span class="pp">|</span> 120.0 <span class="pp">|</span> 28.0 <span class="pp">|</span> $\sqrt{(2.0)^2 + (-0.5)^2} \approx 2.06$ <span class="pp">|</span> Diabetic ($1$) <span class="pp">|</span> **1** <span class="pp">|</span></span>
+<span id="cb7-206"><a href="#cb7-206"></a><span class="pp">|</span> 2 <span class="pp">|</span> 124.0 <span class="pp">|</span> 26.5 <span class="pp">|</span> $\sqrt{(-2.0)^2 + (1.0)^2} \approx 2.24$ <span class="pp">|</span> Diabetic ($1$) <span class="pp">|</span> **2** <span class="pp">|</span></span>
+<span id="cb7-207"><a href="#cb7-207"></a><span class="pp">|</span> 3 <span class="pp">|</span> 119.0 <span class="pp">|</span> 29.0 <span class="pp">|</span> $\sqrt{(3.0)^2 + (-1.5)^2} \approx 3.35$ <span class="pp">|</span> Healthy ($0$) <span class="pp">|</span> **3** <span class="pp">|</span></span>
+<span id="cb7-208"><a href="#cb7-208"></a><span class="pp">|</span> 4 <span class="pp">|</span> 115.0 <span class="pp">|</span> 25.0 <span class="pp">|</span> $\sqrt{(7.0)^2 + (2.5)^2} \approx 7.43$ <span class="pp">|</span> Healthy ($0$) <span class="pp">|</span> 4 <span class="pp">|</span></span>
+<span id="cb7-209"><a href="#cb7-209"></a><span class="pp">|</span> 5 <span class="pp">|</span> 135.0 <span class="pp">|</span> 31.0 <span class="pp">|</span> $\sqrt{(-13.0)^2 + (-3.5)^2} \approx 13.46$ <span class="pp">|</span> Diabetic ($1$) <span class="pp">|</span> 5 <span class="pp">|</span></span>
+<span id="cb7-210"><a href="#cb7-210"></a></span>
+<span id="cb7-211"><a href="#cb7-211"></a>For $k = 3$, the nearest neighbors are patients $<span class="sc">\{</span>1, 2, 3<span class="sc">\}</span>$:</span>
+<span id="cb7-212"><a href="#cb7-212"></a><span class="ss">- </span>Label votes: $<span class="sc">\{</span>1, 1, 0<span class="sc">\}</span>$</span>
+<span id="cb7-213"><a href="#cb7-213"></a><span class="ss">- </span>Majority prediction: $\hat{y}(x^*) = 1$ (Diabetic)</span>
+<span id="cb7-214"><a href="#cb7-214"></a><span class="ss">- </span>Estimated probability: $\widehat{P}(Y = 1 \mid x^*) = \frac{2}{3} \approx 66.7\%$</span>
+<span id="cb7-215"><a href="#cb7-215"></a></span>
+<span id="cb7-216"><a href="#cb7-216"></a>---</span>
+<span id="cb7-217"><a href="#cb7-217"></a></span>
+<span id="cb7-218"><a href="#cb7-218"></a><span class="fu">## 3. Distance Metrics and Feature Scaling</span></span>
+<span id="cb7-219"><a href="#cb7-219"></a></span>
+<span id="cb7-220"><a href="#cb7-220"></a>The core assumption of kNN is that geometrically close observations share similar outcomes. The definition of distance is therefore a primary modeling assumption.</span>
+<span id="cb7-221"><a href="#cb7-221"></a></span>
+<span id="cb7-222"><a href="#cb7-222"></a><span class="fu">### 3.1 Euclidean Metric</span></span>
+<span id="cb7-223"><a href="#cb7-223"></a></span>
+<span id="cb7-224"><a href="#cb7-224"></a>For feature vectors $x_i, x_j \in \mathbb{R}^p$, the standard Euclidean ($L_2$) distance is:</span>
+<span id="cb7-225"><a href="#cb7-225"></a></span>
+<span id="cb7-226"><a href="#cb7-226"></a>$$</span>
+<span id="cb7-227"><a href="#cb7-227"></a>d(x_i, x_j) = \lVert x_i - x_j \rVert_2 = \sqrt{\sum_{m=1}^p (x_{im} - x_{jm})^2}</span>
+<span id="cb7-228"><a href="#cb7-228"></a>$$</span>
+<span id="cb7-229"><a href="#cb7-229"></a></span>
+<span id="cb7-230"><a href="#cb7-230"></a><span class="fu">### 3.2 The Unit Distortion Dilemma</span></span>
+<span id="cb7-231"><a href="#cb7-231"></a></span>
+<span id="cb7-232"><a href="#cb7-232"></a>In clinical practice, features possess vastly different physical dimensions and measurement scales:</span>
+<span id="cb7-233"><a href="#cb7-233"></a><span class="ss">- </span>**Fasting Glucose:** values range from $70$ to $200\,\text{mg/dL}$ ($\text{variance } \sigma^2 \approx 800$).</span>
+<span id="cb7-234"><a href="#cb7-234"></a><span class="ss">- </span>**BMI:** values range from $18$ to $40\,\text{kg/m}^2$ ($\text{variance } \sigma^2 \approx 16$).</span>
+<span id="cb7-235"><a href="#cb7-235"></a></span>
+<span id="cb7-236"><a href="#cb7-236"></a>When computing squared Euclidean differences:</span>
+<span id="cb7-237"><a href="#cb7-237"></a></span>
+<span id="cb7-238"><a href="#cb7-238"></a>$$</span>
+<span id="cb7-239"><a href="#cb7-239"></a>d^2(x_i, x_j) = \underbrace{(x_{i,\text{glucose}} - x_{j,\text{glucose}})^2}_{\approx 100 - 2500\,[\text{mg/dL}]^2} + \underbrace{(x_{i,\text{BMI}} - x_{j,\text{BMI}})^2}_{\approx 1 - 25\,<span class="co">[</span><span class="ot">\text{kg/m}^2</span><span class="co">]</span>^2}</span>
+<span id="cb7-240"><a href="#cb7-240"></a>$$</span>
+<span id="cb7-241"><a href="#cb7-241"></a></span>
+<span id="cb7-242"><a href="#cb7-242"></a>The glucose coordinate completely dominates the sum! Without standardization, nearest neighbors are selected almost exclusively along the glucose axis, effectively discarding the clinical information contained in BMI.</span>
+<span id="cb7-243"><a href="#cb7-243"></a></span>
+<span id="cb7-244"><a href="#cb7-244"></a><span class="fu">### 3.3 Standardization ($Z$-Scores)</span></span>
+<span id="cb7-245"><a href="#cb7-245"></a></span>
+<span id="cb7-246"><a href="#cb7-246"></a>To give each feature equal geometric weighting, we standardize each coordinate using its sample mean $\mu_j$ and sample standard deviation $s_j$:</span>
+<span id="cb7-247"><a href="#cb7-247"></a></span>
+<span id="cb7-248"><a href="#cb7-248"></a>$$</span>
+<span id="cb7-249"><a href="#cb7-249"></a>z_{ij} = \frac{x_{ij} - \mu_j}{s_j}</span>
+<span id="cb7-250"><a href="#cb7-250"></a>$$</span>
+<span id="cb7-251"><a href="#cb7-251"></a></span>
+<span id="cb7-252"><a href="#cb7-252"></a>::: {.callout-important}</span>
+<span id="cb7-253"><a href="#cb7-253"></a><span class="fu">### Data Leakage Prevention via Scikit-Learn Pipelines</span></span>
+<span id="cb7-254"><a href="#cb7-254"></a>Scaling statistics ($\mu_j, s_j$) must be computed strictly on the **training set** and then applied unchanged to validation or test queries. </span>
+<span id="cb7-255"><a href="#cb7-255"></a></span>
+<span id="cb7-256"><a href="#cb7-256"></a>In <span class="in">`scikit-learn`</span>, always encapsulate preprocessing and modeling inside a <span class="in">`Pipeline`</span>:</span>
+<span id="cb7-257"><a href="#cb7-257"></a></span>
+<span id="cb7-258"><a href="#cb7-258"></a><span class="in">```python</span></span>
+<span id="cb7-259"><a href="#cb7-259"></a>pipeline <span class="op">=</span> Pipeline([</span>
+<span id="cb7-260"><a href="#cb7-260"></a>    (<span class="st">"scaler"</span>, StandardScaler()),</span>
+<span id="cb7-261"><a href="#cb7-261"></a>    (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))</span>
+<span id="cb7-262"><a href="#cb7-262"></a>])</span>
+<span id="cb7-263"><a href="#cb7-263"></a><span class="in">```</span></span>
+<span id="cb7-264"><a href="#cb7-264"></a>:::</span>
+<span id="cb7-265"><a href="#cb7-265"></a></span>
+<span id="cb7-266"><a href="#cb7-266"></a>---</span>
+<span id="cb7-267"><a href="#cb7-267"></a></span>
+<span id="cb7-268"><a href="#cb7-268"></a><span class="fu">## 4. Model Complexity: Bias, Variance, and Choosing $k$</span></span>
+<span id="cb7-269"><a href="#cb7-269"></a></span>
+<span id="cb7-270"><a href="#cb7-270"></a>In parametric regression, we control complexity via regularization penalties ($\lambda$). In kNN, **the neighborhood size $k$ is the primary complexity lever**.</span>
+<span id="cb7-271"><a href="#cb7-271"></a></span>
+<span id="cb7-272"><a href="#cb7-272"></a><span class="fu">### 4.1 The Overfitting Paradox</span></span>
+<span id="cb7-273"><a href="#cb7-273"></a></span>
+<span id="cb7-274"><a href="#cb7-274"></a>How can a model that merely stores training data overfit?</span>
+<span id="cb7-275"><a href="#cb7-275"></a></span>
+<span id="cb7-276"><a href="#cb7-276"></a><span class="ss">- </span>**Extreme Flexibility ($k = 1$):**</span>
+<span id="cb7-277"><a href="#cb7-277"></a>  Each training point is its own nearest neighbor. The training error is zero ($0\%$). However, the decision boundary contorts around isolated outliers and noisy observations, yielding **high variance and low bias**.</span>
+<span id="cb7-278"><a href="#cb7-278"></a></span>
+<span id="cb7-279"><a href="#cb7-279"></a><span class="ss">- </span>**Extreme Rigidity ($k = n$):**</span>
+<span id="cb7-280"><a href="#cb7-280"></a>  The neighborhood includes all $n$ training observations. The prediction collapses to the global sample majority class everywhere, yielding **high bias and zero variance**.</span>
+<span id="cb7-281"><a href="#cb7-281"></a></span>
+<span id="cb7-282"><a href="#cb7-282"></a><span class="pp">|</span> Neighborhood Size <span class="pp">|</span> Flexibility <span class="pp">|</span> Effective Degrees of Freedom ($\mathrm{df} \approx n/k$) <span class="pp">|</span> Bias <span class="pp">|</span> Variance <span class="pp">|</span> Clinical Risk <span class="pp">|</span></span>
+<span id="cb7-283"><a href="#cb7-283"></a><span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">|</span></span>
+<span id="cb7-284"><a href="#cb7-284"></a><span class="pp">|</span> **Small ($k = 1$)** <span class="pp">|</span> High <span class="pp">|</span> High ($\approx n$) <span class="pp">|</span> Low <span class="pp">|</span> High <span class="pp">|</span> Overfitting to measurement noise <span class="pp">|</span></span>
+<span id="cb7-285"><a href="#cb7-285"></a><span class="pp">|</span> **Intermediate ($k \approx \sqrt{n}$)** <span class="pp">|</span> Balanced <span class="pp">|</span> Moderate <span class="pp">|</span> Moderate <span class="pp">|</span> Moderate <span class="pp">|</span> Optimal generalization <span class="pp">|</span></span>
+<span id="cb7-286"><a href="#cb7-286"></a><span class="pp">|</span> **Large ($k \to n$)** <span class="pp">|</span> Low <span class="pp">|</span> Low ($\to 1$) <span class="pp">|</span> High <span class="pp">|</span> Low <span class="pp">|</span> Underfitting (misses local risk clusters) <span class="pp">|</span></span>
+<span id="cb7-287"><a href="#cb7-287"></a></span>
+<span id="cb7-288"><a href="#cb7-288"></a><span class="fu">### 4.2 Tuning $k$ via Cross-Validation</span></span>
+<span id="cb7-289"><a href="#cb7-289"></a></span>
+<span id="cb7-290"><a href="#cb7-290"></a>The hyperparameter $k$ cannot be chosen by minimizing training error (which trivially selects $k = 1$). Instead, $k$ must be evaluated using $K$-fold cross-validation on unseen validation folds.</span>
+<span id="cb7-291"><a href="#cb7-291"></a></span>
+<span id="cb7-292"><a href="#cb7-292"></a>---</span>
+<span id="cb7-293"><a href="#cb7-293"></a></span>
+<span id="cb7-294"><a href="#cb7-294"></a><span class="fu">## 5. Implementations and Visual Illustrations</span></span>
+<span id="cb7-295"><a href="#cb7-295"></a></span>
+<span id="cb7-296"><a href="#cb7-296"></a>Let us verify these geometric properties using our clinical cohort in <span class="in">`scikit-learn`</span>.</span>
+<span id="cb7-297"><a href="#cb7-297"></a></span>
+<span id="cb7-298"><a href="#cb7-298"></a><span class="fu">### 5.1 Comparing Decision Surfaces: Logistic Regression vs. kNN</span></span>
+<span id="cb7-299"><a href="#cb7-299"></a></span>
+<span id="cb7-302"><a href="#cb7-302"></a><span class="in">```{python}</span></span>
+<span id="cb7-303"><a href="#cb7-303"></a><span class="co">#| label: fig-decision-surfaces</span></span>
+<span id="cb7-304"><a href="#cb7-304"></a><span class="co">#| fig-cap: "Comparison of decision boundaries on the clinical cohort: Logistic Regression imposes a linear separation, while kNN adapts to non-linear clusters with flexibility controlled by $k$."</span></span>
+<span id="cb7-305"><a href="#cb7-305"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-306"><a href="#cb7-306"></a><span class="co">#| code-summary: "Plot Decision Boundaries for Logistic Regression and kNN"</span></span>
+<span id="cb7-307"><a href="#cb7-307"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb7-308"><a href="#cb7-308"></a><span class="co">#| fig-height: 4.0</span></span>
+<span id="cb7-309"><a href="#cb7-309"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb7-310"><a href="#cb7-310"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb7-311"><a href="#cb7-311"></a></span>
+<span id="cb7-312"><a href="#cb7-312"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.0</span>))</span>
+<span id="cb7-313"><a href="#cb7-313"></a></span>
+<span id="cb7-314"><a href="#cb7-314"></a><span class="co"># Meshgrid for visualization</span></span>
+<span id="cb7-315"><a href="#cb7-315"></a>x_min, x_max <span class="op">=</span> glucose.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">5</span>, glucose.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">5</span></span>
+<span id="cb7-316"><a href="#cb7-316"></a>y_min, y_max <span class="op">=</span> bmi.<span class="bu">min</span>() <span class="op">-</span> <span class="dv">2</span>, bmi.<span class="bu">max</span>() <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb7-317"><a href="#cb7-317"></a>xx, yy <span class="op">=</span> np.meshgrid(np.linspace(x_min, x_max, <span class="dv">200</span>), np.linspace(y_min, y_max, <span class="dv">200</span>))</span>
+<span id="cb7-318"><a href="#cb7-318"></a>grid_points <span class="op">=</span> np.c_[xx.ravel(), yy.ravel()]</span>
+<span id="cb7-319"><a href="#cb7-319"></a></span>
+<span id="cb7-320"><a href="#cb7-320"></a><span class="co"># Models to compare</span></span>
+<span id="cb7-321"><a href="#cb7-321"></a>models <span class="op">=</span> [</span>
+<span id="cb7-322"><a href="#cb7-322"></a>    (<span class="st">"Logistic Regression"</span>, LogisticRegression()),</span>
+<span id="cb7-323"><a href="#cb7-323"></a>    (<span class="st">"kNN (k = 1)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">1</span>))])),</span>
+<span id="cb7-324"><a href="#cb7-324"></a>    (<span class="st">"kNN (k = 5)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))])),</span>
+<span id="cb7-325"><a href="#cb7-325"></a>    (<span class="st">"kNN (k = 35)"</span>, Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">35</span>))]))</span>
+<span id="cb7-326"><a href="#cb7-326"></a>]</span>
+<span id="cb7-327"><a href="#cb7-327"></a></span>
+<span id="cb7-328"><a href="#cb7-328"></a><span class="cf">for</span> ax, (title, model) <span class="kw">in</span> <span class="bu">zip</span>(axes, models):</span>
+<span id="cb7-329"><a href="#cb7-329"></a>    model.fit(X_clinical, y)</span>
+<span id="cb7-330"><a href="#cb7-330"></a>    Z <span class="op">=</span> model.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb7-331"><a href="#cb7-331"></a>    </span>
+<span id="cb7-332"><a href="#cb7-332"></a>    ax.contourf(xx, yy, Z, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb7-333"><a href="#cb7-333"></a>    ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">20</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb7-334"><a href="#cb7-334"></a>    ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">20</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb7-335"><a href="#cb7-335"></a>    </span>
+<span id="cb7-336"><a href="#cb7-336"></a>    ax.set_title(title, fontsize<span class="op">=</span><span class="dv">10</span>, pad<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-337"><a href="#cb7-337"></a>    ax.set_xlabel(<span class="st">"Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-338"><a href="#cb7-338"></a>    <span class="cf">if</span> ax <span class="op">==</span> axes[<span class="dv">0</span>]:</span>
+<span id="cb7-339"><a href="#cb7-339"></a>        ax.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb7-340"><a href="#cb7-340"></a>    ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb7-341"><a href="#cb7-341"></a></span>
+<span id="cb7-342"><a href="#cb7-342"></a>plt.tight_layout()</span>
+<span id="cb7-343"><a href="#cb7-343"></a>plt.show()</span>
+<span id="cb7-344"><a href="#cb7-344"></a><span class="in">```</span></span>
+<span id="cb7-345"><a href="#cb7-345"></a></span>
+<span id="cb7-346"><a href="#cb7-346"></a><span class="fu">### 5.2 The Concrete Impact of Feature Standardization</span></span>
+<span id="cb7-347"><a href="#cb7-347"></a></span>
+<span id="cb7-350"><a href="#cb7-350"></a><span class="in">```{python}</span></span>
+<span id="cb7-351"><a href="#cb7-351"></a><span class="co">#| label: fig-scaling-impact</span></span>
+<span id="cb7-352"><a href="#cb7-352"></a><span class="co">#| fig-cap: "Impact of feature standardization: without scaling (left), glucose dominates Euclidean distance, creating vertical decision bands. With standardization (right), true isotropic distance geometry is restored."</span></span>
+<span id="cb7-353"><a href="#cb7-353"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-354"><a href="#cb7-354"></a><span class="co">#| code-summary: "Plot Effect of Feature Scaling on kNN Boundaries"</span></span>
+<span id="cb7-355"><a href="#cb7-355"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb7-356"><a href="#cb7-356"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb7-357"><a href="#cb7-357"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb7-358"><a href="#cb7-358"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb7-359"><a href="#cb7-359"></a></span>
+<span id="cb7-360"><a href="#cb7-360"></a>fig, (ax1, ax2) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="fl">4.2</span>))</span>
+<span id="cb7-361"><a href="#cb7-361"></a></span>
+<span id="cb7-362"><a href="#cb7-362"></a><span class="co"># 1. Unscaled kNN (k = 5)</span></span>
+<span id="cb7-363"><a href="#cb7-363"></a>knn_unscaled <span class="op">=</span> KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>).fit(X_clinical, y)</span>
+<span id="cb7-364"><a href="#cb7-364"></a>Z_unscaled <span class="op">=</span> knn_unscaled.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb7-365"><a href="#cb7-365"></a></span>
+<span id="cb7-366"><a href="#cb7-366"></a>ax1.contourf(xx, yy, Z_unscaled, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb7-367"><a href="#cb7-367"></a>ax1.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($0$)'</span>)</span>
+<span id="cb7-368"><a href="#cb7-368"></a>ax1.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($1$)'</span>)</span>
+<span id="cb7-369"><a href="#cb7-369"></a>ax1.set_title(<span class="st">"Unscaled kNN (k = 5): Glucose Scale Dominates"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-370"><a href="#cb7-370"></a>ax1.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-371"><a href="#cb7-371"></a>ax1.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-372"><a href="#cb7-372"></a>ax1.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-373"><a href="#cb7-373"></a>ax1.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-374"><a href="#cb7-374"></a></span>
+<span id="cb7-375"><a href="#cb7-375"></a><span class="co"># 2. Standardized kNN (k = 5) via Pipeline</span></span>
+<span id="cb7-376"><a href="#cb7-376"></a>knn_scaled <span class="op">=</span> Pipeline([(<span class="st">"scaler"</span>, StandardScaler()), (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span><span class="dv">5</span>))]).fit(X_clinical, y)</span>
+<span id="cb7-377"><a href="#cb7-377"></a>Z_scaled <span class="op">=</span> knn_scaled.predict(grid_points).reshape(xx.shape)</span>
+<span id="cb7-378"><a href="#cb7-378"></a></span>
+<span id="cb7-379"><a href="#cb7-379"></a>ax2.contourf(xx, yy, Z_scaled, alpha<span class="op">=</span><span class="fl">0.25</span>, cmap<span class="op">=</span>plt.cm.coolwarm)</span>
+<span id="cb7-380"><a href="#cb7-380"></a>ax2.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], bmi[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">'#1b9e77'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Healthy ($0$)'</span>)</span>
+<span id="cb7-381"><a href="#cb7-381"></a>ax2.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], bmi[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">35</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, alpha<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Diabetic ($1$)'</span>)</span>
+<span id="cb7-382"><a href="#cb7-382"></a>ax2.set_title(<span class="st">"Standardized kNN (k = 5): Balanced Geometric Distance"</span>, fontsize<span class="op">=</span><span class="dv">11</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-383"><a href="#cb7-383"></a>ax2.set_xlabel(<span class="st">"Fasting Glucose [mg/dL]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-384"><a href="#cb7-384"></a>ax2.set_ylabel(<span class="st">"BMI [kg/m²]"</span>, fontsize<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-385"><a href="#cb7-385"></a>ax2.legend(loc<span class="op">=</span><span class="st">'upper left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-386"><a href="#cb7-386"></a>ax2.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-387"><a href="#cb7-387"></a></span>
+<span id="cb7-388"><a href="#cb7-388"></a>plt.tight_layout()</span>
+<span id="cb7-389"><a href="#cb7-389"></a>plt.show()</span>
+<span id="cb7-390"><a href="#cb7-390"></a><span class="in">```</span></span>
+<span id="cb7-391"><a href="#cb7-391"></a></span>
+<span id="cb7-392"><a href="#cb7-392"></a><span class="fu">### 5.3 Bias-Variance Validation Curve</span></span>
+<span id="cb7-393"><a href="#cb7-393"></a></span>
+<span id="cb7-396"><a href="#cb7-396"></a><span class="in">```{python}</span></span>
+<span id="cb7-397"><a href="#cb7-397"></a><span class="co">#| label: fig-validation-curve</span></span>
+<span id="cb7-398"><a href="#cb7-398"></a><span class="co">#| fig-cap: "Training accuracy vs. 5-fold cross-validation accuracy across neighborhood sizes $k \\in [1, 40]$. At $k=1$, training accuracy is $100\\%$ (overfitting), while cross-validation identifies the optimal balance near $k^* \\approx 7-9$."</span></span>
+<span id="cb7-399"><a href="#cb7-399"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-400"><a href="#cb7-400"></a><span class="co">#| code-summary: "Plot Training vs. Cross-Validation Accuracy Curve"</span></span>
+<span id="cb7-401"><a href="#cb7-401"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb7-402"><a href="#cb7-402"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb7-403"><a href="#cb7-403"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb7-404"><a href="#cb7-404"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb7-405"><a href="#cb7-405"></a></span>
+<span id="cb7-406"><a href="#cb7-406"></a>k_values <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">41</span>, <span class="dv">2</span>)</span>
+<span id="cb7-407"><a href="#cb7-407"></a>train_scores <span class="op">=</span> []</span>
+<span id="cb7-408"><a href="#cb7-408"></a>cv_scores <span class="op">=</span> []</span>
+<span id="cb7-409"><a href="#cb7-409"></a></span>
+<span id="cb7-410"><a href="#cb7-410"></a><span class="cf">for</span> k <span class="kw">in</span> k_values:</span>
+<span id="cb7-411"><a href="#cb7-411"></a>    pipe <span class="op">=</span> Pipeline([</span>
+<span id="cb7-412"><a href="#cb7-412"></a>        (<span class="st">"scaler"</span>, StandardScaler()),</span>
+<span id="cb7-413"><a href="#cb7-413"></a>        (<span class="st">"knn"</span>, KNeighborsClassifier(n_neighbors<span class="op">=</span>k))</span>
+<span id="cb7-414"><a href="#cb7-414"></a>    ])</span>
+<span id="cb7-415"><a href="#cb7-415"></a>    pipe.fit(X_clinical, y)</span>
+<span id="cb7-416"><a href="#cb7-416"></a>    train_scores.append(pipe.score(X_clinical, y))</span>
+<span id="cb7-417"><a href="#cb7-417"></a>    cv_scores.append(np.mean(cross_val_score(pipe, X_clinical, y, cv<span class="op">=</span><span class="dv">5</span>)))</span>
+<span id="cb7-418"><a href="#cb7-418"></a></span>
+<span id="cb7-419"><a href="#cb7-419"></a>best_k <span class="op">=</span> k_values[np.argmax(cv_scores)]</span>
+<span id="cb7-420"><a href="#cb7-420"></a></span>
+<span id="cb7-421"><a href="#cb7-421"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.2</span>))</span>
+<span id="cb7-422"><a href="#cb7-422"></a>ax.plot(k_values, train_scores, <span class="st">'o--'</span>, color<span class="op">=</span><span class="st">'#2b5c8f'</span>, lw<span class="op">=</span><span class="dv">2</span>, label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb7-423"><a href="#cb7-423"></a>ax.plot(k_values, cv_scores, <span class="st">'s-'</span>, color<span class="op">=</span><span class="st">'#d95f02'</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">'5-Fold Cross-Validation Accuracy'</span>)</span>
+<span id="cb7-424"><a href="#cb7-424"></a></span>
+<span id="cb7-425"><a href="#cb7-425"></a>ax.axvline(best_k, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f'Optimal $k^* = </span><span class="sc">{</span>best_k<span class="sc">}</span><span class="ss">$'</span>)</span>
+<span id="cb7-426"><a href="#cb7-426"></a>ax.set_title(<span class="st">"Bias-Variance Trade-off: Accuracy vs. Neighborhood Size $k$"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb7-427"><a href="#cb7-427"></a>ax.set_xlabel(<span class="st">"Neighborhood Size $k$"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-428"><a href="#cb7-428"></a>ax.set_ylabel(<span class="st">"Classification Accuracy"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-429"><a href="#cb7-429"></a>ax.set_xticks(k_values[::<span class="dv">2</span>])</span>
+<span id="cb7-430"><a href="#cb7-430"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower left'</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-431"><a href="#cb7-431"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-432"><a href="#cb7-432"></a></span>
+<span id="cb7-433"><a href="#cb7-433"></a>plt.tight_layout()</span>
+<span id="cb7-434"><a href="#cb7-434"></a>plt.show()</span>
+<span id="cb7-435"><a href="#cb7-435"></a><span class="in">```</span></span>
+<span id="cb7-436"><a href="#cb7-436"></a></span>
+<span id="cb7-437"><a href="#cb7-437"></a>---</span>
+<span id="cb7-438"><a href="#cb7-438"></a></span>
+<span id="cb7-439"><a href="#cb7-439"></a><span class="fu">## 6. High Dimensions and Bridge to PCA</span></span>
+<span id="cb7-440"><a href="#cb7-440"></a></span>
+<span id="cb7-441"><a href="#cb7-441"></a>While kNN is conceptually clean and highly flexible in low dimensions ($p = 2$ or $3$), its local assumption deteriorates rapidly as dimensionality grows—a phenomenon known as the **Curse of Dimensionality**.</span>
+<span id="cb7-442"><a href="#cb7-442"></a></span>
+<span id="cb7-443"><a href="#cb7-443"></a><span class="fu">### 6.1 The Volume Dilemma</span></span>
+<span id="cb7-444"><a href="#cb7-444"></a></span>
+<span id="cb7-445"><a href="#cb7-445"></a>Consider a unit hypercube in $p$ dimensions: $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>^p$, with total volume $V = 1$. Suppose we wish to capture a target fraction $q \in (0, 1)$ of the data points using a sub-cube of side length $r$:</span>
+<span id="cb7-446"><a href="#cb7-446"></a></span>
+<span id="cb7-447"><a href="#cb7-447"></a>$$</span>
+<span id="cb7-448"><a href="#cb7-448"></a>V_p(r) = r^p = q \implies r = q^{1/p}</span>
+<span id="cb7-449"><a href="#cb7-449"></a>$$</span>
+<span id="cb7-450"><a href="#cb7-450"></a></span>
+<span id="cb7-451"><a href="#cb7-451"></a>Let us calculate the side length $r$ required to capture just **$10\%$ of observations** ($q = 0.10$):</span>
+<span id="cb7-452"><a href="#cb7-452"></a></span>
+<span id="cb7-453"><a href="#cb7-453"></a><span class="pp">|</span> Dimension $p$ <span class="pp">|</span> Formula $r = 0.10^{1/p}$ <span class="pp">|</span> Edge Length $r$ Required <span class="pp">|</span> Geometric Interpretation <span class="pp">|</span></span>
+<span id="cb7-454"><a href="#cb7-454"></a><span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb7-455"><a href="#cb7-455"></a><span class="pp">|</span> **$p = 1$** <span class="pp">|</span> $0.10^1$ <span class="pp">|</span> $0.10$ <span class="pp">|</span> Truly local segment ($10\%$ of range) <span class="pp">|</span></span>
+<span id="cb7-456"><a href="#cb7-456"></a><span class="pp">|</span> **$p = 2$** <span class="pp">|</span> $0.10^{1/2}$ <span class="pp">|</span> $\approx 0.32$ <span class="pp">|</span> Local box spanning $32\%$ of coordinate range <span class="pp">|</span></span>
+<span id="cb7-457"><a href="#cb7-457"></a><span class="pp">|</span> **$p = 10$** <span class="pp">|</span> $0.10^{1/10}$ <span class="pp">|</span> $\approx 0.79$ <span class="pp">|</span> Box spans $79\%$ of each coordinate! <span class="pp">|</span></span>
+<span id="cb7-458"><a href="#cb7-458"></a><span class="pp">|</span> **$p = 20$** <span class="pp">|</span> $0.10^{1/20}$ <span class="pp">|</span> $\approx 0.89$ <span class="pp">|</span> Spans nearly the entire feature domain ($89\%$) <span class="pp">|</span></span>
+<span id="cb7-459"><a href="#cb7-459"></a></span>
+<span id="cb7-460"><a href="#cb7-460"></a>In 20 dimensions, to capture even $10\%$ of neighboring points, our "neighborhood" must span almost the entirety of each coordinate axis! **The neighborhood is no longer local.**</span>
+<span id="cb7-461"><a href="#cb7-461"></a></span>
+<span id="cb7-462"><a href="#cb7-462"></a><span class="fu">### 6.2 The Bridge to Principal Component Analysis (PCA)</span></span>
+<span id="cb7-463"><a href="#cb7-463"></a></span>
+<span id="cb7-464"><a href="#cb7-464"></a>If high-dimensional space creates extreme data sparsity, can we extract a lower-dimensional representation that retains the primary variance before predicting?</span>
+<span id="cb7-465"><a href="#cb7-465"></a></span>
+<span id="cb7-466"><a href="#cb7-466"></a>$$</span>
+<span id="cb7-467"><a href="#cb7-467"></a>X \in \mathbb{R}^{n \times p} \xrightarrow{\text{Standardize}} Z \xrightarrow{\text{PCA}} Z_{1:r} \in \mathbb{R}^{n \times r} \xrightarrow{\text{kNN}} \hat{y}</span>
+<span id="cb7-468"><a href="#cb7-468"></a>$$</span>
+<span id="cb7-469"><a href="#cb7-469"></a></span>
+<span id="cb7-470"><a href="#cb7-470"></a>This previews the fundamental motivation for **Unsupervised Representation Learning**:</span>
+<span id="cb7-471"><a href="#cb7-471"></a><span class="ss">- </span>PCA finds orthogonal axes of maximum variance without utilizing target labels $y$.</span>
+<span id="cb7-472"><a href="#cb7-472"></a><span class="ss">- </span>Executing kNN in the reduced principal component space restores geometric density.</span>
+<span id="cb7-473"><a href="#cb7-473"></a><span class="ss">- </span>*Caveat:* Because PCA is unsupervised, directions of high variance do not necessarily guarantee optimal class separation.</span>
+<span id="cb7-474"><a href="#cb7-474"></a></span>
+<span id="cb7-475"><a href="#cb7-475"></a>---</span>
+<span id="cb7-476"><a href="#cb7-476"></a></span>
+<span id="cb7-477"><a href="#cb7-477"></a><span class="fu">## 7. Review &amp; Grand Comparison</span></span>
+<span id="cb7-478"><a href="#cb7-478"></a></span>
+<span id="cb7-479"><a href="#cb7-479"></a><span class="pp">|</span> Dimension <span class="pp">|</span> Linear / Logistic Regression <span class="pp">|</span> k-Nearest Neighbors (kNN) <span class="pp">|</span></span>
+<span id="cb7-480"><a href="#cb7-480"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb7-481"><a href="#cb7-481"></a><span class="pp">|</span> **Model State** <span class="pp">|</span> Fixed parameter vector $\hat{\theta} \in \mathbb{R}^{p+1}$ <span class="pp">|</span> Retained training dataset $\mathcal{D} = <span class="sc">\{</span>(x_i, y_i)<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb7-482"><a href="#cb7-482"></a><span class="pp">|</span> **Prediction Function** <span class="pp">|</span> Global formula: $\hat{y} = \sigma(x^\top \theta)$ <span class="pp">|</span> Local search: $\hat{y} = \operatorname{mode}<span class="sc">\{</span>y_i : i \in N_k(x)<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb7-483"><a href="#cb7-483"></a><span class="pp">|</span> **Non-Linearity** <span class="pp">|</span> Requires manual basis expansions ($x^2, x_1 x_2$) <span class="pp">|</span> Inherently non-linear and adaptive <span class="pp">|</span></span>
+<span id="cb7-484"><a href="#cb7-484"></a><span class="pp">|</span> **Complexity Control** <span class="pp">|</span> Regularization penalties ($\lambda_{\text{Ridge}}, \lambda_{\text{Lasso}}$) <span class="pp">|</span> Neighborhood size $k$ <span class="pp">|</span></span>
+<span id="cb7-485"><a href="#cb7-485"></a><span class="pp">|</span> **Feature Scaling** | Affects regularization penalties | **Critical**: Directly distorts nearest neighbors <span class="pp">|</span></span>
+<span id="cb7-486"><a href="#cb7-486"></a><span class="pp">|</span> **High Dimensions ($p \gg 1$)** <span class="pp">|</span> Controlled via $L_1 / L_2$ penalties <span class="pp">|</span> Severe breakdown (Curse of Dimensionality) <span class="pp">|</span></span>
+<span id="cb7-487"><a href="#cb7-487"></a><span class="pp">|</span> **Local Interpretability** <span class="pp">|</span> Global weights $\theta_j$ (Odds Ratios $e^{\theta_j}$) <span class="pp">|</span> Direct inspection of neighboring patients <span class="pp">|</span></span>
+<span id="cb7-488"><a href="#cb7-488"></a></span>
+<span id="cb7-489"><a href="#cb7-489"></a><span class="fu">### Concluding Synthesis</span></span>
+<span id="cb7-490"><a href="#cb7-490"></a></span>
+<span id="cb7-491"><a href="#cb7-491"></a><span class="ss">1. </span>**Learning without Parameters:** Machine learning does not require compressing data into a parameter vector. Instance-based models predict directly from local empirical evidence.</span>
+<span id="cb7-492"><a href="#cb7-492"></a><span class="ss">2. </span>**The Metric is the Model:** In kNN, assumptions are encoded in the distance metric and feature scaling, rather than in an explicit loss equation.</span>
+<span id="cb7-493"><a href="#cb7-493"></a><span class="ss">3. </span>**Generalization over Memorization:** Although kNN stores all data, tuning $k$ via cross-validation prevents memorization and controls the bias-variance trade-off.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
