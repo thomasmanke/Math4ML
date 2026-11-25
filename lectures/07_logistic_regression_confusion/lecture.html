@@ -358,6 +358,10 @@ window.Quarto = {
     <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
  <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/08_logistic_regression_computation/lecture.html">
+ <span class="dropdown-text">08 Logistic Regression: Computation</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -568,7 +572,9 @@ R^2 = \frac{\Delta D}{D(\text{null})} = 1 - \frac{D(\hat{\theta})}{D(\text{null}
 <h2 class="anchored" data-anchor-id="decisions-confusions">2. Decisions &amp; Confusions</h2>
 <section id="decision-thresholding" class="level3">
 <h3 class="anchored" data-anchor-id="decision-thresholding">2.1 Decision Thresholding</h3>
-<p>A fitted logistic model outputs continuous conditional probabilities <span class="math inline">\(\hat{p} = P(Y = 1 \mid X=x) \in (0, 1)\)</span>. However, medical interventions and decisions require a <strong>decision threshold <span class="math inline">\(\tau\)</span></strong>:</p>
+<p>A fitted logistic model outputs continuous conditional probabilities:</p>
+<p><span class="math display">\[\hat{p} = P(Y = 1 \mid X = x) = \sigma(\hat{\theta}_0 + \hat{\theta}_1 x) \in (0, 1)\]</span></p>
+<p>However, medical interventions and decisions require a <strong>decision threshold <span class="math inline">\(\tau\)</span></strong>:</p>
 <p><span class="math display">\[\hat{y} = \begin{cases} 1 &amp; \text{if } \hat{p} \ge \tau \\ 0 &amp; \text{if } \hat{p} &lt; \tau \end{cases}\]</span></p>
 <div id="cell-fig-decision-thresholding" class="cell" data-fig-height="4.5" data-fig-width="10" data-execution_count="2">
 <details class="code-fold">
@@ -583,26 +589,26 @@ R^2 = \frac{\Delta D}{D(\text{null})} = 1 - \frac{D(\hat{\theta})}{D(\text{null}
 <span id="cb2-8"><a href="#cb2-8"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
 <span id="cb2-9"><a href="#cb2-9"></a></span>
 <span id="cb2-10"><a href="#cb2-10"></a><span class="co"># Shaded decision regions</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Healthy (ŷ = 0)"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Diabetic (ŷ = 1)"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
 <span id="cb2-13"><a href="#cb2-13"></a></span>
 <span id="cb2-14"><a href="#cb2-14"></a><span class="co"># Fitted Sigmoid</span></span>
 <span id="cb2-15"><a href="#cb2-15"></a>ax.plot(x_grid, p_grid, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Fitted P(Diabetes | Glucose)"</span>)</span>
 <span id="cb2-16"><a href="#cb2-16"></a></span>
 <span id="cb2-17"><a href="#cb2-17"></a><span class="co"># Patient Observations</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Healthy (y=0)"</span>)</span>
-<span id="cb2-19"><a href="#cb2-19"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Diabetic (y=1)"</span>)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb2-19"><a href="#cb2-19"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>)</span>
 <span id="cb2-20"><a href="#cb2-20"></a></span>
 <span id="cb2-21"><a href="#cb2-21"></a><span class="co"># Threshold markers at tau = 0.5</span></span>
 <span id="cb2-22"><a href="#cb2-22"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb2-23"><a href="#cb2-23"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Threshold τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-24"><a href="#cb2-24"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Cutoff (</span><span class="sc">{</span>crossover_glucose<span class="sc">:.1f}</span><span class="ss"> mg/dL)"</span>)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Boundary at τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb2-25"><a href="#cb2-25"></a></span>
 <span id="cb2-26"><a href="#cb2-26"></a>ax.set_title(<span class="st">"Logistic Probability Curve and Decision Thresholding"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
 <span id="cb2-27"><a href="#cb2-27"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb2-28"><a href="#cb2-28"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(y = 1 | x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(Y=1|X=x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
 <span id="cb2-29"><a href="#cb2-29"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
-<span id="cb2-30"><a href="#cb2-30"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-30"><a href="#cb2-30"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.02</span>, <span class="fl">0.85</span>), frameon<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-31"><a href="#cb2-31"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
 <span id="cb2-32"><a href="#cb2-32"></a></span>
 <span id="cb2-33"><a href="#cb2-33"></a>plt.tight_layout()</span>
@@ -713,7 +719,7 @@ Figure&nbsp;2: Clinical Confusion Matrix evaluated at threshold τ = 0.5.
 </tr>
 </tbody>
 </table>
-<p>see also: https://en.wikipedia.org/wiki/Confusion_matrix</p>
+<p>See also: <a href="https://en.wikipedia.org/wiki/Confusion_matrix" target="_blank" rel="noopener">Confusion matrix at Wikipedia</a></p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -766,31 +772,33 @@ Figure&nbsp;2: Clinical Confusion Matrix evaluated at threshold τ = 0.5.
 <span id="cb5-18"><a href="#cb5-18"></a></span>
 <span id="cb5-19"><a href="#cb5-19"></a><span class="co"># Panel 1: ROC Curve</span></span>
 <span id="cb5-20"><a href="#cb5-20"></a>axes[<span class="dv">0</span>].plot(fpr, tpr, color<span class="op">=</span><span class="st">"#1f77b4"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"ROC Curve (AUC = </span><span class="sc">{</span>auc_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
-<span id="cb5-21"><a href="#cb5-21"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guessing (AUC = 0.500)"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guess (AUC = 0.50)"</span>)</span>
 <span id="cb5-22"><a href="#cb5-22"></a>axes[<span class="dv">0</span>].scatter(fpr_05, tpr_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb5-23"><a href="#cb5-23"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (FPR=</span><span class="sc">{</span>fpr_05<span class="sc">:.2f}</span><span class="ss">, TPR=</span><span class="sc">{</span>tpr_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23"></a>                label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>tau_05<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb5-24"><a href="#cb5-24"></a></span>
 <span id="cb5-25"><a href="#cb5-25"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Receiver Operating Characteristic (ROC)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
 <span id="cb5-26"><a href="#cb5-26"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"False Positive Rate (1 - Specificity)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
 <span id="cb5-27"><a href="#cb5-27"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"True Positive Rate (Sensitivity / Recall)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb5-28"><a href="#cb5-28"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb5-29"><a href="#cb5-29"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb5-30"><a href="#cb5-30"></a></span>
-<span id="cb5-31"><a href="#cb5-31"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
-<span id="cb5-32"><a href="#cb5-32"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
-<span id="cb5-33"><a href="#cb5-33"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
-<span id="cb5-34"><a href="#cb5-34"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
-<span id="cb5-35"><a href="#cb5-35"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb5-36"><a href="#cb5-36"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (Rec=</span><span class="sc">{</span>rec_05<span class="sc">:.2f}</span><span class="ss">, Prec=</span><span class="sc">{</span>prec_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
-<span id="cb5-37"><a href="#cb5-37"></a></span>
-<span id="cb5-38"><a href="#cb5-38"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb5-39"><a href="#cb5-39"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb5-40"><a href="#cb5-40"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb5-41"><a href="#cb5-41"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb5-42"><a href="#cb5-42"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb5-43"><a href="#cb5-43"></a></span>
-<span id="cb5-44"><a href="#cb5-44"></a>plt.tight_layout()</span>
-<span id="cb5-45"><a href="#cb5-45"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-28"><a href="#cb5-28"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.98</span>, <span class="fl">0.09</span>), frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-29"><a href="#cb5-29"></a>               handlelength<span class="op">=</span><span class="fl">1.5</span>, handletextpad<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-30"><a href="#cb5-30"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-31"><a href="#cb5-31"></a></span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-34"><a href="#cb5-34"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
+<span id="cb5-35"><a href="#cb5-35"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb5-36"><a href="#cb5-36"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb5-37"><a href="#cb5-37"></a>                label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>tau_05<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-38"><a href="#cb5-38"></a></span>
+<span id="cb5-39"><a href="#cb5-39"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb5-40"><a href="#cb5-40"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-41"><a href="#cb5-41"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-42"><a href="#cb5-42"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.02</span>, <span class="fl">0.09</span>), frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb5-43"><a href="#cb5-43"></a>               handlelength<span class="op">=</span><span class="fl">1.5</span>, handletextpad<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-44"><a href="#cb5-44"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb5-45"><a href="#cb5-45"></a></span>
+<span id="cb5-46"><a href="#cb5-46"></a>plt.tight_layout()</span>
+<span id="cb5-47"><a href="#cb5-47"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
 <div id="fig-roc-pr-curves" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
@@ -1430,206 +1438,212 @@ Figure&nbsp;3: Side-by-side ROC and Precision-Recall Curves across all decision 
 <span id="cb6-98"><a href="#cb6-98"></a></span>
 <span id="cb6-99"><a href="#cb6-99"></a><span class="fu">### 2.1 Decision Thresholding</span></span>
 <span id="cb6-100"><a href="#cb6-100"></a></span>
-<span id="cb6-101"><a href="#cb6-101"></a>A fitted logistic model outputs continuous conditional probabilities $\hat{p} = P(Y = 1 \mid X=x) \in (0, 1)$. However, medical interventions and decisions require a **decision threshold $\tau$**:</span>
+<span id="cb6-101"><a href="#cb6-101"></a>A fitted logistic model outputs continuous conditional probabilities:</span>
 <span id="cb6-102"><a href="#cb6-102"></a></span>
-<span id="cb6-103"><a href="#cb6-103"></a>$$\hat{y} = \begin{cases} 1 &amp; \text{if } \hat{p} \ge \tau <span class="sc">\\</span> 0 &amp; \text{if } \hat{p} &lt; \tau \end{cases}$$</span>
+<span id="cb6-103"><a href="#cb6-103"></a>$$\hat{p} = P(Y = 1 \mid X = x) = \sigma(\hat{\theta}_0 + \hat{\theta}_1 x) \in (0, 1)$$</span>
 <span id="cb6-104"><a href="#cb6-104"></a></span>
-<span id="cb6-107"><a href="#cb6-107"></a><span class="in">```{python}</span></span>
-<span id="cb6-108"><a href="#cb6-108"></a><span class="co">#| label: fig-decision-thresholding</span></span>
-<span id="cb6-109"><a href="#cb6-109"></a><span class="co">#| fig-cap: "Sigmoid probability curve fitted on Fasting Plasma Glucose with decision threshold τ = 0.5."</span></span>
-<span id="cb6-110"><a href="#cb6-110"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb6-111"><a href="#cb6-111"></a><span class="co">#| code-summary: "Plot Logistic Sigmoid with Decision Threshold"</span></span>
-<span id="cb6-112"><a href="#cb6-112"></a><span class="co">#| fig-width: 10</span></span>
-<span id="cb6-113"><a href="#cb6-113"></a><span class="co">#| fig-height: 4.5</span></span>
-<span id="cb6-114"><a href="#cb6-114"></a><span class="co">#| fig-align: left</span></span>
-<span id="cb6-115"><a href="#cb6-115"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb6-116"><a href="#cb6-116"></a></span>
-<span id="cb6-117"><a href="#cb6-117"></a>theta_0 <span class="op">=</span> model.intercept_[<span class="dv">0</span>]</span>
-<span id="cb6-118"><a href="#cb6-118"></a>theta_1 <span class="op">=</span> model.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
-<span id="cb6-119"><a href="#cb6-119"></a>crossover_glucose <span class="op">=</span> <span class="op">-</span>theta_0 <span class="op">/</span> theta_1</span>
+<span id="cb6-105"><a href="#cb6-105"></a>However, medical interventions and decisions require a **decision threshold $\tau$**:</span>
+<span id="cb6-106"><a href="#cb6-106"></a></span>
+<span id="cb6-107"><a href="#cb6-107"></a>$$\hat{y} = \begin{cases} 1 &amp; \text{if } \hat{p} \ge \tau <span class="sc">\\</span> 0 &amp; \text{if } \hat{p} &lt; \tau \end{cases}$$</span>
+<span id="cb6-108"><a href="#cb6-108"></a></span>
+<span id="cb6-111"><a href="#cb6-111"></a><span class="in">```{python}</span></span>
+<span id="cb6-112"><a href="#cb6-112"></a><span class="co">#| label: fig-decision-thresholding</span></span>
+<span id="cb6-113"><a href="#cb6-113"></a><span class="co">#| fig-cap: "Sigmoid probability curve fitted on Fasting Plasma Glucose with decision threshold τ = 0.5."</span></span>
+<span id="cb6-114"><a href="#cb6-114"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-115"><a href="#cb6-115"></a><span class="co">#| code-summary: "Plot Logistic Sigmoid with Decision Threshold"</span></span>
+<span id="cb6-116"><a href="#cb6-116"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-117"><a href="#cb6-117"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-118"><a href="#cb6-118"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-119"><a href="#cb6-119"></a><span class="co">#| out-width: "100%"</span></span>
 <span id="cb6-120"><a href="#cb6-120"></a></span>
-<span id="cb6-121"><a href="#cb6-121"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>)</span>
-<span id="cb6-122"><a href="#cb6-122"></a>p_grid <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>(theta_0 <span class="op">+</span> theta_1 <span class="op">*</span> x_grid)))</span>
-<span id="cb6-123"><a href="#cb6-123"></a></span>
-<span id="cb6-124"><a href="#cb6-124"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
-<span id="cb6-125"><a href="#cb6-125"></a></span>
-<span id="cb6-126"><a href="#cb6-126"></a><span class="co"># Shaded decision regions</span></span>
-<span id="cb6-127"><a href="#cb6-127"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Healthy (ŷ = 0)"</span>)</span>
-<span id="cb6-128"><a href="#cb6-128"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>, label<span class="op">=</span><span class="st">"Predicted Diabetic (ŷ = 1)"</span>)</span>
+<span id="cb6-121"><a href="#cb6-121"></a>theta_0 <span class="op">=</span> model.intercept_[<span class="dv">0</span>]</span>
+<span id="cb6-122"><a href="#cb6-122"></a>theta_1 <span class="op">=</span> model.coef_[<span class="dv">0</span>, <span class="dv">0</span>]</span>
+<span id="cb6-123"><a href="#cb6-123"></a>crossover_glucose <span class="op">=</span> <span class="op">-</span>theta_0 <span class="op">/</span> theta_1</span>
+<span id="cb6-124"><a href="#cb6-124"></a></span>
+<span id="cb6-125"><a href="#cb6-125"></a>x_grid <span class="op">=</span> np.linspace(<span class="dv">65</span>, <span class="dv">185</span>, <span class="dv">300</span>)</span>
+<span id="cb6-126"><a href="#cb6-126"></a>p_grid <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>(theta_0 <span class="op">+</span> theta_1 <span class="op">*</span> x_grid)))</span>
+<span id="cb6-127"><a href="#cb6-127"></a></span>
+<span id="cb6-128"><a href="#cb6-128"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
 <span id="cb6-129"><a href="#cb6-129"></a></span>
-<span id="cb6-130"><a href="#cb6-130"></a><span class="co"># Fitted Sigmoid</span></span>
-<span id="cb6-131"><a href="#cb6-131"></a>ax.plot(x_grid, p_grid, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Fitted P(Diabetes | Glucose)"</span>)</span>
-<span id="cb6-132"><a href="#cb6-132"></a></span>
-<span id="cb6-133"><a href="#cb6-133"></a><span class="co"># Patient Observations</span></span>
-<span id="cb6-134"><a href="#cb6-134"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Healthy (y=0)"</span>)</span>
-<span id="cb6-135"><a href="#cb6-135"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, label<span class="op">=</span><span class="st">"Actual Diabetic (y=1)"</span>)</span>
+<span id="cb6-130"><a href="#cb6-130"></a><span class="co"># Shaded decision regions</span></span>
+<span id="cb6-131"><a href="#cb6-131"></a>ax.axvspan(<span class="dv">65</span>, crossover_glucose, color<span class="op">=</span><span class="st">"#1b9e77"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb6-132"><a href="#cb6-132"></a>ax.axvspan(crossover_glucose, <span class="dv">185</span>, color<span class="op">=</span><span class="st">"#d95f02"</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb6-133"><a href="#cb6-133"></a></span>
+<span id="cb6-134"><a href="#cb6-134"></a><span class="co"># Fitted Sigmoid</span></span>
+<span id="cb6-135"><a href="#cb6-135"></a>ax.plot(x_grid, p_grid, color<span class="op">=</span><span class="st">"#2b5c8f"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="st">"Fitted P(Diabetes | Glucose)"</span>)</span>
 <span id="cb6-136"><a href="#cb6-136"></a></span>
-<span id="cb6-137"><a href="#cb6-137"></a><span class="co"># Threshold markers at tau = 0.5</span></span>
-<span id="cb6-138"><a href="#cb6-138"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb6-139"><a href="#cb6-139"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Threshold τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-140"><a href="#cb6-140"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Cutoff (</span><span class="sc">{</span>crossover_glucose<span class="sc">:.1f}</span><span class="ss"> mg/dL)"</span>)</span>
-<span id="cb6-141"><a href="#cb6-141"></a></span>
-<span id="cb6-142"><a href="#cb6-142"></a>ax.set_title(<span class="st">"Logistic Probability Curve and Decision Thresholding"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-143"><a href="#cb6-143"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-144"><a href="#cb6-144"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(y = 1 | x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-145"><a href="#cb6-145"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
-<span id="cb6-146"><a href="#cb6-146"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-147"><a href="#cb6-147"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb6-148"><a href="#cb6-148"></a></span>
-<span id="cb6-149"><a href="#cb6-149"></a>plt.tight_layout()</span>
-<span id="cb6-150"><a href="#cb6-150"></a>plt.show()</span>
-<span id="cb6-151"><a href="#cb6-151"></a><span class="in">```</span></span>
+<span id="cb6-137"><a href="#cb6-137"></a><span class="co"># Patient Observations</span></span>
+<span id="cb6-138"><a href="#cb6-138"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">0</span>], y[y <span class="op">==</span> <span class="dv">0</span>], color<span class="op">=</span><span class="st">"#1b9e77"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb6-139"><a href="#cb6-139"></a>ax.scatter(glucose[y <span class="op">==</span> <span class="dv">1</span>], y[y <span class="op">==</span> <span class="dv">1</span>], color<span class="op">=</span><span class="st">"#d95f02"</span>, edgecolors<span class="op">=</span><span class="st">"k"</span>, s<span class="op">=</span><span class="dv">40</span>, alpha<span class="op">=</span><span class="fl">0.85</span>)</span>
+<span id="cb6-140"><a href="#cb6-140"></a></span>
+<span id="cb6-141"><a href="#cb6-141"></a><span class="co"># Threshold markers at tau = 0.5</span></span>
+<span id="cb6-142"><a href="#cb6-142"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-143"><a href="#cb6-143"></a>ax.axhline(tau, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb6-144"><a href="#cb6-144"></a>ax.axvline(crossover_glucose, color<span class="op">=</span><span class="st">"#d62728"</span>, linestyle<span class="op">=</span><span class="st">":"</span>, lw<span class="op">=</span><span class="fl">1.8</span>, label<span class="op">=</span><span class="ss">f"Decision Boundary at τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-145"><a href="#cb6-145"></a></span>
+<span id="cb6-146"><a href="#cb6-146"></a>ax.set_title(<span class="st">"Logistic Probability Curve and Decision Thresholding"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-147"><a href="#cb6-147"></a>ax.set_xlabel(<span class="st">"Fasting Plasma Glucose (mg/dL)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-148"><a href="#cb6-148"></a>ax.set_ylabel(<span class="st">"Predicted Probability P(Y=1|X=x)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-149"><a href="#cb6-149"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.05</span>, <span class="fl">1.05</span>)</span>
+<span id="cb6-150"><a href="#cb6-150"></a>ax.legend(loc<span class="op">=</span><span class="st">"upper left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.02</span>, <span class="fl">0.85</span>), frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-151"><a href="#cb6-151"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
 <span id="cb6-152"><a href="#cb6-152"></a></span>
-<span id="cb6-153"><a href="#cb6-153"></a>---</span>
-<span id="cb6-154"><a href="#cb6-154"></a></span>
-<span id="cb6-155"><a href="#cb6-155"></a><span class="fu">### 2.2 Confusion Matrix</span></span>
+<span id="cb6-153"><a href="#cb6-153"></a>plt.tight_layout()</span>
+<span id="cb6-154"><a href="#cb6-154"></a>plt.show()</span>
+<span id="cb6-155"><a href="#cb6-155"></a><span class="in">```</span></span>
 <span id="cb6-156"><a href="#cb6-156"></a></span>
-<span id="cb6-157"><a href="#cb6-157"></a>Comparing discrete predictions $\hat{y} \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ against actual ground truth $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ partitions all outcomes into four diagnostic quadrants:</span>
+<span id="cb6-157"><a href="#cb6-157"></a>---</span>
 <span id="cb6-158"><a href="#cb6-158"></a></span>
-<span id="cb6-159"><a href="#cb6-159"></a><span class="ss">- </span>True Positives TP</span>
-<span id="cb6-160"><a href="#cb6-160"></a><span class="ss">- </span>True Negatives TN</span>
-<span id="cb6-161"><a href="#cb6-161"></a><span class="ss">- </span>False Positives FP</span>
-<span id="cb6-162"><a href="#cb6-162"></a><span class="ss">- </span>False Negatives FN</span>
-<span id="cb6-163"><a href="#cb6-163"></a></span>
-<span id="cb6-166"><a href="#cb6-166"></a><span class="in">```{python}</span></span>
-<span id="cb6-167"><a href="#cb6-167"></a><span class="co">#| label: fig-confusion-matrix</span></span>
-<span id="cb6-168"><a href="#cb6-168"></a><span class="co">#| fig-cap: "Clinical Confusion Matrix evaluated at threshold τ = 0.5."</span></span>
-<span id="cb6-169"><a href="#cb6-169"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb6-170"><a href="#cb6-170"></a><span class="co">#| code-summary: "Plot Confusion Matrix Heatmap"</span></span>
-<span id="cb6-171"><a href="#cb6-171"></a><span class="co">#| fig-width: 6</span></span>
-<span id="cb6-172"><a href="#cb6-172"></a><span class="co">#| fig-height: 4.2</span></span>
-<span id="cb6-173"><a href="#cb6-173"></a><span class="co">#| fig-align: left</span></span>
-<span id="cb6-174"><a href="#cb6-174"></a><span class="co">#| out-width: "60%"</span></span>
-<span id="cb6-175"><a href="#cb6-175"></a></span>
-<span id="cb6-176"><a href="#cb6-176"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb6-177"><a href="#cb6-177"></a>y_pred <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau).astype(<span class="bu">int</span>)</span>
-<span id="cb6-178"><a href="#cb6-178"></a>cm <span class="op">=</span> confusion_matrix(y, y_pred)</span>
+<span id="cb6-159"><a href="#cb6-159"></a><span class="fu">### 2.2 Confusion Matrix</span></span>
+<span id="cb6-160"><a href="#cb6-160"></a></span>
+<span id="cb6-161"><a href="#cb6-161"></a>Comparing discrete predictions $\hat{y} \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ against actual ground truth $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ partitions all outcomes into four diagnostic quadrants:</span>
+<span id="cb6-162"><a href="#cb6-162"></a></span>
+<span id="cb6-163"><a href="#cb6-163"></a><span class="ss">- </span>True Positives TP</span>
+<span id="cb6-164"><a href="#cb6-164"></a><span class="ss">- </span>True Negatives TN</span>
+<span id="cb6-165"><a href="#cb6-165"></a><span class="ss">- </span>False Positives FP</span>
+<span id="cb6-166"><a href="#cb6-166"></a><span class="ss">- </span>False Negatives FN</span>
+<span id="cb6-167"><a href="#cb6-167"></a></span>
+<span id="cb6-170"><a href="#cb6-170"></a><span class="in">```{python}</span></span>
+<span id="cb6-171"><a href="#cb6-171"></a><span class="co">#| label: fig-confusion-matrix</span></span>
+<span id="cb6-172"><a href="#cb6-172"></a><span class="co">#| fig-cap: "Clinical Confusion Matrix evaluated at threshold τ = 0.5."</span></span>
+<span id="cb6-173"><a href="#cb6-173"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-174"><a href="#cb6-174"></a><span class="co">#| code-summary: "Plot Confusion Matrix Heatmap"</span></span>
+<span id="cb6-175"><a href="#cb6-175"></a><span class="co">#| fig-width: 6</span></span>
+<span id="cb6-176"><a href="#cb6-176"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb6-177"><a href="#cb6-177"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-178"><a href="#cb6-178"></a><span class="co">#| out-width: "60%"</span></span>
 <span id="cb6-179"><a href="#cb6-179"></a></span>
-<span id="cb6-180"><a href="#cb6-180"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">4.2</span>))</span>
-<span id="cb6-181"><a href="#cb6-181"></a>sns.heatmap(cm, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, ax<span class="op">=</span>ax, cbar<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb6-182"><a href="#cb6-182"></a>            annot_kws<span class="op">=</span>{<span class="st">"size"</span>: <span class="dv">14</span>, <span class="st">"weight"</span>: <span class="st">"bold"</span>},</span>
-<span id="cb6-183"><a href="#cb6-183"></a>            xticklabels<span class="op">=</span>[<span class="st">"Predicted Healthy (0)"</span>, <span class="st">"Predicted Diabetic (1)"</span>],</span>
-<span id="cb6-184"><a href="#cb6-184"></a>            yticklabels<span class="op">=</span>[<span class="st">"Actual Healthy (0)"</span>, <span class="st">"Actual Diabetic (1)"</span>])</span>
-<span id="cb6-185"><a href="#cb6-185"></a>ax.set_title(<span class="ss">f"Clinical Confusion Matrix (τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb6-186"><a href="#cb6-186"></a>plt.tight_layout()</span>
-<span id="cb6-187"><a href="#cb6-187"></a>plt.show()</span>
-<span id="cb6-188"><a href="#cb6-188"></a></span>
-<span id="cb6-189"><a href="#cb6-189"></a>tn, fp, fn, tp <span class="op">=</span> cm.ravel()</span>
-<span id="cb6-190"><a href="#cb6-190"></a><span class="bu">print</span>(<span class="ss">f"Total Cohort = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> | TP = </span><span class="sc">{</span>tp<span class="sc">}</span><span class="ss">, FP = </span><span class="sc">{</span>fp<span class="sc">}</span><span class="ss">, TN = </span><span class="sc">{</span>tn<span class="sc">}</span><span class="ss">, FN = </span><span class="sc">{</span>fn<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-191"><a href="#cb6-191"></a><span class="in">```</span></span>
+<span id="cb6-180"><a href="#cb6-180"></a>tau <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-181"><a href="#cb6-181"></a>y_pred <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau).astype(<span class="bu">int</span>)</span>
+<span id="cb6-182"><a href="#cb6-182"></a>cm <span class="op">=</span> confusion_matrix(y, y_pred)</span>
+<span id="cb6-183"><a href="#cb6-183"></a></span>
+<span id="cb6-184"><a href="#cb6-184"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="fl">4.2</span>))</span>
+<span id="cb6-185"><a href="#cb6-185"></a>sns.heatmap(cm, annot<span class="op">=</span><span class="va">True</span>, fmt<span class="op">=</span><span class="st">"d"</span>, cmap<span class="op">=</span><span class="st">"Blues"</span>, ax<span class="op">=</span>ax, cbar<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb6-186"><a href="#cb6-186"></a>            annot_kws<span class="op">=</span>{<span class="st">"size"</span>: <span class="dv">14</span>, <span class="st">"weight"</span>: <span class="st">"bold"</span>},</span>
+<span id="cb6-187"><a href="#cb6-187"></a>            xticklabels<span class="op">=</span>[<span class="st">"Predicted Healthy (0)"</span>, <span class="st">"Predicted Diabetic (1)"</span>],</span>
+<span id="cb6-188"><a href="#cb6-188"></a>            yticklabels<span class="op">=</span>[<span class="st">"Actual Healthy (0)"</span>, <span class="st">"Actual Diabetic (1)"</span>])</span>
+<span id="cb6-189"><a href="#cb6-189"></a>ax.set_title(<span class="ss">f"Clinical Confusion Matrix (τ = </span><span class="sc">{</span>tau<span class="sc">}</span><span class="ss">)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-190"><a href="#cb6-190"></a>plt.tight_layout()</span>
+<span id="cb6-191"><a href="#cb6-191"></a>plt.show()</span>
 <span id="cb6-192"><a href="#cb6-192"></a></span>
-<span id="cb6-193"><a href="#cb6-193"></a>---</span>
-<span id="cb6-194"><a href="#cb6-194"></a></span>
-<span id="cb6-195"><a href="#cb6-195"></a><span class="fu">### 2.3 Diagnostic Metrics</span></span>
+<span id="cb6-193"><a href="#cb6-193"></a>tn, fp, fn, tp <span class="op">=</span> cm.ravel()</span>
+<span id="cb6-194"><a href="#cb6-194"></a><span class="bu">print</span>(<span class="ss">f"Total Cohort = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> | TP = </span><span class="sc">{</span>tp<span class="sc">}</span><span class="ss">, FP = </span><span class="sc">{</span>fp<span class="sc">}</span><span class="ss">, TN = </span><span class="sc">{</span>tn<span class="sc">}</span><span class="ss">, FN = </span><span class="sc">{</span>fn<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-195"><a href="#cb6-195"></a><span class="in">```</span></span>
 <span id="cb6-196"><a href="#cb6-196"></a></span>
-<span id="cb6-197"><a href="#cb6-197"></a>There are only four numbers, but a host of other numbers and confusion metrics can be defined from those:</span>
+<span id="cb6-197"><a href="#cb6-197"></a>---</span>
 <span id="cb6-198"><a href="#cb6-198"></a></span>
-<span id="cb6-199"><a href="#cb6-199"></a><span class="pp">|</span> Metric Name <span class="pp">|</span> Equation <span class="pp">|</span> Clinical Meaning <span class="pp">|</span></span>
-<span id="cb6-200"><a href="#cb6-200"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
-<span id="cb6-201"><a href="#cb6-201"></a><span class="pp">|</span> **Accuracy** <span class="pp">|</span> $\frac{\text{TP} + \text{TN}}{\text{Total}}$ <span class="pp">|</span> Overall fraction of correct diagnostic classifications across all patients. <span class="pp">|</span></span>
-<span id="cb6-202"><a href="#cb6-202"></a><span class="pp">|</span> **Specificity (TNR)** <span class="pp">|</span> $\frac{\text{TN}}{\text{TN} + \text{FP}}$ <span class="pp">|</span> Fraction of healthy individuals correctly identified and cleared. <span class="pp">|</span></span>
-<span id="cb6-203"><a href="#cb6-203"></a><span class="pp">|</span> **Sensitivity (Recall / TPR)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FN}}$ <span class="pp">|</span> Fraction of all sick patients successfully detected by the screening test. <span class="pp">|</span></span>
-<span id="cb6-204"><a href="#cb6-204"></a><span class="pp">|</span> **Precision (PPV)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FP}}$ <span class="pp">|</span> Probability that a patient flagged positive by the test is truly diseased. <span class="pp">|</span></span>
-<span id="cb6-205"><a href="#cb6-205"></a><span class="pp">|</span> **$F_1$-Score** <span class="pp">|</span> $2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$ <span class="pp">|</span> Harmonic mean balancing Precision and Recall. <span class="pp">|</span></span>
-<span id="cb6-206"><a href="#cb6-206"></a></span>
-<span id="cb6-207"><a href="#cb6-207"></a></span>
-<span id="cb6-208"><a href="#cb6-208"></a>see also: https://en.wikipedia.org/wiki/Confusion_matrix</span>
-<span id="cb6-209"><a href="#cb6-209"></a></span>
-<span id="cb6-210"><a href="#cb6-210"></a>::: {.callout-important}</span>
-<span id="cb6-211"><a href="#cb6-211"></a><span class="fu">### Accuracy versus Costs</span></span>
-<span id="cb6-212"><a href="#cb6-212"></a></span>
-<span id="cb6-213"><a href="#cb6-213"></a>In medical screening, diagnostic costs are often asymmetric:</span>
-<span id="cb6-214"><a href="#cb6-214"></a></span>
-<span id="cb6-215"><a href="#cb6-215"></a><span class="ss">* </span>**Accuracy Fallacy**: When a disease is rare (e.g., 2% prevalence), a naive classifier predicting "healthy" for every patient achieves 98% accuracy yet fails to detect a single sick patient ($\text{Sensitivity} = 0\%$).</span>
+<span id="cb6-199"><a href="#cb6-199"></a><span class="fu">### 2.3 Diagnostic Metrics</span></span>
+<span id="cb6-200"><a href="#cb6-200"></a></span>
+<span id="cb6-201"><a href="#cb6-201"></a>There are only four numbers, but a host of other numbers and confusion metrics can be defined from those:</span>
+<span id="cb6-202"><a href="#cb6-202"></a></span>
+<span id="cb6-203"><a href="#cb6-203"></a><span class="pp">|</span> Metric Name <span class="pp">|</span> Equation <span class="pp">|</span> Clinical Meaning <span class="pp">|</span></span>
+<span id="cb6-204"><a href="#cb6-204"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb6-205"><a href="#cb6-205"></a><span class="pp">|</span> **Accuracy** <span class="pp">|</span> $\frac{\text{TP} + \text{TN}}{\text{Total}}$ <span class="pp">|</span> Overall fraction of correct diagnostic classifications across all patients. <span class="pp">|</span></span>
+<span id="cb6-206"><a href="#cb6-206"></a><span class="pp">|</span> **Specificity (TNR)** <span class="pp">|</span> $\frac{\text{TN}}{\text{TN} + \text{FP}}$ <span class="pp">|</span> Fraction of healthy individuals correctly identified and cleared. <span class="pp">|</span></span>
+<span id="cb6-207"><a href="#cb6-207"></a><span class="pp">|</span> **Sensitivity (Recall / TPR)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FN}}$ <span class="pp">|</span> Fraction of all sick patients successfully detected by the screening test. <span class="pp">|</span></span>
+<span id="cb6-208"><a href="#cb6-208"></a><span class="pp">|</span> **Precision (PPV)** <span class="pp">|</span> $\frac{\text{TP}}{\text{TP} + \text{FP}}$ <span class="pp">|</span> Probability that a patient flagged positive by the test is truly diseased. <span class="pp">|</span></span>
+<span id="cb6-209"><a href="#cb6-209"></a><span class="pp">|</span> **$F_1$-Score** <span class="pp">|</span> $2 \cdot \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}$ <span class="pp">|</span> Harmonic mean balancing Precision and Recall. <span class="pp">|</span></span>
+<span id="cb6-210"><a href="#cb6-210"></a></span>
+<span id="cb6-211"><a href="#cb6-211"></a></span>
+<span id="cb6-212"><a href="#cb6-212"></a>See also: <span class="co">[</span><span class="ot">Confusion matrix at Wikipedia</span><span class="co">](https://en.wikipedia.org/wiki/Confusion_matrix)</span>{target="_blank" rel="noopener"}</span>
+<span id="cb6-213"><a href="#cb6-213"></a></span>
+<span id="cb6-214"><a href="#cb6-214"></a>::: {.callout-important}</span>
+<span id="cb6-215"><a href="#cb6-215"></a><span class="fu">### Accuracy versus Costs</span></span>
 <span id="cb6-216"><a href="#cb6-216"></a></span>
-<span id="cb6-217"><a href="#cb6-217"></a><span class="ss">* </span>**Cost of False Negative ($C_{\text{FN}}$)**: An undetected sick patient goes untreated, leading to preventable complications or mortality.</span>
+<span id="cb6-217"><a href="#cb6-217"></a>In medical screening, diagnostic costs are often asymmetric:</span>
 <span id="cb6-218"><a href="#cb6-218"></a></span>
-<span id="cb6-219"><a href="#cb6-219"></a><span class="ss">* </span>**Cost of False Positive ($C_{\text{FP}}$)**: A healthy patient receives an unnecessary follow-up blood test, causing minor anxiety and cost.</span>
+<span id="cb6-219"><a href="#cb6-219"></a><span class="ss">* </span>**Accuracy Fallacy**: When a disease is rare (e.g., 2% prevalence), a naive classifier predicting "healthy" for every patient achieves 98% accuracy yet fails to detect a single sick patient ($\text{Sensitivity} = 0\%$).</span>
 <span id="cb6-220"><a href="#cb6-220"></a></span>
-<span id="cb6-221"><a href="#cb6-221"></a>Because $C_{\text{FN}} \gg C_{\text{FP}}$, clinicians deliberately lower the threshold (e.g., $\tau = 0.20$) to catch more sick patients, consciously accepting a higher false-alarm rate.</span>
-<span id="cb6-222"><a href="#cb6-222"></a>:::</span>
-<span id="cb6-223"><a href="#cb6-223"></a></span>
-<span id="cb6-224"><a href="#cb6-224"></a>---</span>
-<span id="cb6-225"><a href="#cb6-225"></a></span>
-<span id="cb6-226"><a href="#cb6-226"></a><span class="fu">## 3. ROC and PR Curves</span></span>
+<span id="cb6-221"><a href="#cb6-221"></a><span class="ss">* </span>**Cost of False Negative ($C_{\text{FN}}$)**: An undetected sick patient goes untreated, leading to preventable complications or mortality.</span>
+<span id="cb6-222"><a href="#cb6-222"></a></span>
+<span id="cb6-223"><a href="#cb6-223"></a><span class="ss">* </span>**Cost of False Positive ($C_{\text{FP}}$)**: A healthy patient receives an unnecessary follow-up blood test, causing minor anxiety and cost.</span>
+<span id="cb6-224"><a href="#cb6-224"></a></span>
+<span id="cb6-225"><a href="#cb6-225"></a>Because $C_{\text{FN}} \gg C_{\text{FP}}$, clinicians deliberately lower the threshold (e.g., $\tau = 0.20$) to catch more sick patients, consciously accepting a higher false-alarm rate.</span>
+<span id="cb6-226"><a href="#cb6-226"></a>:::</span>
 <span id="cb6-227"><a href="#cb6-227"></a></span>
-<span id="cb6-228"><a href="#cb6-228"></a>Rather than evaluating a single fixed threshold $\tau$, sweeping $\tau$ continuously across $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>$ traces out the complete operational trade-off across all potential operating points.</span>
+<span id="cb6-228"><a href="#cb6-228"></a>---</span>
 <span id="cb6-229"><a href="#cb6-229"></a></span>
-<span id="cb6-230"><a href="#cb6-230"></a><span class="ss">* </span>The **Receiver Operating Characteristic (ROC)** curve plots True Positive Rate (Sensitivity) against False Positive Rate ($1 - \text{Specificity}$).</span>
-<span id="cb6-231"><a href="#cb6-231"></a><span class="ss">* </span>The **Precision-Recall (PR)** curve plots Precision against Recall, which is particularly informative when evaluating imbalanced or rare-prevalence cohorts.</span>
-<span id="cb6-232"><a href="#cb6-232"></a></span>
-<span id="cb6-235"><a href="#cb6-235"></a><span class="in">```{python}</span></span>
-<span id="cb6-236"><a href="#cb6-236"></a><span class="co">#| label: fig-roc-pr-curves</span></span>
-<span id="cb6-237"><a href="#cb6-237"></a><span class="co">#| fig-cap: "Side-by-side ROC and Precision-Recall Curves across all decision thresholds with τ = 0.5 highlighted."</span></span>
-<span id="cb6-238"><a href="#cb6-238"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb6-239"><a href="#cb6-239"></a><span class="co">#| code-summary: "Generate Side-by-Side ROC and PR Curves"</span></span>
-<span id="cb6-240"><a href="#cb6-240"></a><span class="co">#| fig-width: 10</span></span>
-<span id="cb6-241"><a href="#cb6-241"></a><span class="co">#| fig-height: 4.5</span></span>
-<span id="cb6-242"><a href="#cb6-242"></a><span class="co">#| fig-align: left</span></span>
-<span id="cb6-243"><a href="#cb6-243"></a><span class="co">#| out-width: "100%"</span></span>
-<span id="cb6-244"><a href="#cb6-244"></a></span>
-<span id="cb6-245"><a href="#cb6-245"></a>fpr, tpr, roc_thresholds <span class="op">=</span> roc_curve(y, p_pred)</span>
-<span id="cb6-246"><a href="#cb6-246"></a>auc_val <span class="op">=</span> roc_auc_score(y, p_pred)</span>
-<span id="cb6-247"><a href="#cb6-247"></a></span>
-<span id="cb6-248"><a href="#cb6-248"></a>prec, rec, pr_thresholds <span class="op">=</span> precision_recall_curve(y, p_pred)</span>
-<span id="cb6-249"><a href="#cb6-249"></a>ap_val <span class="op">=</span> average_precision_score(y, p_pred)</span>
-<span id="cb6-250"><a href="#cb6-250"></a></span>
-<span id="cb6-251"><a href="#cb6-251"></a><span class="co"># Exact operational operating point at threshold tau = 0.5</span></span>
-<span id="cb6-252"><a href="#cb6-252"></a>tau_05 <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb6-253"><a href="#cb6-253"></a>y_pred_05 <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau_05).astype(<span class="bu">int</span>)</span>
-<span id="cb6-254"><a href="#cb6-254"></a>tn_05, fp_05, fn_05, tp_05 <span class="op">=</span> confusion_matrix(y, y_pred_05).ravel()</span>
-<span id="cb6-255"><a href="#cb6-255"></a></span>
-<span id="cb6-256"><a href="#cb6-256"></a>tpr_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fn_05)   <span class="co"># True Positive Rate = Sensitivity = Recall</span></span>
-<span id="cb6-257"><a href="#cb6-257"></a>fpr_05 <span class="op">=</span> fp_05 <span class="op">/</span> (fp_05 <span class="op">+</span> tn_05)   <span class="co"># False Positive Rate = 1 - Specificity</span></span>
-<span id="cb6-258"><a href="#cb6-258"></a>prec_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fp_05)  <span class="co"># Precision = Positive Predictive Value</span></span>
-<span id="cb6-259"><a href="#cb6-259"></a>rec_05 <span class="op">=</span> tpr_05                    <span class="co"># Identically equal to True Positive Rate</span></span>
-<span id="cb6-260"><a href="#cb6-260"></a></span>
-<span id="cb6-261"><a href="#cb6-261"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
-<span id="cb6-262"><a href="#cb6-262"></a></span>
-<span id="cb6-263"><a href="#cb6-263"></a><span class="co"># Panel 1: ROC Curve</span></span>
-<span id="cb6-264"><a href="#cb6-264"></a>axes[<span class="dv">0</span>].plot(fpr, tpr, color<span class="op">=</span><span class="st">"#1f77b4"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"ROC Curve (AUC = </span><span class="sc">{</span>auc_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
-<span id="cb6-265"><a href="#cb6-265"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guessing (AUC = 0.500)"</span>)</span>
-<span id="cb6-266"><a href="#cb6-266"></a>axes[<span class="dv">0</span>].scatter(fpr_05, tpr_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb6-267"><a href="#cb6-267"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (FPR=</span><span class="sc">{</span>fpr_05<span class="sc">:.2f}</span><span class="ss">, TPR=</span><span class="sc">{</span>tpr_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
-<span id="cb6-268"><a href="#cb6-268"></a></span>
-<span id="cb6-269"><a href="#cb6-269"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Receiver Operating Characteristic (ROC)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-270"><a href="#cb6-270"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"False Positive Rate (1 - Specificity)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-271"><a href="#cb6-271"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"True Positive Rate (Sensitivity / Recall)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-272"><a href="#cb6-272"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-273"><a href="#cb6-273"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb6-274"><a href="#cb6-274"></a></span>
-<span id="cb6-275"><a href="#cb6-275"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
-<span id="cb6-276"><a href="#cb6-276"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
-<span id="cb6-277"><a href="#cb6-277"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
-<span id="cb6-278"><a href="#cb6-278"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
-<span id="cb6-279"><a href="#cb6-279"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb6-280"><a href="#cb6-280"></a>                label<span class="op">=</span><span class="ss">f"τ = 0.5 (Rec=</span><span class="sc">{</span>rec_05<span class="sc">:.2f}</span><span class="ss">, Prec=</span><span class="sc">{</span>prec_05<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
-<span id="cb6-281"><a href="#cb6-281"></a></span>
-<span id="cb6-282"><a href="#cb6-282"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb6-283"><a href="#cb6-283"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-284"><a href="#cb6-284"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb6-285"><a href="#cb6-285"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, frameon<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb6-286"><a href="#cb6-286"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
-<span id="cb6-287"><a href="#cb6-287"></a></span>
-<span id="cb6-288"><a href="#cb6-288"></a>plt.tight_layout()</span>
-<span id="cb6-289"><a href="#cb6-289"></a>plt.show()</span>
-<span id="cb6-290"><a href="#cb6-290"></a><span class="in">```</span></span>
-<span id="cb6-291"><a href="#cb6-291"></a></span>
-<span id="cb6-292"><a href="#cb6-292"></a><span class="ss">* </span>**Area Under the ROC Curve (AUC)**: $\text{AUC} \approx 0.90$ summarizes diagnostic discrimination across all false-positive rates, substantially exceeding the random guessing baseline of $0.50$.</span>
-<span id="cb6-293"><a href="#cb6-293"></a><span class="ss">* </span>**Average Precision (AP)**: $\text{AP} \approx 0.92$ measures the area under the Precision-Recall curve ($\int_0^1 P(R) \, dR$), summarizing positive predictive performance across all recall levels. Unlike ROC-AUC, the random-guessing baseline for AP is the sample prevalence ($\bar{p} \approx 0.51$), with a perfect test reaching $\text{AP} = 1.0$.</span>
-<span id="cb6-294"><a href="#cb6-294"></a></span>
-<span id="cb6-295"><a href="#cb6-295"></a></span>
-<span id="cb6-296"><a href="#cb6-296"></a>---</span>
+<span id="cb6-230"><a href="#cb6-230"></a><span class="fu">## 3. ROC and PR Curves</span></span>
+<span id="cb6-231"><a href="#cb6-231"></a></span>
+<span id="cb6-232"><a href="#cb6-232"></a>Rather than evaluating a single fixed threshold $\tau$, sweeping $\tau$ continuously across $<span class="co">[</span><span class="ot">0, 1</span><span class="co">]</span>$ traces out the complete operational trade-off across all potential operating points.</span>
+<span id="cb6-233"><a href="#cb6-233"></a></span>
+<span id="cb6-234"><a href="#cb6-234"></a><span class="ss">* </span>The **Receiver Operating Characteristic (ROC)** curve plots True Positive Rate (Sensitivity) against False Positive Rate ($1 - \text{Specificity}$).</span>
+<span id="cb6-235"><a href="#cb6-235"></a><span class="ss">* </span>The **Precision-Recall (PR)** curve plots Precision against Recall, which is particularly informative when evaluating imbalanced or rare-prevalence cohorts.</span>
+<span id="cb6-236"><a href="#cb6-236"></a></span>
+<span id="cb6-239"><a href="#cb6-239"></a><span class="in">```{python}</span></span>
+<span id="cb6-240"><a href="#cb6-240"></a><span class="co">#| label: fig-roc-pr-curves</span></span>
+<span id="cb6-241"><a href="#cb6-241"></a><span class="co">#| fig-cap: "Side-by-side ROC and Precision-Recall Curves across all decision thresholds with τ = 0.5 highlighted."</span></span>
+<span id="cb6-242"><a href="#cb6-242"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb6-243"><a href="#cb6-243"></a><span class="co">#| code-summary: "Generate Side-by-Side ROC and PR Curves"</span></span>
+<span id="cb6-244"><a href="#cb6-244"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb6-245"><a href="#cb6-245"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb6-246"><a href="#cb6-246"></a><span class="co">#| fig-align: left</span></span>
+<span id="cb6-247"><a href="#cb6-247"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb6-248"><a href="#cb6-248"></a></span>
+<span id="cb6-249"><a href="#cb6-249"></a>fpr, tpr, roc_thresholds <span class="op">=</span> roc_curve(y, p_pred)</span>
+<span id="cb6-250"><a href="#cb6-250"></a>auc_val <span class="op">=</span> roc_auc_score(y, p_pred)</span>
+<span id="cb6-251"><a href="#cb6-251"></a></span>
+<span id="cb6-252"><a href="#cb6-252"></a>prec, rec, pr_thresholds <span class="op">=</span> precision_recall_curve(y, p_pred)</span>
+<span id="cb6-253"><a href="#cb6-253"></a>ap_val <span class="op">=</span> average_precision_score(y, p_pred)</span>
+<span id="cb6-254"><a href="#cb6-254"></a></span>
+<span id="cb6-255"><a href="#cb6-255"></a><span class="co"># Exact operational operating point at threshold tau = 0.5</span></span>
+<span id="cb6-256"><a href="#cb6-256"></a>tau_05 <span class="op">=</span> <span class="fl">0.5</span></span>
+<span id="cb6-257"><a href="#cb6-257"></a>y_pred_05 <span class="op">=</span> (p_pred <span class="op">&gt;=</span> tau_05).astype(<span class="bu">int</span>)</span>
+<span id="cb6-258"><a href="#cb6-258"></a>tn_05, fp_05, fn_05, tp_05 <span class="op">=</span> confusion_matrix(y, y_pred_05).ravel()</span>
+<span id="cb6-259"><a href="#cb6-259"></a></span>
+<span id="cb6-260"><a href="#cb6-260"></a>tpr_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fn_05)   <span class="co"># True Positive Rate = Sensitivity = Recall</span></span>
+<span id="cb6-261"><a href="#cb6-261"></a>fpr_05 <span class="op">=</span> fp_05 <span class="op">/</span> (fp_05 <span class="op">+</span> tn_05)   <span class="co"># False Positive Rate = 1 - Specificity</span></span>
+<span id="cb6-262"><a href="#cb6-262"></a>prec_05 <span class="op">=</span> tp_05 <span class="op">/</span> (tp_05 <span class="op">+</span> fp_05)  <span class="co"># Precision = Positive Predictive Value</span></span>
+<span id="cb6-263"><a href="#cb6-263"></a>rec_05 <span class="op">=</span> tpr_05                    <span class="co"># Identically equal to True Positive Rate</span></span>
+<span id="cb6-264"><a href="#cb6-264"></a></span>
+<span id="cb6-265"><a href="#cb6-265"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-266"><a href="#cb6-266"></a></span>
+<span id="cb6-267"><a href="#cb6-267"></a><span class="co"># Panel 1: ROC Curve</span></span>
+<span id="cb6-268"><a href="#cb6-268"></a>axes[<span class="dv">0</span>].plot(fpr, tpr, color<span class="op">=</span><span class="st">"#1f77b4"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"ROC Curve (AUC = </span><span class="sc">{</span>auc_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-269"><a href="#cb6-269"></a>axes[<span class="dv">0</span>].plot([<span class="dv">0</span>, <span class="dv">1</span>], [<span class="dv">0</span>, <span class="dv">1</span>], <span class="st">"k--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="st">"Random Guess (AUC = 0.50)"</span>)</span>
+<span id="cb6-270"><a href="#cb6-270"></a>axes[<span class="dv">0</span>].scatter(fpr_05, tpr_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb6-271"><a href="#cb6-271"></a>                label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>tau_05<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-272"><a href="#cb6-272"></a></span>
+<span id="cb6-273"><a href="#cb6-273"></a>axes[<span class="dv">0</span>].set_title(<span class="st">"Receiver Operating Characteristic (ROC)"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-274"><a href="#cb6-274"></a>axes[<span class="dv">0</span>].set_xlabel(<span class="st">"False Positive Rate (1 - Specificity)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-275"><a href="#cb6-275"></a>axes[<span class="dv">0</span>].set_ylabel(<span class="st">"True Positive Rate (Sensitivity / Recall)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-276"><a href="#cb6-276"></a>axes[<span class="dv">0</span>].legend(loc<span class="op">=</span><span class="st">"lower right"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.98</span>, <span class="fl">0.09</span>), frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb6-277"><a href="#cb6-277"></a>               handlelength<span class="op">=</span><span class="fl">1.5</span>, handletextpad<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-278"><a href="#cb6-278"></a>axes[<span class="dv">0</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-279"><a href="#cb6-279"></a></span>
+<span id="cb6-280"><a href="#cb6-280"></a><span class="co"># Panel 2: Precision-Recall Curve</span></span>
+<span id="cb6-281"><a href="#cb6-281"></a>axes[<span class="dv">1</span>].plot(rec, prec, color<span class="op">=</span><span class="st">"#2ca02c"</span>, lw<span class="op">=</span><span class="fl">2.5</span>, label<span class="op">=</span><span class="ss">f"PR Curve (AP = </span><span class="sc">{</span>ap_val<span class="sc">:.3f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-282"><a href="#cb6-282"></a>baseline_prev <span class="op">=</span> np.mean(y)</span>
+<span id="cb6-283"><a href="#cb6-283"></a>axes[<span class="dv">1</span>].axhline(baseline_prev, color<span class="op">=</span><span class="st">"gray"</span>, linestyle<span class="op">=</span><span class="st">"--"</span>, lw<span class="op">=</span><span class="fl">1.5</span>, label<span class="op">=</span><span class="ss">f"Baseline Prevalence (</span><span class="sc">{</span>baseline_prev<span class="sc">:.2f}</span><span class="ss">)"</span>)</span>
+<span id="cb6-284"><a href="#cb6-284"></a>axes[<span class="dv">1</span>].scatter(rec_05, prec_05, color<span class="op">=</span><span class="st">"#d62728"</span>, s<span class="op">=</span><span class="dv">80</span>, zorder<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb6-285"><a href="#cb6-285"></a>                label<span class="op">=</span><span class="ss">f"τ = </span><span class="sc">{</span>tau_05<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-286"><a href="#cb6-286"></a></span>
+<span id="cb6-287"><a href="#cb6-287"></a>axes[<span class="dv">1</span>].set_title(<span class="st">"Precision-Recall Curve"</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb6-288"><a href="#cb6-288"></a>axes[<span class="dv">1</span>].set_xlabel(<span class="st">"Recall (Sensitivity / True Positive Rate)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-289"><a href="#cb6-289"></a>axes[<span class="dv">1</span>].set_ylabel(<span class="st">"Precision (Positive Predictive Value)"</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-290"><a href="#cb6-290"></a>axes[<span class="dv">1</span>].legend(loc<span class="op">=</span><span class="st">"lower left"</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">0.02</span>, <span class="fl">0.09</span>), frameon<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb6-291"><a href="#cb6-291"></a>               handlelength<span class="op">=</span><span class="fl">1.5</span>, handletextpad<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-292"><a href="#cb6-292"></a>axes[<span class="dv">1</span>].grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">":"</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-293"><a href="#cb6-293"></a></span>
+<span id="cb6-294"><a href="#cb6-294"></a>plt.tight_layout()</span>
+<span id="cb6-295"><a href="#cb6-295"></a>plt.show()</span>
+<span id="cb6-296"><a href="#cb6-296"></a><span class="in">```</span></span>
 <span id="cb6-297"><a href="#cb6-297"></a></span>
-<span id="cb6-298"><a href="#cb6-298"></a><span class="fu">## 4. Review</span></span>
-<span id="cb6-299"><a href="#cb6-299"></a></span>
-<span id="cb6-300"><a href="#cb6-300"></a><span class="pp">|</span> Concept <span class="pp">|</span> Linear Regression <span class="pp">|</span> Logistic Regression <span class="pp">|</span></span>
-<span id="cb6-301"><a href="#cb6-301"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
-<span id="cb6-302"><a href="#cb6-302"></a><span class="pp">|</span> **Target Variable** <span class="pp">|</span> Continuous $y \in \mathbb{R}$ <span class="pp">|</span> Binary $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ <span class="pp">|</span></span>
-<span id="cb6-303"><a href="#cb6-303"></a><span class="pp">|</span> **Residual Metric** <span class="pp">|</span> $RSS = \sum (y_i - \hat{y}_i)^2$ <span class="pp">|</span> $D = -2 \ln L(\hat{\theta}) = 2n \times \text{BCE}$ <span class="pp">|</span></span>
-<span id="cb6-304"><a href="#cb6-304"></a><span class="pp">|</span> **Baseline Benchmark** <span class="pp">|</span> Total Sum of Squares ($TSS$) <span class="pp">|</span> Null Deviance $D(\text{null})$ <span class="pp">|</span></span>
-<span id="cb6-305"><a href="#cb6-305"></a><span class="pp">|</span> **Explanatory Gain** <span class="pp">|</span> $ESS = TSS - RSS$ <span class="pp">|</span> $\Delta D = D(\text{null}) - D(\hat{\theta})$ <span class="pp">|</span></span>
-<span id="cb6-306"><a href="#cb6-306"></a><span class="pp">|</span> **Operational Metric** <span class="pp">|</span> $R^2$, RMSE <span class="pp">|</span> Confusion Matrix, Sensitivity, Specificity, AUC, ... <span class="pp">|</span></span>
+<span id="cb6-298"><a href="#cb6-298"></a><span class="ss">* </span>**Area Under the ROC Curve (AUC)**: $\text{AUC} \approx 0.90$ summarizes diagnostic discrimination across all false-positive rates, substantially exceeding the random guessing baseline of $0.50$.</span>
+<span id="cb6-299"><a href="#cb6-299"></a><span class="ss">* </span>**Average Precision (AP)**: $\text{AP} \approx 0.92$ measures the area under the Precision-Recall curve ($\int_0^1 P(R) \, dR$), summarizing positive predictive performance across all recall levels. Unlike ROC-AUC, the random-guessing baseline for AP is the sample prevalence ($\bar{p} \approx 0.51$), with a perfect test reaching $\text{AP} = 1.0$.</span>
+<span id="cb6-300"><a href="#cb6-300"></a></span>
+<span id="cb6-301"><a href="#cb6-301"></a></span>
+<span id="cb6-302"><a href="#cb6-302"></a>---</span>
+<span id="cb6-303"><a href="#cb6-303"></a></span>
+<span id="cb6-304"><a href="#cb6-304"></a><span class="fu">## 4. Review</span></span>
+<span id="cb6-305"><a href="#cb6-305"></a></span>
+<span id="cb6-306"><a href="#cb6-306"></a><span class="pp">|</span> Concept <span class="pp">|</span> Linear Regression <span class="pp">|</span> Logistic Regression <span class="pp">|</span></span>
+<span id="cb6-307"><a href="#cb6-307"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb6-308"><a href="#cb6-308"></a><span class="pp">|</span> **Target Variable** <span class="pp">|</span> Continuous $y \in \mathbb{R}$ <span class="pp">|</span> Binary $y \in <span class="sc">\{</span>0, 1<span class="sc">\}</span>$ <span class="pp">|</span></span>
+<span id="cb6-309"><a href="#cb6-309"></a><span class="pp">|</span> **Residual Metric** <span class="pp">|</span> $RSS = \sum (y_i - \hat{y}_i)^2$ <span class="pp">|</span> $D = -2 \ln L(\hat{\theta}) = 2n \times \text{BCE}$ <span class="pp">|</span></span>
+<span id="cb6-310"><a href="#cb6-310"></a><span class="pp">|</span> **Baseline Benchmark** <span class="pp">|</span> Total Sum of Squares ($TSS$) <span class="pp">|</span> Null Deviance $D(\text{null})$ <span class="pp">|</span></span>
+<span id="cb6-311"><a href="#cb6-311"></a><span class="pp">|</span> **Explanatory Gain** <span class="pp">|</span> $ESS = TSS - RSS$ <span class="pp">|</span> $\Delta D = D(\text{null}) - D(\hat{\theta})$ <span class="pp">|</span></span>
+<span id="cb6-312"><a href="#cb6-312"></a><span class="pp">|</span> **Operational Metric** <span class="pp">|</span> $R^2$, RMSE <span class="pp">|</span> Confusion Matrix, Sensitivity, Specificity, AUC, ... <span class="pp">|</span></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

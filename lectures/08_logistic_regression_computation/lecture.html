@@ -358,6 +358,10 @@ window.Quarto = {
     <a class="dropdown-item" href="../../lectures/07_logistic_regression_confusion/lecture.html">
  <span class="dropdown-text">07 Logistic Regression: Deviance and Confusion</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../lectures/08_logistic_regression_computation/lecture.html">
+ <span class="dropdown-text">08 Logistic Regression: Computation</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -447,26 +451,21 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#pre-class-preparation" id="toc-pre-class-preparation" class="nav-link active" data-scroll-target="#pre-class-preparation">0. Pre-Class Preparation</a></li>
-  <li><a href="#the-computational-roadblock-why-analytical-ols-fails" id="toc-the-computational-roadblock-why-analytical-ols-fails" class="nav-link" data-scroll-target="#the-computational-roadblock-why-analytical-ols-fails">1. The Computational Roadblock: Why Analytical OLS Fails</a>
+  <li><a href="#the-need-for-iterative-solutions" id="toc-the-need-for-iterative-solutions" class="nav-link active" data-scroll-target="#the-need-for-iterative-solutions">1. The Need for Iterative Solutions</a>
   <ul class="collapse">
-  <li><a href="#closed-form-normal-equations-vs.-non-linear-entrapment" id="toc-closed-form-normal-equations-vs.-non-linear-entrapment" class="nav-link" data-scroll-target="#closed-form-normal-equations-vs.-non-linear-entrapment">1.1 Closed-Form Normal Equations vs.&nbsp;Non-Linear Entrapment</a></li>
+  <li><a href="#defining-the-loss-function-jtheta" id="toc-defining-the-loss-function-jtheta" class="nav-link" data-scroll-target="#defining-the-loss-function-jtheta">Defining the Loss Function <span class="math inline">\(J(\theta)\)</span></a></li>
   </ul></li>
-  <li><a href="#gradient-techniques-under-the-hood" id="toc-gradient-techniques-under-the-hood" class="nav-link" data-scroll-target="#gradient-techniques-under-the-hood">2. Gradient Techniques Under the Hood</a>
+  <li><a href="#iterative-methods" id="toc-iterative-methods" class="nav-link" data-scroll-target="#iterative-methods">2. Iterative Methods</a>
   <ul class="collapse">
-  <li><a href="#vectorized-gradient-derivation" id="toc-vectorized-gradient-derivation" class="nav-link" data-scroll-target="#vectorized-gradient-derivation">2.1 Vectorized Gradient Derivation</a></li>
-  <li><a href="#batch-gradient-descent-bgd-from-scratch" id="toc-batch-gradient-descent-bgd-from-scratch" class="nav-link" data-scroll-target="#batch-gradient-descent-bgd-from-scratch">2.2 Batch Gradient Descent (BGD) from Scratch</a></li>
+  <li><a href="#gradient-descent" id="toc-gradient-descent" class="nav-link" data-scroll-target="#gradient-descent">2.1 Gradient Descent</a></li>
+  <li><a href="#newtons-method" id="toc-newtons-method" class="nav-link" data-scroll-target="#newtons-method">2.2 Newton’s Method</a></li>
+  <li><a href="#newtons-method-in-higher-dimensions" id="toc-newtons-method-in-higher-dimensions" class="nav-link" data-scroll-target="#newtons-method-in-higher-dimensions">2.3 Newton’s Method in Higher Dimensions</a></li>
   </ul></li>
-  <li><a href="#second-order-curvature-newton-raphson-irls" id="toc-second-order-curvature-newton-raphson-irls" class="nav-link" data-scroll-target="#second-order-curvature-newton-raphson-irls">3. Second-Order Curvature: Newton-Raphson &amp; IRLS</a>
+  <li><a href="#scikit-learn-in-practice" id="toc-scikit-learn-in-practice" class="nav-link" data-scroll-target="#scikit-learn-in-practice">3. Scikit-Learn in Practice</a></li>
+  <li><a href="#regularization-and-complete-separation" id="toc-regularization-and-complete-separation" class="nav-link" data-scroll-target="#regularization-and-complete-separation">4. Regularization and Complete Separation</a>
   <ul class="collapse">
-  <li><a href="#the-hessian-matrix-and-quadratic-approximation" id="toc-the-hessian-matrix-and-quadratic-approximation" class="nav-link" data-scroll-target="#the-hessian-matrix-and-quadratic-approximation">3.1 The Hessian Matrix and Quadratic Approximation</a></li>
+  <li><a href="#an-example" id="toc-an-example" class="nav-link" data-scroll-target="#an-example">An Example</a></li>
   </ul></li>
-  <li><a href="#scikit-learn-excursion-practical-engineering" id="toc-scikit-learn-excursion-practical-engineering" class="nav-link" data-scroll-target="#scikit-learn-excursion-practical-engineering">4. Scikit-Learn Excursion &amp; Practical Engineering</a>
-  <ul class="collapse">
-  <li><a href="#production-pipeline-with-standardization" id="toc-production-pipeline-with-standardization" class="nav-link" data-scroll-target="#production-pipeline-with-standardization">4.1 Production Pipeline with Standardization</a></li>
-  <li><a href="#regularization-via-c-1-λ-and-complete-separation" id="toc-regularization-via-c-1-λ-and-complete-separation" class="nav-link" data-scroll-target="#regularization-via-c-1-λ-and-complete-separation">4.2 Regularization via <code>C = 1 / λ</code> and Complete Separation</a></li>
-  </ul></li>
-  <li><a href="#review-key-takeaways" id="toc-review-key-takeaways" class="nav-link" data-scroll-target="#review-key-takeaways">5. Review &amp; Key Takeaways</a></li>
   </ul>
 </nav>
     </div>
@@ -526,271 +525,328 @@ window.Quarto = {
 <span id="cb1-10"><a href="#cb1-10"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<section id="pre-class-preparation" class="level2">
-<h2 class="anchored" data-anchor-id="pre-class-preparation">0. Pre-Class Preparation</h2>
+<section id="the-need-for-iterative-solutions" class="level2">
+<h2 class="anchored" data-anchor-id="the-need-for-iterative-solutions">1. The Need for Iterative Solutions</h2>
+<p>In <strong>Linear Regression</strong>, we minimize the residual sum of squares by setting the gradient to zero: <span class="math display">\[\nabla_\theta \text{RSS}(\theta) = -2 X^T (y - X\theta) = -2 X^T (y - \hat{y}) = 0\]</span></p>
+<p>Because the system is linear in the parameters <span class="math inline">\(\theta\)</span>, we can solve for <span class="math inline">\(\theta\)</span> analytically.</p>
+<p>In <strong>Logistic Regression</strong>, we minimize the deviance <span class="math inline">\(D(\theta)\)</span>: <span class="math display">\[D(\theta) = -2 \sum_{i=1}^n \left[ y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right]\]</span></p>
+<p>where <span class="math inline">\(\hat{y}_i = \sigma(x_i^T \theta) = \frac{1}{1 + e^{-x_i^T \theta}}\)</span>. The gradient of the deviance is: <span class="math display">\[\nabla_\theta D(\theta) = -2 X^T (y - \hat{y}) = -2 \sum_{i=1}^n (y_i - \hat{y}_i) x_i\]</span></p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>Flipped Classroom Preparation Checklist
+<span class="screen-reader-only">Note</span>Derivation: Deviance Gradient via the Chain Rule
 </div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Before joining this session, please review the following foundational materials:</p>
-<ul class="task-list">
-<li><label><input type="checkbox"><strong>Reading:</strong> Regression: Iterative Solutions (Core tutorial on gradient descent and Hessian curvature).</label></li>
-<li><label><input type="checkbox"><strong>Textbook:</strong> Bishop &amp; Bishop (2024), <em>Deep Learning: Foundations and Concepts</em>, Chapter 5.2.3 (pp.&nbsp;162–168: Iterative Reweighted Least Squares).</label></li>
-<li><label><input type="checkbox"><strong>Reference Notes:</strong> <a href="https://see.stanford.edu/materials/aimlcs229/cs229-notes1.pdf" target="_blank" rel="noopener">Stanford CS229: Newton’s Method</a> (Section 5: Newton-Raphson &amp; Hessian).</label></li>
+<p>For a single observation <span class="math inline">\((x_i, y_i)\)</span> with linear predictor <span class="math inline">\(z_i = x_i^T \theta\)</span> and predicted probability <span class="math inline">\(\hat{y}_i = \sigma(z_i)\)</span>, the deviance contribution is: <span class="math display">\[D_i(\theta) = -2 \left[ y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right]\]</span></p>
+<p>Applying the calculus chain rule: <span class="math display">\[\frac{\partial D_i}{\partial \theta} = \frac{\partial D_i}{\partial \hat{y}_i} \cdot \frac{\partial \hat{y}_i}{\partial z_i} \cdot \frac{\partial z_i}{\partial \theta}\]</span></p>
+<p>Evaluating the three factors:</p>
+<ul>
+<li>First factor: <span class="math inline">\(\frac{\partial D_i}{\partial \hat{y}_i} = -2\left( \frac{y_i}{\hat{y}_i} - \frac{1 - y_i}{1 - \hat{y}_i} \right) = -2\left( \frac{y_i - \hat{y}_i}{\hat{y}_i(1 - \hat{y}_i)} \right) = 2\left( \frac{\hat{y}_i - y_i}{\hat{y}_i(1 - \hat{y}_i)} \right)\)</span></li>
+<li>Second factor: <span class="math inline">\(\frac{\partial \hat{y}_i}{\partial z_i} = \sigma'(z_i) = \hat{y}_i(1 - \hat{y}_i)\)</span></li>
+<li>Third factor: <span class="math inline">\(\frac{\partial z_i}{\partial \theta} = x_i\)</span></li>
 </ul>
+<p>Combining these factors yields: <span class="math display">\[\frac{\partial D_i}{\partial \theta} = -2\left( \frac{y_i - \hat{y}_i}{\hat{y}_i(1 - \hat{y}_i)} \right) \cdot \left[ \hat{y}_i(1 - \hat{y}_i) \right] \cdot x_i = -2 (y_i - \hat{y}_i) x_i \]</span></p>
+<p>Summing across all <span class="math inline">\(n\)</span> observations yields: <span class="math display">\[\nabla_\theta D(\theta) = -2 \sum_{i=1}^n (y_i - \hat{y}_i) x_i = -2 X^T (y - \hat{y})\]</span></p>
 </div>
 </div>
-<hr>
-</section>
-<section id="the-computational-roadblock-why-analytical-ols-fails" class="level2">
-<h2 class="anchored" data-anchor-id="the-computational-roadblock-why-analytical-ols-fails">1. The Computational Roadblock: Why Analytical OLS Fails</h2>
-<section id="closed-form-normal-equations-vs.-non-linear-entrapment" class="level3">
-<h3 class="anchored" data-anchor-id="closed-form-normal-equations-vs.-non-linear-entrapment">1.1 Closed-Form Normal Equations vs.&nbsp;Non-Linear Entrapment</h3>
-<p>In Ordinary Least Squares (OLS) linear regression, the gradient of the Mean Squared Error is purely linear in <span class="math inline">\(\theta\)</span>: <span class="math display">\[\nabla_\theta S(\theta) = -\frac{2}{n}X^T(y - X\theta) = 0 \iff X^T X \theta = X^T y\]</span></p>
-<p>Because the system is linear, we invert it in one step: <span class="math inline">\(\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y\)</span>.</p>
-<p>In Logistic Regression, setting the gradient of the loss function <span class="math inline">\(\ell(\theta)\)</span> to zero yields: <span class="math display">\[\nabla_\theta \ell(\theta) = \frac{1}{n}\sum_{i=1}^n \left( \sigma(x_i^T \theta) - y_i \right) x_i = \frac{1}{n}\sum_{i=1}^n \left( \frac{1}{1 + e^{-x_i^T \theta}} - y_i \right) x_i = 0\]</span></p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>The Fundamental Analytical Roadblock
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The parameter vector <span class="math inline">\(\theta\)</span> is trapped non-linearly inside the exponential of the denominator. <strong>No algebraic linear algebra transformation can isolate <span class="math inline">\(\theta\)</span>.</strong> There is no <span class="math inline">\((X^T X)^{-1}\)</span> formula for logistic regression. We must find <span class="math inline">\(\theta\)</span> through <strong>iterative numerical optimization</strong>.</p>
-</div>
-</div>
-<hr>
-</section>
-</section>
-<section id="gradient-techniques-under-the-hood" class="level2">
-<h2 class="anchored" data-anchor-id="gradient-techniques-under-the-hood">2. Gradient Techniques Under the Hood</h2>
-<section id="vectorized-gradient-derivation" class="level3">
-<h3 class="anchored" data-anchor-id="vectorized-gradient-derivation">2.1 Vectorized Gradient Derivation</h3>
-<p>Using the calculus chain rule through the sigmoid link: <span class="math display">\[\frac{\partial \ell}{\partial \theta} = \frac{\partial \ell}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial z} \cdot \frac{\partial z}{\partial \theta} = \left( -\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}} \right) \cdot \left[ \hat{y}(1-\hat{y}) \right] \cdot x = (\hat{y} - y)x\]</span></p>
-<p>In compact matrix notation: <span class="math display">\[\boxed{\nabla_\theta \ell(\theta) = \frac{1}{n} X^T (\hat{y} - y)}\]</span></p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Pedagogical Symmetry
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Observe the structural twin: the gradient has the <strong>exact same form</strong> as linear regression, <span class="math inline">\(\frac{1}{n} X^T(\text{predictions} - \text{targets})\)</span>, with the non-linearity cleanly isolated in <span class="math inline">\(\hat{y} = \sigma(X\theta)\)</span>.</p>
-</div>
-</div>
-<hr>
-</section>
-<section id="batch-gradient-descent-bgd-from-scratch" class="level3">
-<h3 class="anchored" data-anchor-id="batch-gradient-descent-bgd-from-scratch">2.2 Batch Gradient Descent (BGD) from Scratch</h3>
-<p>The Batch Gradient Descent update rule with learning rate <span class="math inline">\(\alpha &gt; 0\)</span> is: <span class="math display">\[\theta^{(k+1)} = \theta^{(k)} - \frac{\alpha}{n} X^T \left( \sigma(X\theta^{(k)}) - y \right)\]</span></p>
-<div id="cell-fig-gd-convergence" class="cell" data-fig-height="4" data-fig-width="10" data-execution_count="2">
+<p>Setting this gradient to zero, we find an equation for the optimal parameters: <span class="math display">\[X^T (y - \hat{y}) = 0\]</span></p>
+<p>Notice that the residual error <span class="math inline">\(y - \hat{y}\)</span> is again orthogonal to all data matrix columns. However, <span class="math inline">\(\hat{y} = \sigma(X\theta)\)</span> is non-linear in <span class="math inline">\(\theta\)</span>. Therefore, the system cannot be solved analytically for <span class="math inline">\(\theta\)</span> and we must rely on iterative optimization.</p>
+<section id="defining-the-loss-function-jtheta" class="level3">
+<h3 class="anchored" data-anchor-id="defining-the-loss-function-jtheta">Defining the Loss Function <span class="math inline">\(J(\theta)\)</span></h3>
+<p>To normalize the deviance for the number of samples <span class="math inline">\(n\)</span> we define the mean loss function <span class="math inline">\(J(\theta)\)</span>. This is the <strong>binary cross-entropy</strong> and does not grow with the number of samples: <span class="math display">\[J(\theta) = \frac{1}{2n} D(\theta) = -\frac{1}{n} \sum_{i=1}^n \left[ y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right]\]</span></p>
+<div id="cell-fig-loss-function-1d" class="cell" data-fig-height="4.2" data-fig-width="8.5" data-execution_count="2">
 <details class="code-fold">
-<summary>Batch Gradient Descent Implementation from Scratch</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb2-2"><a href="#cb2-2"></a>n <span class="op">=</span> <span class="dv">150</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)</span>
-<span id="cb2-4"><a href="#cb2-4"></a>bmi <span class="op">=</span> np.random.uniform(<span class="dv">18</span>, <span class="dv">42</span>, n)</span>
-<span id="cb2-5"><a href="#cb2-5"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">12.0</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> bmi</span>
-<span id="cb2-6"><a href="#cb2-6"></a>y <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true)) <span class="op">&gt;</span> <span class="fl">0.5</span>).astype(<span class="bu">int</span>)</span>
+<summary>1D Non-Linear Logistic Loss Landscape</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co"># 1D feature and labels: basis function utilized throughout this lecture</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>x_data <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>])</span>
+<span id="cb2-6"><a href="#cb2-6"></a>y_data <span class="op">=</span> np.array([<span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">1</span>,    <span class="dv">0</span>,   <span class="dv">1</span>,   <span class="dv">1</span>])</span>
 <span id="cb2-7"><a href="#cb2-7"></a></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co"># Mandatory feature standardization</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>X_raw <span class="op">=</span> np.column_stack([glucose, bmi])</span>
-<span id="cb2-10"><a href="#cb2-10"></a>X_mean, X_std <span class="op">=</span> np.mean(X_raw, axis<span class="op">=</span><span class="dv">0</span>), np.std(X_raw, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb2-11"><a href="#cb2-11"></a>X_scaled <span class="op">=</span> (X_raw <span class="op">-</span> X_mean) <span class="op">/</span> X_std</span>
-<span id="cb2-12"><a href="#cb2-12"></a>X_design <span class="op">=</span> np.column_stack([np.ones(n), X_scaled])</span>
-<span id="cb2-13"><a href="#cb2-13"></a></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="co"># Gradient Descent Loop</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>theta <span class="op">=</span> np.zeros(<span class="dv">3</span>)</span>
-<span id="cb2-16"><a href="#cb2-16"></a>alpha <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a>epochs <span class="op">=</span> <span class="dv">200</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>loss_history <span class="op">=</span> []</span>
-<span id="cb2-19"><a href="#cb2-19"></a></span>
-<span id="cb2-20"><a href="#cb2-20"></a><span class="cf">for</span> ep <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
-<span id="cb2-21"><a href="#cb2-21"></a>    p <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>X_design <span class="op">@</span> theta))</span>
-<span id="cb2-22"><a href="#cb2-22"></a>    loss <span class="op">=</span> <span class="op">-</span>np.mean(y <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>))</span>
-<span id="cb2-23"><a href="#cb2-23"></a>    loss_history.append(loss)</span>
-<span id="cb2-24"><a href="#cb2-24"></a>    grad <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> n) <span class="op">*</span> (X_design.T <span class="op">@</span> (p <span class="op">-</span> y))</span>
-<span id="cb2-25"><a href="#cb2-25"></a>    theta <span class="op">-=</span> alpha <span class="op">*</span> grad</span>
-<span id="cb2-26"><a href="#cb2-26"></a></span>
-<span id="cb2-27"><a href="#cb2-27"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.0</span>))</span>
-<span id="cb2-28"><a href="#cb2-28"></a>ax.plot(<span class="bu">range</span>(<span class="dv">1</span>, epochs <span class="op">+</span> <span class="dv">1</span>), loss_history, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
-<span id="cb2-29"><a href="#cb2-29"></a>ax.set_title(<span class="st">'Batch Gradient Descent: Monotonic Convergence of Binary Cross-Entropy'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb2-30"><a href="#cb2-30"></a>ax.set_xlabel(<span class="st">'Epoch (Iteration Number)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb2-31"><a href="#cb2-31"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb2-32"><a href="#cb2-32"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
-<span id="cb2-33"><a href="#cb2-33"></a></span>
-<span id="cb2-34"><a href="#cb2-34"></a>plt.tight_layout()</span>
-<span id="cb2-35"><a href="#cb2-35"></a>plt.show()</span>
-<span id="cb2-36"><a href="#cb2-36"></a></span>
-<span id="cb2-37"><a href="#cb2-37"></a><span class="bu">print</span>(<span class="ss">f"Final fitted parameters: theta0 (bias) = </span><span class="sc">{</span>theta[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, theta_glucose = </span><span class="sc">{</span>theta[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">, theta_bmi = </span><span class="sc">{</span>theta[<span class="dv">2</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>np.clip(z, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>)))</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">def</span> loss_func(theta_vals):</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    theta_vals <span class="op">=</span> np.atleast_1d(theta_vals)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>    p <span class="op">=</span> sigmoid(np.outer(theta_vals, x_data))</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    <span class="cf">return</span> <span class="op">-</span>np.mean(y_data <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y_data) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb2-15"><a href="#cb2-15"></a></span>
+<span id="cb2-16"><a href="#cb2-16"></a>theta_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">3.8</span>, <span class="dv">400</span>)</span>
+<span id="cb2-17"><a href="#cb2-17"></a>J_grid <span class="op">=</span> loss_func(theta_grid)</span>
+<span id="cb2-18"><a href="#cb2-18"></a>th_star <span class="op">=</span> theta_grid[np.argmin(J_grid)]</span>
+<span id="cb2-19"><a href="#cb2-19"></a>J_star <span class="op">=</span> np.<span class="bu">min</span>(J_grid)</span>
+<span id="cb2-20"><a href="#cb2-20"></a></span>
+<span id="cb2-21"><a href="#cb2-21"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.2</span>))</span>
+<span id="cb2-22"><a href="#cb2-22"></a>ax.plot(theta_grid, J_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb2-23"><a href="#cb2-23"></a>ax.plot(th_star, J_star, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb2-24"><a href="#cb2-24"></a>ax.axvline(th_star, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co"># Custom x-tick annotations for theta*</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a>ax.set_xticks([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="fl">0.0</span>, th_star, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
+<span id="cb2-28"><a href="#cb2-28"></a>ax.set_xticklabels([<span class="st">'-2.0'</span>, <span class="st">'-1.0'</span>, <span class="st">'0.0'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'2.0'</span>, <span class="st">'3.0'</span>], fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-29"><a href="#cb2-29"></a></span>
+<span id="cb2-30"><a href="#cb2-30"></a>ax.set_xlabel(<span class="vs">r'Parameter </span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="vs">J</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb2-32"><a href="#cb2-32"></a>ax.set_title(<span class="st">"Logistic Loss Landscape"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-33"><a href="#cb2-33"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb2-34"><a href="#cb2-34"></a></span>
+<span id="cb2-35"><a href="#cb2-35"></a>plt.tight_layout()</span>
+<span id="cb2-36"><a href="#cb2-36"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-display">
-<div id="fig-gd-convergence" class="quarto-float quarto-figure quarto-figure-left anchored" data-fig-align="left">
+<div id="fig-loss-function-1d" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-gd-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="lecture_files/figure-html/fig-gd-convergence-output-1.png" class="quarto-figure quarto-figure-left figure-img" width="1477" height="575">
+<div aria-describedby="fig-loss-function-1d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-loss-function-1d-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="1252" height="606">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gd-convergence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Iterative loss reduction of Batch Gradient Descent on clinical data.
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-loss-function-1d-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The 1D logistic loss landscape <span class="math inline">\(J(\theta) = \frac{1}{2n} D(\theta)\)</span> as a function of parameter <span class="math inline">\(\theta\)</span>, illustrating a non-linear objective with a unique global minimum <span class="math inline">\(\theta^\ast\)</span>.
 </figcaption>
 </figure>
 </div>
 </div>
+</div>
+<hr>
+</section>
+</section>
+<section id="iterative-methods" class="level2">
+<h2 class="anchored" data-anchor-id="iterative-methods">2. Iterative Methods</h2>
+<section id="gradient-descent" class="level3">
+<h3 class="anchored" data-anchor-id="gradient-descent">2.1 Gradient Descent</h3>
+<p>Although the non-linear problem cannot be solved analytically, we can use iterative solvers. The Gradient Descent update rule with learning rate <span class="math inline">\(\alpha &gt; 0\)</span> applied to the mean loss <span class="math inline">\(J(\theta)\)</span> is: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - \alpha \nabla J(\theta^{(t)}) = \theta^{(t)} - \frac{\alpha}{n} X^T (\hat{y}^{(t)} - y)\]</span></p>
+<p>where <span class="math inline">\(\hat{y}^{(t)} = \sigma(X\theta^{(t)})\)</span>.</p>
+<p>First-order derivatives tell us which direction to step, but do not dictate how far to step. Choosing <span class="math inline">\(\alpha\)</span> requires careful tuning: too small values lead to slow convergence; too large values may cause oscillations or divergence.</p>
+<hr>
+</section>
+<section id="newtons-method" class="level3">
+<h3 class="anchored" data-anchor-id="newtons-method">2.2 Newton’s Method</h3>
+<p>Instead of fitting a tangent to a local curve and determining a step size with an ad-hoc learning rate, Newton’s method approximates the loss function by a local parabola at the current estimate of <span class="math inline">\(\theta^{(t)}\)</span>.</p>
+<div id="cell-fig-newton-step" class="cell" data-fig-height="4.6" data-fig-width="8.5" data-execution_count="3">
+<details class="code-fold">
+<summary>1D Newton Method: Local Parabola Fit &amp; Vertex Step</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co"># 1D feature and labels: identical basis function from Section 1</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>x_data <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>])</span>
+<span id="cb3-6"><a href="#cb3-6"></a>y_data <span class="op">=</span> np.array([<span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">1</span>,    <span class="dv">0</span>,   <span class="dv">1</span>,   <span class="dv">1</span>])</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb3-9"><a href="#cb3-9"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>np.clip(z, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>)))</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="kw">def</span> loss_func(theta_vals):</span>
+<span id="cb3-12"><a href="#cb3-12"></a>    theta_vals <span class="op">=</span> np.atleast_1d(theta_vals)</span>
+<span id="cb3-13"><a href="#cb3-13"></a>    p <span class="op">=</span> sigmoid(np.outer(theta_vals, x_data))</span>
+<span id="cb3-14"><a href="#cb3-14"></a>    <span class="cf">return</span> <span class="op">-</span>np.mean(y_data <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y_data) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="kw">def</span> grad_func(theta):</span>
+<span id="cb3-17"><a href="#cb3-17"></a>    p <span class="op">=</span> sigmoid(theta <span class="op">*</span> x_data)</span>
+<span id="cb3-18"><a href="#cb3-18"></a>    <span class="cf">return</span> np.mean((p <span class="op">-</span> y_data) <span class="op">*</span> x_data)</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="kw">def</span> hess_func(theta):</span>
+<span id="cb3-21"><a href="#cb3-21"></a>    p <span class="op">=</span> sigmoid(theta <span class="op">*</span> x_data)</span>
+<span id="cb3-22"><a href="#cb3-22"></a>    <span class="cf">return</span> np.mean(p <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p) <span class="op">*</span> (x_data <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="co"># Grid for plotting curves and identifying the true minimum</span></span>
+<span id="cb3-25"><a href="#cb3-25"></a>theta_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">3.5</span>, <span class="dv">400</span>)</span>
+<span id="cb3-26"><a href="#cb3-26"></a>J_grid <span class="op">=</span> loss_func(theta_grid)</span>
+<span id="cb3-27"><a href="#cb3-27"></a>th_star <span class="op">=</span> theta_grid[np.argmin(J_grid)]</span>
+<span id="cb3-28"><a href="#cb3-28"></a>J_star <span class="op">=</span> np.<span class="bu">min</span>(J_grid)</span>
+<span id="cb3-29"><a href="#cb3-29"></a></span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="co"># Iteration from theta_0 = -0.3</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a>theta_0 <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span></span>
+<span id="cb3-32"><a href="#cb3-32"></a>J_0 <span class="op">=</span> loss_func(theta_0)[<span class="dv">0</span>]</span>
+<span id="cb3-33"><a href="#cb3-33"></a>dJ_0 <span class="op">=</span> grad_func(theta_0)</span>
+<span id="cb3-34"><a href="#cb3-34"></a>ddJ_0 <span class="op">=</span> hess_func(theta_0)</span>
+<span id="cb3-35"><a href="#cb3-35"></a></span>
+<span id="cb3-36"><a href="#cb3-36"></a><span class="co"># Newton step 1: optimal adaptive step alpha_0* = 1 / ddJ_0 to parabola vertex</span></span>
+<span id="cb3-37"><a href="#cb3-37"></a>theta_1 <span class="op">=</span> theta_0 <span class="op">-</span> dJ_0 <span class="op">/</span> ddJ_0</span>
+<span id="cb3-38"><a href="#cb3-38"></a>q_vertex <span class="op">=</span> J_0 <span class="op">+</span> dJ_0 <span class="op">*</span> (theta_1 <span class="op">-</span> theta_0) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> ddJ_0 <span class="op">*</span> (theta_1 <span class="op">-</span> theta_0)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-39"><a href="#cb3-39"></a></span>
+<span id="cb3-40"><a href="#cb3-40"></a><span class="co"># Full parabola fitted at theta_0: symmetric around vertex theta_1</span></span>
+<span id="cb3-41"><a href="#cb3-41"></a>th_p0 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">0.9</span>, <span class="fl">2.8</span>, <span class="dv">200</span>)</span>
+<span id="cb3-42"><a href="#cb3-42"></a>q0 <span class="op">=</span> J_0 <span class="op">+</span> dJ_0 <span class="op">*</span> (th_p0 <span class="op">-</span> theta_0) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> ddJ_0 <span class="op">*</span> (th_p0 <span class="op">-</span> theta_0)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb3-43"><a href="#cb3-43"></a></span>
+<span id="cb3-44"><a href="#cb3-44"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.6</span>))</span>
+<span id="cb3-45"><a href="#cb3-45"></a></span>
+<span id="cb3-46"><a href="#cb3-46"></a><span class="co"># Plot loss and full fitted parabola</span></span>
+<span id="cb3-47"><a href="#cb3-47"></a>ax.plot(theta_grid, J_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb3-48"><a href="#cb3-48"></a>ax.plot(th_p0, q0, <span class="st">'--'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, lw<span class="op">=</span><span class="fl">2.2</span>)</span>
+<span id="cb3-49"><a href="#cb3-49"></a></span>
+<span id="cb3-50"><a href="#cb3-50"></a><span class="co"># The three key points: orange filled circles for theta_0 and theta_1, blue filled circle for theta*</span></span>
+<span id="cb3-51"><a href="#cb3-51"></a>ax.plot(theta_0, J_0, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb3-52"><a href="#cb3-52"></a>ax.plot(theta_1, q_vertex, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb3-53"><a href="#cb3-53"></a>ax.plot(th_star, J_star, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb3-54"><a href="#cb3-54"></a></span>
+<span id="cb3-55"><a href="#cb3-55"></a><span class="co"># Vertical dashed reference lines to x-axis</span></span>
+<span id="cb3-56"><a href="#cb3-56"></a>ax.axvline(theta_0, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb3-57"><a href="#cb3-57"></a>ax.axvline(theta_1, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb3-58"><a href="#cb3-58"></a>ax.axvline(th_star, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb3-59"><a href="#cb3-59"></a></span>
+<span id="cb3-60"><a href="#cb3-60"></a><span class="co"># Custom x-tick annotations for theta_0, theta_1, theta*</span></span>
+<span id="cb3-61"><a href="#cb3-61"></a>ax.set_xticks([<span class="op">-</span><span class="fl">1.0</span>, theta_0, <span class="fl">0.5</span>, theta_1, th_star, <span class="fl">3.0</span>])</span>
+<span id="cb3-62"><a href="#cb3-62"></a>ax.set_xticklabels([<span class="st">'-1.0'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="vs">{</span><span class="kw">(</span><span class="vs">0</span><span class="kw">)</span><span class="vs">}</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'0.5'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="vs">{</span><span class="kw">(</span><span class="vs">1</span><span class="kw">)</span><span class="vs">}</span><span class="dv">$</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'3.0'</span>], fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-63"><a href="#cb3-63"></a></span>
+<span id="cb3-64"><a href="#cb3-64"></a>ax.set_xlabel(<span class="vs">r'Parameter </span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-65"><a href="#cb3-65"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="vs">J</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-66"><a href="#cb3-66"></a>ax.set_title(<span class="st">"Newton's Method"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-67"><a href="#cb3-67"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb3-68"><a href="#cb3-68"></a></span>
+<span id="cb3-69"><a href="#cb3-69"></a>plt.tight_layout()</span>
+<span id="cb3-70"><a href="#cb3-70"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-newton-step" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-newton-step-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-newton-step-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="1252" height="666">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-newton-step-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Newton’s method in 1D. A quadratic parabola <span class="math inline">\(q(\theta)\)</span> is fitted locally to the loss curve <span class="math inline">\(J(\theta)\)</span> at <span class="math inline">\(\theta^{(0)}\)</span>. Jumping directly to the minimum (vertex) of this fitted parabola yields the next estimate <span class="math inline">\(\theta^{(1)}\)</span>, moving closer to the true global minimum <span class="math inline">\(\theta^*\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Solving for the exact minimum of this fitted parabola yields the next estimate, which is hopefully improved: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - \frac{J'(\theta^{(t)})}{J''(\theta^{(t)})}\]</span></p>
+<p>Comparing this update to gradient descent reveals that Newton’s method provides a curvature-dependent adaptive step size: <span class="math display">\[\alpha(t) = \frac{1}{J''(\theta^{(t)})}\]</span></p>
+<p>Where the surface has steep curvature and <span class="math inline">\(J''\)</span> is large, the step size shrinks to prevent overshooting; where the surface is flat, the step size expands to accelerate convergence.</p>
+<p>For the vertex of the fitted parabola to be a local <strong>minimum</strong>, the second derivative must satisfy <span class="math inline">\(J''(\theta) &gt; 0\)</span>. In logistic regression, <span class="math inline">\(J''(\theta) &gt; 0\)</span> everywhere, so the objective is <strong>strictly convex</strong>, ensuring that minimizing the fitted parabola always moves toward the unique global minimum.</p>
+<hr>
+</section>
+<section id="newtons-method-in-higher-dimensions" class="level3">
+<h3 class="anchored" data-anchor-id="newtons-method-in-higher-dimensions">2.3 Newton’s Method in Higher Dimensions</h3>
+<p>When generalizing to <span class="math inline">\(D\)</span>-dimensional parameter spaces (<span class="math inline">\(\theta \in \mathbb{R}^D\)</span>), the scalar second derivative <span class="math inline">\(J''\)</span> amounts to a <strong>weighted Hessian matrix</strong>: <span class="math display">\[H = \nabla^2 J(\theta) = \frac{1}{n} X^T W X\]</span> where <span class="math inline">\(W = \text{diag}\left( \hat{y}_1(1 - \hat{y}_1), \dots, \hat{y}_n(1 - \hat{y}_n) \right)\)</span> is a diagonal weight matrix of sample variances. Each observation is weighted by its proximity to the decision boundary: observations near <span class="math inline">\(\hat{y} \approx 0.5\)</span> have maximal variance (<span class="math inline">\(W_{ii} \approx 0.25\)</span>) and exert the strongest influence on curvature.</p>
+<p>The multivariate Newton update rule is: <span class="math display">\[\theta^{(t+1)} = \theta^{(t)} - H^{-1} \nabla J(\theta^{(t)})\]</span></p>
+<p>Calculating and inverting the <span class="math inline">\(D \times D\)</span> Hessian matrix at each iteration is computationally heavy: <span class="math inline">\(\mathcal{O}(D^3)\)</span>.</p>
+<p>In practice, <span class="math inline">\(H^{-1}\)</span> is approximated. One standard implementation is <a href="https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm"><strong>L-BFGS</strong></a>. (1970, 4 independent authors, 4 publications!)</p>
+<hr>
+</section>
+</section>
+<section id="scikit-learn-in-practice" class="level2">
+<h2 class="anchored" data-anchor-id="scikit-learn-in-practice">3. Scikit-Learn in Practice</h2>
+<p>In <code>scikit-learn</code>, <code>LogisticRegression</code> uses <code>solver="lbfgs"</code> by default. Also notce that we can define a maximal number of iterations and a regularization parameter <span class="math inline">\(C\)</span> (see later).</p>
+<p>As is common we should normalize/standardize all features to avoid widely differing magnitudes.</p>
+<div id="sec-sklearn-pipeline" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># defne model and raw data</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>n <span class="op">=</span> <span class="dv">150</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)</span>
+<span id="cb4-5"><a href="#cb4-5"></a>bmi <span class="op">=</span> np.random.uniform(<span class="dv">18</span>, <span class="dv">42</span>, n)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">12.0</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> bmi</span>
+<span id="cb4-7"><a href="#cb4-7"></a>y <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true)) <span class="op">&gt;</span> <span class="fl">0.5</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb4-8"><a href="#cb4-8"></a>X_raw <span class="op">=</span> np.column_stack([glucose, bmi])</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co"># scikit-learn pipeline (incl. scaling)</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a>pipeline <span class="op">=</span> make_pipeline(</span>
+<span id="cb4-12"><a href="#cb4-12"></a>    StandardScaler(),</span>
+<span id="cb4-13"><a href="#cb4-13"></a>    LogisticRegression(C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb4-14"><a href="#cb4-14"></a>)</span>
+<span id="cb4-15"><a href="#cb4-15"></a></span>
+<span id="cb4-16"><a href="#cb4-16"></a>pipeline.fit(X_raw, y)</span>
+<span id="cb4-17"><a href="#cb4-17"></a></span>
+<span id="cb4-18"><a href="#cb4-18"></a>clf <span class="op">=</span> pipeline.named_steps[<span class="st">'logisticregression'</span>]</span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Intercept (theta0):      </span><span class="sc">{</span>clf<span class="sc">.</span>intercept_[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Glucose Weight (theta1): </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn BMI Weight (theta2):     </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Final fitted parameters: theta0 (bias) = 1.947, theta_glucose = 4.441, theta_bmi = 1.926</code></pre>
+<pre><code>Scikit-Learn Intercept (theta0):      1.7938
+Scikit-Learn Glucose Weight (theta1): 3.8587
+Scikit-Learn BMI Weight (theta2):     1.6265</code></pre>
 </div>
 </div>
 <hr>
 </section>
-</section>
-<section id="second-order-curvature-newton-raphson-irls" class="level2">
-<h2 class="anchored" data-anchor-id="second-order-curvature-newton-raphson-irls">3. Second-Order Curvature: Newton-Raphson &amp; IRLS</h2>
-<section id="the-hessian-matrix-and-quadratic-approximation" class="level3">
-<h3 class="anchored" data-anchor-id="the-hessian-matrix-and-quadratic-approximation">3.1 The Hessian Matrix and Quadratic Approximation</h3>
-<p>While Gradient Descent uses only first derivatives (taking linear steps down the steepest slope), <strong>Newton-Raphson</strong> uses the curvature given by the second-derivative <strong>Hessian matrix</strong>:</p>
-<p><span class="math display">\[H = \nabla^2 \ell(\theta) = \frac{1}{n} X^T W X\]</span></p>
-<p>where <span class="math inline">\(W \in \mathbb{R}^{n \times n}\)</span> is a diagonal weight matrix of sample variances:</p>
-<p><span class="math display">\[W_{ii} = \hat{y}_i(1 - \hat{y}_i) = \sigma(x_i^T \theta)\left(1 - \sigma(x_i^T \theta)\right)\]</span></p>
-<ul>
-<li><p><strong>Newton Update</strong>:</p>
-<p><span class="math display">\[\theta^{(k+1)} = \theta^{(k)} - H^{-1} \nabla \ell(\theta^{(k)})\]</span></p></li>
-<li><p><strong>Iteratively Reweighted Least Squares (IRLS)</strong>: This update can be rearranged into a weighted normal equation:</p>
-<p><span class="math display">\[\theta^{(k+1)} = \left(X^T W_k X\right)^{-1} X^T W_k z_k\]</span></p>
-<p>where <span class="math inline">\(z_k = X\theta^{(k)} + W_k^{-1}(y - \hat{y}^{(k)})\)</span> is an adjusted working response.</p></li>
-<li><p><strong>The Computational Bottleneck</strong>: Inverting <span class="math inline">\(H\)</span> requires <span class="math inline">\(\mathcal{O}(p^3)\)</span> operations. When <span class="math inline">\(p &gt; 10,000\)</span> features, exact Newton steps become completely intractable.</p></li>
-<li><p><strong>Quasi-Newton L-BFGS</strong>: Approximates the inverse Hessian <span class="math inline">\(H^{-1}\)</span> using recent gradient histories without storing the full <span class="math inline">\(p \times p\)</span> matrix.</p></li>
-</ul>
-<hr>
-</section>
-</section>
-<section id="scikit-learn-excursion-practical-engineering" class="level2">
-<h2 class="anchored" data-anchor-id="scikit-learn-excursion-practical-engineering">4. Scikit-Learn Excursion &amp; Practical Engineering</h2>
-<section id="production-pipeline-with-standardization" class="level3">
-<h3 class="anchored" data-anchor-id="production-pipeline-with-standardization">4.1 Production Pipeline with Standardization</h3>
-<p>In <code>scikit-learn</code>, <code>LogisticRegression</code> uses <code>solver="lbfgs"</code> by default. Because L-BFGS assumes isotropic curvature, <strong>feature standardization (<span class="math inline">\(Z\)</span>-scoring) is essential</strong>:</p>
-<div id="sec-sklearn-pipeline" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Robust scikit-learn pipeline</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a>pipeline <span class="op">=</span> make_pipeline(</span>
-<span id="cb4-3"><a href="#cb4-3"></a>    StandardScaler(),</span>
-<span id="cb4-4"><a href="#cb4-4"></a>    LogisticRegression(penalty<span class="op">=</span><span class="st">'l2'</span>, C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb4-5"><a href="#cb4-5"></a>)</span>
-<span id="cb4-6"><a href="#cb4-6"></a></span>
-<span id="cb4-7"><a href="#cb4-7"></a>pipeline.fit(X_raw, y)</span>
-<span id="cb4-8"><a href="#cb4-8"></a></span>
-<span id="cb4-9"><a href="#cb4-9"></a>clf <span class="op">=</span> pipeline.named_steps[<span class="st">'logisticregression'</span>]</span>
-<span id="cb4-10"><a href="#cb4-10"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Intercept (theta0):         </span><span class="sc">{</span>clf<span class="sc">.</span>intercept_[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Glucose Weight (theta1):   </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn BMI Weight (theta2):       </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Scikit-Learn Intercept (theta0):         1.7938
-Scikit-Learn Glucose Weight (theta1):   3.8587
-Scikit-Learn BMI Weight (theta2):       1.6265</code></pre>
+<section id="regularization-and-complete-separation" class="level2">
+<h2 class="anchored" data-anchor-id="regularization-and-complete-separation">4. Regularization and Complete Separation</h2>
+<p>In linear regression, regularization (Ridge or Lasso) is introduced to <strong>prevent overfitting</strong>.</p>
+<p>In logistic regression, regularization serves a second purpose: <strong>prevent solver breakdown</strong> due to complete separation.</p>
+<section id="an-example" class="level3">
+<h3 class="anchored" data-anchor-id="an-example">An Example</h3>
+<p>Suppose the <strong>HbA1c</strong> (glycated hemoglobin, in %) levels are measured for all patients. The clinical guidelines are as follows: allhealthy patients have <span class="math inline">\(\text{HbA1c} &lt; 6.5\%\)</span>, and all diabetic patients have <span class="math inline">\(\text{HbA1c} \ge 6.5\%\)</span>. This is perfect separation.</p>
+<p>What happens when we minimize deviance? The model seeks predicted probabilities that reach their theoretical extremes: <span class="math display">\[\hat{y}_i = \sigma(x_i^T \theta) \to 1 \quad \text{for all } y_i = 1\]</span> <span class="math display">\[\hat{y}_i = \sigma(x_i^T \theta) \to 0 \quad \text{for all } y_i = 0\]</span></p>
+<p>Because the sigmoid function only approaches 0 and 1 asymptotically, this will force</p>
+<p><span class="math display">\[\|\theta\| \to \infty\]</span></p>
+<p>This will trigger numerical overflow (<span class="math inline">\(\exp(-x_i^T \theta)\)</span>) and optimizer failure.</p>
+<p>As before, this can be regularized by a penalty term in the loss function that will prevent large weights:</p>
+<p><span class="math display">\[J_{\text{reg}}(\theta) = J(\theta) + \frac{1}{2C} \|\theta\|^2\]</span></p>
+<p>In scikit-learn, <code>LogisticRegression</code> applies an <span class="math inline">\(L_2\)</span> penalty by default with <span class="math inline">\(C=1.0\)</span></p>
+<div id="cell-fig-complete-separation" class="cell" data-fig-height="4.4" data-fig-width="8.5" data-execution_count="5">
+<details class="code-fold">
+<summary>Complete Separation and Regularization</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co"># Synthetic clinical cohort perfectly separated by HbA1c (%)</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>n_healthy, n_diabetic <span class="op">=</span> <span class="dv">30</span>, <span class="dv">30</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a>hba1c_healthy <span class="op">=</span> np.random.uniform(<span class="fl">4.8</span>, <span class="fl">6.2</span>, n_healthy)</span>
+<span id="cb6-9"><a href="#cb6-9"></a>hba1c_diabetic <span class="op">=</span> np.random.uniform(<span class="fl">6.7</span>, <span class="fl">8.5</span>, n_diabetic)</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>X <span class="op">=</span> np.concatenate([hba1c_healthy, hba1c_diabetic]).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb6-12"><a href="#cb6-12"></a>y <span class="op">=</span> np.concatenate([np.zeros(n_healthy), np.ones(n_diabetic)])</span>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co"># Fit Logistic Regression models with varying C (L2 default)</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>clf_weak <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1e4</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">1000</span>).fit(X, y)</span>
+<span id="cb6-16"><a href="#cb6-16"></a>clf_default <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">1000</span>).fit(X, y)</span>
+<span id="cb6-17"><a href="#cb6-17"></a></span>
+<span id="cb6-18"><a href="#cb6-18"></a>x_grid <span class="op">=</span> np.linspace(<span class="fl">4.5</span>, <span class="fl">8.8</span>, <span class="dv">500</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb6-19"><a href="#cb6-19"></a></span>
+<span id="cb6-20"><a href="#cb6-20"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.4</span>))</span>
+<span id="cb6-21"><a href="#cb6-21"></a></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co"># Plot observations (in front of curves)</span></span>
+<span id="cb6-23"><a href="#cb6-23"></a>ax.scatter(hba1c_healthy, np.zeros_like(hba1c_healthy), color<span class="op">=</span><span class="st">'#1f77b4'</span>, s<span class="op">=</span><span class="dv">45</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Healthy ($y=0$)'</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb6-24"><a href="#cb6-24"></a>ax.scatter(hba1c_diabetic, np.ones_like(hba1c_diabetic), color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">45</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Diabetic ($y=1$)'</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb6-25"><a href="#cb6-25"></a></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="co"># Separation margin band</span></span>
+<span id="cb6-27"><a href="#cb6-27"></a>ax.axvspan(<span class="fl">6.2</span>, <span class="fl">6.7</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.15</span>, label<span class="op">=</span><span class="st">'Separation Margin'</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="co"># Sigmoid curves across regularization strengths</span></span>
+<span id="cb6-30"><a href="#cb6-30"></a>ax.plot(x_grid, clf_weak.predict_proba(x_grid)[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#e41a1c'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, </span>
+<span id="cb6-31"><a href="#cb6-31"></a>        label<span class="op">=</span><span class="vs">r'Weak Regularization </span><span class="kw">(</span><span class="dv">$</span><span class="vs">C = 10</span><span class="dv">^</span><span class="vs">4</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb6-32"><a href="#cb6-32"></a>ax.plot(x_grid, clf_default.predict_proba(x_grid)[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#377eb8'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb6-33"><a href="#cb6-33"></a>        label<span class="op">=</span><span class="vs">r'Default </span><span class="kw">(</span><span class="dv">$</span><span class="vs">C = 1</span><span class="dv">.</span><span class="vs">0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb6-34"><a href="#cb6-34"></a></span>
+<span id="cb6-35"><a href="#cb6-35"></a>ax.set_xlabel(<span class="st">'Glycated Hemoglobin (HbA1c in %)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-36"><a href="#cb6-36"></a>ax.set_ylabel(<span class="vs">r'Predicted Probability </span><span class="dv">$</span><span class="vs">P</span><span class="kw">(</span><span class="vs">Y = 1 </span><span class="dv">\m</span><span class="vs">id </span><span class="ch">\t</span><span class="vs">ext{HbA1c}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb6-37"><a href="#cb6-37"></a>ax.set_title(<span class="st">"Complete Separation and the Effect of Regularization"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb6-38"><a href="#cb6-38"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.08</span>, <span class="fl">1.08</span>)</span>
+<span id="cb6-39"><a href="#cb6-39"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-40"><a href="#cb6-40"></a>ax.axhline(<span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-41"><a href="#cb6-41"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-42"><a href="#cb6-42"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>, fontsize<span class="op">=</span><span class="fl">9.5</span>)</span>
+<span id="cb6-43"><a href="#cb6-43"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb6-44"><a href="#cb6-44"></a></span>
+<span id="cb6-45"><a href="#cb6-45"></a>plt.tight_layout()</span>
+<span id="cb6-46"><a href="#cb6-46"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div id="fig-complete-separation" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-complete-separation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lecture_files/figure-html/fig-complete-separation-output-1.png" class="quarto-figure quarto-figure-center figure-img" width="1251" height="636">
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>/Users/manke/micromamba/envs/mathe3/lib/python3.11/site-packages/sklearn/linear_model/_logistic.py:1381: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', l1_ratio set to a float between 0 and 1 instead of penalty='elasticnet', and C=np.inf instead of penalty=None.
-  warnings.warn(</code></pre>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-complete-separation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Complete separation on an HbA1c cohort: weak regularization (<span class="math inline">\(C = 10^4\)</span>, red line) makes overly confident decisions in the separation margin where there are no data, collapsing into an abrupt step function. Because the weights are driven towards infinity (<span class="math inline">\(\|\theta\| \to \infty\)</span>), this curve may not have even converged if the iterations are interrupted (e.g., max_iter = 1000). In contrast, default regularization (<span class="math inline">\(C = 1.0\)</span>, blue line) reflects higher uncertainty in the margin between perfectly separated data points, producing smoother transitions.
+</figcaption>
+</figure>
 </div>
-</div>
-<hr>
-</section>
-<section id="regularization-via-c-1-λ-and-complete-separation" class="level3">
-<h3 class="anchored" data-anchor-id="regularization-via-c-1-λ-and-complete-separation">4.2 Regularization via <code>C = 1 / λ</code> and Complete Separation</h3>
-<ul>
-<li><strong>The Complete Separation Danger</strong>: If healthy and diabetic patients can be separated with 100% precision without overlap, standard maximum likelihood drives <span class="math inline">\(\|\theta\| \to \infty\)</span> and <span class="math inline">\(\sigma(z) \to \{0, 1\}\)</span>, causing optimizer divergence.</li>
-<li><strong>Regularization Parameter <code>C</code></strong>:
-<ul>
-<li>Scikit-learn penalizes weights using <span class="math inline">\(C = \frac{1}{\lambda}\)</span>.</li>
-<li>Small <span class="math inline">\(C\)</span> (e.g.&nbsp;<span class="math inline">\(C = 0.01\)</span>): Strong regularization, prevents overfitting and tames weight explosion.</li>
-<li>Large <span class="math inline">\(C\)</span> (e.g.&nbsp;<span class="math inline">\(C = 100\)</span>): Weak regularization, fits data aggressively.</li>
-</ul></li>
-</ul>
-<hr>
-</section>
-</section>
-<section id="review-key-takeaways" class="level2">
-<h2 class="anchored" data-anchor-id="review-key-takeaways">5. Review &amp; Key Takeaways</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 16%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Method</th>
-<th style="text-align: center;">Order</th>
-<th style="text-align: center;">Per-Step Complexity</th>
-<th style="text-align: center;">Convergence Speed</th>
-<th style="text-align: center;">Scalability in <span class="math inline">\(D\)</span></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><strong>Analytical OLS</strong></td>
-<td style="text-align: center;">Closed-Form</td>
-<td style="text-align: center;"><span class="math inline">\(\mathcal{O}(nD^2 + D^3)\)</span> (one step)</td>
-<td style="text-align: center;">N/A (Linear only)</td>
-<td style="text-align: center;">Fails for <span class="math inline">\(D &gt; 10^4\)</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Batch Gradient Descent (BGD)</strong></td>
-<td style="text-align: center;">1st Order</td>
-<td style="text-align: center;"><span class="math inline">\(\mathcal{O}(nD)\)</span> per epoch</td>
-<td style="text-align: center;">Linear (moderate)</td>
-<td style="text-align: center;">Excellent</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><strong>Newton-Raphson / IRLS</strong></td>
-<td style="text-align: center;">2nd Order</td>
-<td style="text-align: center;"><span class="math inline">\(\mathcal{O}(nD^2 + D^3)\)</span> per step</td>
-<td style="text-align: center;">Quadratic (very fast: 4–8 steps)</td>
-<td style="text-align: center;">Poor when <span class="math inline">\(D\)</span> is large</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>Quasi-Newton (L-BFGS)</strong></td>
-<td style="text-align: center;">1st + Hist</td>
-<td style="text-align: center;"><span class="math inline">\(\mathcal{O}(m \cdot D)\)</span> per step</td>
-<td style="text-align: center;">Superlinear (fast)</td>
-<td style="text-align: center;">Standard Industry Default</td>
-</tr>
-</tbody>
-</table>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>Core Pedagogical Takeaways
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<ol type="1">
-<li><strong>Iterative Solvers are Mandatory</strong>: Non-linear likelihood gradients cannot be inverted in closed form.</li>
-<li><strong>Feature Scaling is Essential</strong>: Without <span class="math inline">\(Z\)</span>-scores, gradient descent zig-zags across elongated loss contours.</li>
-<li><strong>L-BFGS is the Modern Workhorse</strong>: It captures second-order curvature without the crippling <span class="math inline">\(O(D^3)\)</span> cost of full matrix inversion.</li>
-<li><strong>Next Lecture Preview</strong>: In <strong>Lecture 09: Logistic Regression: Continuation</strong>, we expand from single binary outputs to multivariate categorical targets, one-hot encoding, parameter matrices <span class="math inline">\(Z = X\Theta\)</span>, Softmax, and the direct bridge to Artificial Neural Networks.</li>
-</ol>
 </div>
 </div>
 
 
 <!-- -->
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1300,196 +1356,352 @@ Scikit-Learn BMI Weight (theta2):       1.6265</code></pre>
 <span id="cb7-35"><a href="#cb7-35"></a>FIGSIZE <span class="op">=</span> (<span class="dv">10</span>, <span class="fl">4.5</span>)</span>
 <span id="cb7-36"><a href="#cb7-36"></a><span class="in">```</span></span>
 <span id="cb7-37"><a href="#cb7-37"></a></span>
-<span id="cb7-38"><a href="#cb7-38"></a><span class="fu">## 0. Pre-Class Preparation</span></span>
+<span id="cb7-38"><a href="#cb7-38"></a><span class="fu">## 1. The Need for Iterative Solutions</span></span>
 <span id="cb7-39"><a href="#cb7-39"></a></span>
-<span id="cb7-40"><a href="#cb7-40"></a>::: {.callout-note}</span>
-<span id="cb7-41"><a href="#cb7-41"></a><span class="fu">### Flipped Classroom Preparation Checklist</span></span>
-<span id="cb7-42"><a href="#cb7-42"></a>Before joining this session, please review the following foundational materials:</span>
-<span id="cb7-43"><a href="#cb7-43"></a></span>
-<span id="cb7-44"><a href="#cb7-44"></a><span class="ss">- </span><span class="va">[ ]</span> **Reading:** <span class="co">[</span><span class="ot">Regression: Iterative Solutions</span><span class="co">](../../references/regression_iterative_solutions.qmd)</span> (Core tutorial on gradient descent and Hessian curvature).</span>
-<span id="cb7-45"><a href="#cb7-45"></a><span class="ss">- </span><span class="va">[ ]</span> **Textbook:** Bishop &amp; Bishop (2024), *Deep Learning: Foundations and Concepts*, Chapter 5.2.3 (pp. 162–168: Iterative Reweighted Least Squares).</span>
-<span id="cb7-46"><a href="#cb7-46"></a><span class="ss">- </span><span class="va">[ ]</span> **Reference Notes:** <span class="co">[</span><span class="ot">Stanford CS229: Newton's Method</span><span class="co">](https://see.stanford.edu/materials/aimlcs229/cs229-notes1.pdf)</span>{target="_blank" rel="noopener"} (Section 5: Newton-Raphson &amp; Hessian).</span>
-<span id="cb7-47"><a href="#cb7-47"></a>:::</span>
-<span id="cb7-48"><a href="#cb7-48"></a></span>
-<span id="cb7-49"><a href="#cb7-49"></a>---</span>
+<span id="cb7-40"><a href="#cb7-40"></a>In **Linear Regression**, we minimize the residual sum of squares by setting the gradient to zero:</span>
+<span id="cb7-41"><a href="#cb7-41"></a>$$\nabla_\theta \text{RSS}(\theta) = -2 X^T (y - X\theta) = -2 X^T (y - \hat{y}) = 0$$</span>
+<span id="cb7-42"><a href="#cb7-42"></a></span>
+<span id="cb7-43"><a href="#cb7-43"></a>Because the system is linear in the parameters $\theta$, we can solve for $\theta$ analytically.</span>
+<span id="cb7-44"><a href="#cb7-44"></a></span>
+<span id="cb7-45"><a href="#cb7-45"></a>In **Logistic Regression**, we minimize the deviance $D(\theta)$:</span>
+<span id="cb7-46"><a href="#cb7-46"></a>$$D(\theta) = -2 \sum_{i=1}^n \left<span class="co">[</span><span class="ot"> y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right</span><span class="co">]</span>$$</span>
+<span id="cb7-47"><a href="#cb7-47"></a></span>
+<span id="cb7-48"><a href="#cb7-48"></a>where $\hat{y}_i = \sigma(x_i^T \theta) = \frac{1}{1 + e^{-x_i^T \theta}}$. The gradient of the deviance is:</span>
+<span id="cb7-49"><a href="#cb7-49"></a>$$\nabla_\theta D(\theta) = -2 X^T (y - \hat{y}) = -2 \sum_{i=1}^n (y_i - \hat{y}_i) x_i$$</span>
 <span id="cb7-50"><a href="#cb7-50"></a></span>
-<span id="cb7-51"><a href="#cb7-51"></a><span class="fu">## 1. The Computational Roadblock: Why Analytical OLS Fails</span></span>
-<span id="cb7-52"><a href="#cb7-52"></a></span>
-<span id="cb7-53"><a href="#cb7-53"></a><span class="fu">### 1.1 Closed-Form Normal Equations vs. Non-Linear Entrapment</span></span>
-<span id="cb7-54"><a href="#cb7-54"></a></span>
-<span id="cb7-55"><a href="#cb7-55"></a>In Ordinary Least Squares (OLS) linear regression, the gradient of the Mean Squared Error is purely linear in $\theta$:</span>
-<span id="cb7-56"><a href="#cb7-56"></a>$$\nabla_\theta S(\theta) = -\frac{2}{n}X^T(y - X\theta) = 0 \iff X^T X \theta = X^T y$$</span>
-<span id="cb7-57"><a href="#cb7-57"></a></span>
-<span id="cb7-58"><a href="#cb7-58"></a>Because the system is linear, we invert it in one step: $\hat{\theta}_{\text{OLS}} = (X^T X)^{-1} X^T y$.</span>
+<span id="cb7-51"><a href="#cb7-51"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb7-52"><a href="#cb7-52"></a><span class="fu">### Derivation: Deviance Gradient via the Chain Rule</span></span>
+<span id="cb7-53"><a href="#cb7-53"></a></span>
+<span id="cb7-54"><a href="#cb7-54"></a>For a single observation $(x_i, y_i)$ with linear predictor $z_i = x_i^T \theta$ and predicted probability $\hat{y}_i = \sigma(z_i)$, the deviance contribution is:</span>
+<span id="cb7-55"><a href="#cb7-55"></a>$$D_i(\theta) = -2 \left<span class="co">[</span><span class="ot"> y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right</span><span class="co">]</span>$$</span>
+<span id="cb7-56"><a href="#cb7-56"></a></span>
+<span id="cb7-57"><a href="#cb7-57"></a>Applying the calculus chain rule:</span>
+<span id="cb7-58"><a href="#cb7-58"></a>$$\frac{\partial D_i}{\partial \theta} = \frac{\partial D_i}{\partial \hat{y}_i} \cdot \frac{\partial \hat{y}_i}{\partial z_i} \cdot \frac{\partial z_i}{\partial \theta}$$</span>
 <span id="cb7-59"><a href="#cb7-59"></a></span>
-<span id="cb7-60"><a href="#cb7-60"></a>In Logistic Regression, setting the gradient of the loss function $\ell(\theta)$ to zero yields:</span>
-<span id="cb7-61"><a href="#cb7-61"></a>$$\nabla_\theta \ell(\theta) = \frac{1}{n}\sum_{i=1}^n \left( \sigma(x_i^T \theta) - y_i \right) x_i = \frac{1}{n}\sum_{i=1}^n \left( \frac{1}{1 + e^{-x_i^T \theta}} - y_i \right) x_i = 0$$</span>
-<span id="cb7-62"><a href="#cb7-62"></a></span>
-<span id="cb7-63"><a href="#cb7-63"></a>::: {.callout-important}</span>
-<span id="cb7-64"><a href="#cb7-64"></a><span class="fu">### The Fundamental Analytical Roadblock</span></span>
+<span id="cb7-60"><a href="#cb7-60"></a>Evaluating the three factors:</span>
+<span id="cb7-61"><a href="#cb7-61"></a></span>
+<span id="cb7-62"><a href="#cb7-62"></a><span class="ss">* </span>First factor: $\frac{\partial D_i}{\partial \hat{y}_i} = -2\left( \frac{y_i}{\hat{y}_i} - \frac{1 - y_i}{1 - \hat{y}_i} \right) = -2\left( \frac{y_i - \hat{y}_i}{\hat{y}_i(1 - \hat{y}_i)} \right) = 2\left( \frac{\hat{y}_i - y_i}{\hat{y}_i(1 - \hat{y}_i)} \right)$</span>
+<span id="cb7-63"><a href="#cb7-63"></a><span class="ss">* </span>Second factor: $\frac{\partial \hat{y}_i}{\partial z_i} = \sigma'(z_i) = \hat{y}_i(1 - \hat{y}_i)$</span>
+<span id="cb7-64"><a href="#cb7-64"></a><span class="ss">* </span>Third factor: $\frac{\partial z_i}{\partial \theta} = x_i$</span>
 <span id="cb7-65"><a href="#cb7-65"></a></span>
-<span id="cb7-66"><a href="#cb7-66"></a>The parameter vector $\theta$ is trapped non-linearly inside the exponential of the denominator. **No algebraic linear algebra transformation can isolate $\theta$.** There is no $(X^T X)^{-1}$ formula for logistic regression. We must find $\theta$ through **iterative numerical optimization**.</span>
-<span id="cb7-67"><a href="#cb7-67"></a>:::</span>
+<span id="cb7-66"><a href="#cb7-66"></a>Combining these factors yields:</span>
+<span id="cb7-67"><a href="#cb7-67"></a>$$\frac{\partial D_i}{\partial \theta} = -2\left( \frac{y_i - \hat{y}_i}{\hat{y}_i(1 - \hat{y}_i)} \right) \cdot \left<span class="co">[</span><span class="ot"> \hat{y}_i(1 - \hat{y}_i) \right</span><span class="co">]</span> \cdot x_i = -2 (y_i - \hat{y}_i) x_i $$</span>
 <span id="cb7-68"><a href="#cb7-68"></a></span>
-<span id="cb7-69"><a href="#cb7-69"></a>---</span>
-<span id="cb7-70"><a href="#cb7-70"></a></span>
-<span id="cb7-71"><a href="#cb7-71"></a><span class="fu">## 2. Gradient Techniques Under the Hood</span></span>
+<span id="cb7-69"><a href="#cb7-69"></a>Summing across all $n$ observations yields:</span>
+<span id="cb7-70"><a href="#cb7-70"></a>$$\nabla_\theta D(\theta) = -2 \sum_{i=1}^n (y_i - \hat{y}_i) x_i = -2 X^T (y - \hat{y})$$</span>
+<span id="cb7-71"><a href="#cb7-71"></a>:::</span>
 <span id="cb7-72"><a href="#cb7-72"></a></span>
-<span id="cb7-73"><a href="#cb7-73"></a><span class="fu">### 2.1 Vectorized Gradient Derivation</span></span>
-<span id="cb7-74"><a href="#cb7-74"></a></span>
-<span id="cb7-75"><a href="#cb7-75"></a>Using the calculus chain rule through the sigmoid link:</span>
-<span id="cb7-76"><a href="#cb7-76"></a>$$\frac{\partial \ell}{\partial \theta} = \frac{\partial \ell}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial z} \cdot \frac{\partial z}{\partial \theta} = \left( -\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}} \right) \cdot \left<span class="co">[</span><span class="ot"> \hat{y}(1-\hat{y}) \right</span><span class="co">]</span> \cdot x = (\hat{y} - y)x$$</span>
+<span id="cb7-73"><a href="#cb7-73"></a>Setting this gradient to zero, we find an equation for the optimal parameters:</span>
+<span id="cb7-74"><a href="#cb7-74"></a>$$X^T (y - \hat{y}) = 0$$</span>
+<span id="cb7-75"><a href="#cb7-75"></a></span>
+<span id="cb7-76"><a href="#cb7-76"></a>Notice that the residual error $y - \hat{y}$ is again orthogonal to all data matrix columns. However, $\hat{y} = \sigma(X\theta)$ is non-linear in $\theta$. Therefore, the system cannot be solved analytically for $\theta$ and we must rely on iterative optimization.</span>
 <span id="cb7-77"><a href="#cb7-77"></a></span>
-<span id="cb7-78"><a href="#cb7-78"></a>In compact matrix notation:</span>
-<span id="cb7-79"><a href="#cb7-79"></a>$$\boxed{\nabla_\theta \ell(\theta) = \frac{1}{n} X^T (\hat{y} - y)}$$</span>
-<span id="cb7-80"><a href="#cb7-80"></a></span>
-<span id="cb7-81"><a href="#cb7-81"></a>::: {.callout-tip}</span>
-<span id="cb7-82"><a href="#cb7-82"></a><span class="fu">### Pedagogical Symmetry</span></span>
+<span id="cb7-78"><a href="#cb7-78"></a><span class="fu">### Defining the Loss Function $J(\theta)$</span></span>
+<span id="cb7-79"><a href="#cb7-79"></a></span>
+<span id="cb7-80"><a href="#cb7-80"></a>To normalize the deviance for the number of samples $n$ we define the mean loss function $J(\theta)$. This is the **binary cross-entropy** and does not grow with the number of samples:</span>
+<span id="cb7-81"><a href="#cb7-81"></a>$$J(\theta) = \frac{1}{2n} D(\theta) = -\frac{1}{n} \sum_{i=1}^n \left<span class="co">[</span><span class="ot"> y_i \ln \hat{y}_i + (1 - y_i) \ln(1 - \hat{y}_i) \right</span><span class="co">]</span>$$</span>
+<span id="cb7-82"><a href="#cb7-82"></a></span>
 <span id="cb7-83"><a href="#cb7-83"></a></span>
-<span id="cb7-84"><a href="#cb7-84"></a>Observe the structural twin: the gradient has the **exact same form** as linear regression, $\frac{1}{n} X^T(\text{predictions} - \text{targets})$, with the non-linearity cleanly isolated in $\hat{y} = \sigma(X\theta)$.</span>
-<span id="cb7-85"><a href="#cb7-85"></a>:::</span>
-<span id="cb7-86"><a href="#cb7-86"></a></span>
-<span id="cb7-87"><a href="#cb7-87"></a>---</span>
-<span id="cb7-88"><a href="#cb7-88"></a></span>
-<span id="cb7-89"><a href="#cb7-89"></a><span class="fu">### 2.2 Batch Gradient Descent (BGD) from Scratch</span></span>
-<span id="cb7-90"><a href="#cb7-90"></a></span>
-<span id="cb7-91"><a href="#cb7-91"></a>The Batch Gradient Descent update rule with learning rate $\alpha &gt; 0$ is:</span>
-<span id="cb7-92"><a href="#cb7-92"></a>$$\theta^{(k+1)} = \theta^{(k)} - \frac{\alpha}{n} X^T \left( \sigma(X\theta^{(k)}) - y \right)$$</span>
-<span id="cb7-93"><a href="#cb7-93"></a></span>
-<span id="cb7-96"><a href="#cb7-96"></a><span class="in">```{python}</span></span>
-<span id="cb7-97"><a href="#cb7-97"></a><span class="co">#| label: fig-gd-convergence</span></span>
-<span id="cb7-98"><a href="#cb7-98"></a><span class="co">#| fig-cap: "Iterative loss reduction of Batch Gradient Descent on clinical data."</span></span>
-<span id="cb7-99"><a href="#cb7-99"></a><span class="co">#| code-fold: true</span></span>
-<span id="cb7-100"><a href="#cb7-100"></a><span class="co">#| code-summary: "Batch Gradient Descent Implementation from Scratch"</span></span>
-<span id="cb7-101"><a href="#cb7-101"></a><span class="co">#| fig-width: 10</span></span>
-<span id="cb7-102"><a href="#cb7-102"></a><span class="co">#| fig-height: 4.0</span></span>
-<span id="cb7-103"><a href="#cb7-103"></a><span class="co">#| fig-align: left</span></span>
-<span id="cb7-104"><a href="#cb7-104"></a><span class="co">#| out-width: "100%"</span></span>
+<span id="cb7-86"><a href="#cb7-86"></a><span class="in">```{python}</span></span>
+<span id="cb7-87"><a href="#cb7-87"></a><span class="co">#| label: fig-loss-function-1d</span></span>
+<span id="cb7-88"><a href="#cb7-88"></a><span class="co">#| fig-cap: "The 1D logistic loss landscape $J(\\theta) = \\frac{1}{2n} D(\\theta)$ as a function of parameter $\\theta$, illustrating a non-linear objective with a unique global minimum $\\theta^\\ast$."</span></span>
+<span id="cb7-89"><a href="#cb7-89"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-90"><a href="#cb7-90"></a><span class="co">#| code-summary: "1D Non-Linear Logistic Loss Landscape"</span></span>
+<span id="cb7-91"><a href="#cb7-91"></a><span class="co">#| fig-width: 8.5</span></span>
+<span id="cb7-92"><a href="#cb7-92"></a><span class="co">#| fig-height: 4.2</span></span>
+<span id="cb7-93"><a href="#cb7-93"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb7-94"><a href="#cb7-94"></a><span class="co">#| out-width: "85%"</span></span>
+<span id="cb7-95"><a href="#cb7-95"></a></span>
+<span id="cb7-96"><a href="#cb7-96"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-97"><a href="#cb7-97"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-98"><a href="#cb7-98"></a></span>
+<span id="cb7-99"><a href="#cb7-99"></a><span class="co"># 1D feature and labels: basis function utilized throughout this lecture</span></span>
+<span id="cb7-100"><a href="#cb7-100"></a>x_data <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>])</span>
+<span id="cb7-101"><a href="#cb7-101"></a>y_data <span class="op">=</span> np.array([<span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">1</span>,    <span class="dv">0</span>,   <span class="dv">1</span>,   <span class="dv">1</span>])</span>
+<span id="cb7-102"><a href="#cb7-102"></a></span>
+<span id="cb7-103"><a href="#cb7-103"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb7-104"><a href="#cb7-104"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>np.clip(z, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>)))</span>
 <span id="cb7-105"><a href="#cb7-105"></a></span>
-<span id="cb7-106"><a href="#cb7-106"></a>np.random.seed(<span class="dv">42</span>)</span>
-<span id="cb7-107"><a href="#cb7-107"></a>n <span class="op">=</span> <span class="dv">150</span></span>
-<span id="cb7-108"><a href="#cb7-108"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)</span>
-<span id="cb7-109"><a href="#cb7-109"></a>bmi <span class="op">=</span> np.random.uniform(<span class="dv">18</span>, <span class="dv">42</span>, n)</span>
-<span id="cb7-110"><a href="#cb7-110"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">12.0</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> bmi</span>
-<span id="cb7-111"><a href="#cb7-111"></a>y <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true)) <span class="op">&gt;</span> <span class="fl">0.5</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb7-112"><a href="#cb7-112"></a></span>
-<span id="cb7-113"><a href="#cb7-113"></a><span class="co"># Mandatory feature standardization</span></span>
-<span id="cb7-114"><a href="#cb7-114"></a>X_raw <span class="op">=</span> np.column_stack([glucose, bmi])</span>
-<span id="cb7-115"><a href="#cb7-115"></a>X_mean, X_std <span class="op">=</span> np.mean(X_raw, axis<span class="op">=</span><span class="dv">0</span>), np.std(X_raw, axis<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-116"><a href="#cb7-116"></a>X_scaled <span class="op">=</span> (X_raw <span class="op">-</span> X_mean) <span class="op">/</span> X_std</span>
-<span id="cb7-117"><a href="#cb7-117"></a>X_design <span class="op">=</span> np.column_stack([np.ones(n), X_scaled])</span>
-<span id="cb7-118"><a href="#cb7-118"></a></span>
-<span id="cb7-119"><a href="#cb7-119"></a><span class="co"># Gradient Descent Loop</span></span>
-<span id="cb7-120"><a href="#cb7-120"></a>theta <span class="op">=</span> np.zeros(<span class="dv">3</span>)</span>
-<span id="cb7-121"><a href="#cb7-121"></a>alpha <span class="op">=</span> <span class="fl">0.5</span></span>
-<span id="cb7-122"><a href="#cb7-122"></a>epochs <span class="op">=</span> <span class="dv">200</span></span>
-<span id="cb7-123"><a href="#cb7-123"></a>loss_history <span class="op">=</span> []</span>
+<span id="cb7-106"><a href="#cb7-106"></a><span class="kw">def</span> loss_func(theta_vals):</span>
+<span id="cb7-107"><a href="#cb7-107"></a>    theta_vals <span class="op">=</span> np.atleast_1d(theta_vals)</span>
+<span id="cb7-108"><a href="#cb7-108"></a>    p <span class="op">=</span> sigmoid(np.outer(theta_vals, x_data))</span>
+<span id="cb7-109"><a href="#cb7-109"></a>    <span class="cf">return</span> <span class="op">-</span>np.mean(y_data <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y_data) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-110"><a href="#cb7-110"></a></span>
+<span id="cb7-111"><a href="#cb7-111"></a>theta_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">2.5</span>, <span class="fl">3.8</span>, <span class="dv">400</span>)</span>
+<span id="cb7-112"><a href="#cb7-112"></a>J_grid <span class="op">=</span> loss_func(theta_grid)</span>
+<span id="cb7-113"><a href="#cb7-113"></a>th_star <span class="op">=</span> theta_grid[np.argmin(J_grid)]</span>
+<span id="cb7-114"><a href="#cb7-114"></a>J_star <span class="op">=</span> np.<span class="bu">min</span>(J_grid)</span>
+<span id="cb7-115"><a href="#cb7-115"></a></span>
+<span id="cb7-116"><a href="#cb7-116"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.2</span>))</span>
+<span id="cb7-117"><a href="#cb7-117"></a>ax.plot(theta_grid, J_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb7-118"><a href="#cb7-118"></a>ax.plot(th_star, J_star, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-119"><a href="#cb7-119"></a>ax.axvline(th_star, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb7-120"><a href="#cb7-120"></a></span>
+<span id="cb7-121"><a href="#cb7-121"></a><span class="co"># Custom x-tick annotations for theta*</span></span>
+<span id="cb7-122"><a href="#cb7-122"></a>ax.set_xticks([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="fl">0.0</span>, th_star, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
+<span id="cb7-123"><a href="#cb7-123"></a>ax.set_xticklabels([<span class="st">'-2.0'</span>, <span class="st">'-1.0'</span>, <span class="st">'0.0'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'2.0'</span>, <span class="st">'3.0'</span>], fontsize<span class="op">=</span><span class="dv">11</span>)</span>
 <span id="cb7-124"><a href="#cb7-124"></a></span>
-<span id="cb7-125"><a href="#cb7-125"></a><span class="cf">for</span> ep <span class="kw">in</span> <span class="bu">range</span>(epochs):</span>
-<span id="cb7-126"><a href="#cb7-126"></a>    p <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>X_design <span class="op">@</span> theta))</span>
-<span id="cb7-127"><a href="#cb7-127"></a>    loss <span class="op">=</span> <span class="op">-</span>np.mean(y <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>))</span>
-<span id="cb7-128"><a href="#cb7-128"></a>    loss_history.append(loss)</span>
-<span id="cb7-129"><a href="#cb7-129"></a>    grad <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> n) <span class="op">*</span> (X_design.T <span class="op">@</span> (p <span class="op">-</span> y))</span>
-<span id="cb7-130"><a href="#cb7-130"></a>    theta <span class="op">-=</span> alpha <span class="op">*</span> grad</span>
-<span id="cb7-131"><a href="#cb7-131"></a></span>
-<span id="cb7-132"><a href="#cb7-132"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.0</span>))</span>
-<span id="cb7-133"><a href="#cb7-133"></a>ax.plot(<span class="bu">range</span>(<span class="dv">1</span>, epochs <span class="op">+</span> <span class="dv">1</span>), loss_history, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
-<span id="cb7-134"><a href="#cb7-134"></a>ax.set_title(<span class="st">'Batch Gradient Descent: Monotonic Convergence of Binary Cross-Entropy'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, pad<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb7-135"><a href="#cb7-135"></a>ax.set_xlabel(<span class="st">'Epoch (Iteration Number)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb7-136"><a href="#cb7-136"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="er">\</span><span class="vs">ell</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb7-137"><a href="#cb7-137"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
-<span id="cb7-138"><a href="#cb7-138"></a></span>
-<span id="cb7-139"><a href="#cb7-139"></a>plt.tight_layout()</span>
-<span id="cb7-140"><a href="#cb7-140"></a>plt.show()</span>
-<span id="cb7-141"><a href="#cb7-141"></a></span>
-<span id="cb7-142"><a href="#cb7-142"></a><span class="bu">print</span>(<span class="ss">f"Final fitted parameters: theta0 (bias) = </span><span class="sc">{</span>theta[<span class="dv">0</span>]<span class="sc">:.3f}</span><span class="ss">, theta_glucose = </span><span class="sc">{</span>theta[<span class="dv">1</span>]<span class="sc">:.3f}</span><span class="ss">, theta_bmi = </span><span class="sc">{</span>theta[<span class="dv">2</span>]<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb7-143"><a href="#cb7-143"></a><span class="in">```</span></span>
+<span id="cb7-125"><a href="#cb7-125"></a>ax.set_xlabel(<span class="vs">r'Parameter </span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-126"><a href="#cb7-126"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="vs">J</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-127"><a href="#cb7-127"></a>ax.set_title(<span class="st">"Logistic Loss Landscape"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-128"><a href="#cb7-128"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb7-129"><a href="#cb7-129"></a></span>
+<span id="cb7-130"><a href="#cb7-130"></a>plt.tight_layout()</span>
+<span id="cb7-131"><a href="#cb7-131"></a>plt.show()</span>
+<span id="cb7-132"><a href="#cb7-132"></a><span class="in">```</span></span>
+<span id="cb7-133"><a href="#cb7-133"></a></span>
+<span id="cb7-134"><a href="#cb7-134"></a>---</span>
+<span id="cb7-135"><a href="#cb7-135"></a></span>
+<span id="cb7-136"><a href="#cb7-136"></a><span class="fu">## 2. Iterative Methods</span></span>
+<span id="cb7-137"><a href="#cb7-137"></a></span>
+<span id="cb7-138"><a href="#cb7-138"></a><span class="fu">### 2.1 Gradient Descent</span></span>
+<span id="cb7-139"><a href="#cb7-139"></a></span>
+<span id="cb7-140"><a href="#cb7-140"></a>Although the non-linear problem cannot be solved analytically, we can use iterative solvers. The Gradient Descent update rule with learning rate $\alpha &gt; 0$ applied to the mean loss $J(\theta)$ is:</span>
+<span id="cb7-141"><a href="#cb7-141"></a>$$\theta^{(t+1)} = \theta^{(t)} - \alpha \nabla J(\theta^{(t)}) = \theta^{(t)} - \frac{\alpha}{n} X^T (\hat{y}^{(t)} - y)$$</span>
+<span id="cb7-142"><a href="#cb7-142"></a></span>
+<span id="cb7-143"><a href="#cb7-143"></a>where $\hat{y}^{(t)} = \sigma(X\theta^{(t)})$.</span>
 <span id="cb7-144"><a href="#cb7-144"></a></span>
-<span id="cb7-145"><a href="#cb7-145"></a>---</span>
+<span id="cb7-145"><a href="#cb7-145"></a>First-order derivatives tell us which direction to step, but do not dictate how far to step. Choosing $\alpha$ requires careful tuning: too small values lead to slow convergence; too large values may cause oscillations or divergence.</span>
 <span id="cb7-146"><a href="#cb7-146"></a></span>
-<span id="cb7-147"><a href="#cb7-147"></a><span class="fu">## 3. Second-Order Curvature: Newton-Raphson &amp; IRLS</span></span>
+<span id="cb7-147"><a href="#cb7-147"></a>---</span>
 <span id="cb7-148"><a href="#cb7-148"></a></span>
-<span id="cb7-149"><a href="#cb7-149"></a><span class="fu">### 3.1 The Hessian Matrix and Quadratic Approximation</span></span>
+<span id="cb7-149"><a href="#cb7-149"></a><span class="fu">### 2.2 Newton's Method</span></span>
 <span id="cb7-150"><a href="#cb7-150"></a></span>
-<span id="cb7-151"><a href="#cb7-151"></a>While Gradient Descent uses only first derivatives (taking linear steps down the steepest slope), **Newton-Raphson** uses the curvature given by the second-derivative **Hessian matrix**:</span>
+<span id="cb7-151"><a href="#cb7-151"></a>Instead of fitting a tangent to a local curve and determining a step size with an ad-hoc learning rate, Newton's method approximates the loss function by a local parabola at the current estimate of $\theta^{(t)}$.</span>
 <span id="cb7-152"><a href="#cb7-152"></a></span>
-<span id="cb7-153"><a href="#cb7-153"></a>$$H = \nabla^2 \ell(\theta) = \frac{1}{n} X^T W X$$</span>
-<span id="cb7-154"><a href="#cb7-154"></a></span>
-<span id="cb7-155"><a href="#cb7-155"></a>where $W \in \mathbb{R}^{n \times n}$ is a diagonal weight matrix of sample variances:</span>
-<span id="cb7-156"><a href="#cb7-156"></a></span>
-<span id="cb7-157"><a href="#cb7-157"></a>$$W_{ii} = \hat{y}_i(1 - \hat{y}_i) = \sigma(x_i^T \theta)\left(1 - \sigma(x_i^T \theta)\right)$$</span>
-<span id="cb7-158"><a href="#cb7-158"></a></span>
-<span id="cb7-159"><a href="#cb7-159"></a><span class="ss">* </span>**Newton Update**:</span>
-<span id="cb7-160"><a href="#cb7-160"></a></span>
-<span id="cb7-161"><a href="#cb7-161"></a>  $$\theta^{(k+1)} = \theta^{(k)} - H^{-1} \nabla \ell(\theta^{(k)})$$</span>
-<span id="cb7-162"><a href="#cb7-162"></a></span>
-<span id="cb7-163"><a href="#cb7-163"></a><span class="ss">* </span>**Iteratively Reweighted Least Squares (IRLS)**:</span>
-<span id="cb7-164"><a href="#cb7-164"></a>  This update can be rearranged into a weighted normal equation:</span>
-<span id="cb7-165"><a href="#cb7-165"></a></span>
-<span id="cb7-166"><a href="#cb7-166"></a>  $$\theta^{(k+1)} = \left(X^T W_k X\right)^{-1} X^T W_k z_k$$</span>
+<span id="cb7-155"><a href="#cb7-155"></a><span class="in">```{python}</span></span>
+<span id="cb7-156"><a href="#cb7-156"></a><span class="co">#| label: fig-newton-step</span></span>
+<span id="cb7-157"><a href="#cb7-157"></a><span class="co">#| fig-cap: "Newton's method in 1D. A quadratic parabola $q(\\theta)$ is fitted locally to the loss curve $J(\\theta)$ at $\\theta^{(0)}$. Jumping directly to the minimum (vertex) of this fitted parabola yields the next estimate $\\theta^{(1)}$, moving closer to the true global minimum $\\theta^*$."</span></span>
+<span id="cb7-158"><a href="#cb7-158"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-159"><a href="#cb7-159"></a><span class="co">#| code-summary: "1D Newton Method: Local Parabola Fit &amp; Vertex Step"</span></span>
+<span id="cb7-160"><a href="#cb7-160"></a><span class="co">#| fig-width: 8.5</span></span>
+<span id="cb7-161"><a href="#cb7-161"></a><span class="co">#| fig-height: 4.6</span></span>
+<span id="cb7-162"><a href="#cb7-162"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb7-163"><a href="#cb7-163"></a><span class="co">#| out-width: "85%"</span></span>
+<span id="cb7-164"><a href="#cb7-164"></a></span>
+<span id="cb7-165"><a href="#cb7-165"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-166"><a href="#cb7-166"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb7-167"><a href="#cb7-167"></a></span>
-<span id="cb7-168"><a href="#cb7-168"></a>  where $z_k = X\theta^{(k)} + W_k^{-1}(y - \hat{y}^{(k)})$ is an adjusted working response.</span>
-<span id="cb7-169"><a href="#cb7-169"></a></span>
-<span id="cb7-170"><a href="#cb7-170"></a><span class="ss">* </span>**The Computational Bottleneck**: Inverting $H$ requires $\mathcal{O}(p^3)$ operations. When $p &gt; 10,000$ features, exact Newton steps become completely intractable.</span>
+<span id="cb7-168"><a href="#cb7-168"></a><span class="co"># 1D feature and labels: identical basis function from Section 1</span></span>
+<span id="cb7-169"><a href="#cb7-169"></a>x_data <span class="op">=</span> np.array([<span class="op">-</span><span class="fl">2.0</span>, <span class="op">-</span><span class="fl">1.0</span>, <span class="op">-</span><span class="fl">0.2</span>, <span class="fl">0.5</span>, <span class="fl">1.2</span>, <span class="fl">2.2</span>])</span>
+<span id="cb7-170"><a href="#cb7-170"></a>y_data <span class="op">=</span> np.array([<span class="dv">0</span>,    <span class="dv">0</span>,    <span class="dv">1</span>,    <span class="dv">0</span>,   <span class="dv">1</span>,   <span class="dv">1</span>])</span>
 <span id="cb7-171"><a href="#cb7-171"></a></span>
-<span id="cb7-172"><a href="#cb7-172"></a><span class="ss">* </span>**Quasi-Newton L-BFGS**: Approximates the inverse Hessian $H^{-1}$ using recent gradient histories without storing the full $p \times p$ matrix.</span>
-<span id="cb7-173"><a href="#cb7-173"></a></span>
-<span id="cb7-174"><a href="#cb7-174"></a>---</span>
-<span id="cb7-175"><a href="#cb7-175"></a></span>
-<span id="cb7-176"><a href="#cb7-176"></a><span class="fu">## 4. Scikit-Learn Excursion &amp; Practical Engineering</span></span>
-<span id="cb7-177"><a href="#cb7-177"></a></span>
-<span id="cb7-178"><a href="#cb7-178"></a><span class="fu">### 4.1 Production Pipeline with Standardization</span></span>
+<span id="cb7-172"><a href="#cb7-172"></a><span class="kw">def</span> sigmoid(z):</span>
+<span id="cb7-173"><a href="#cb7-173"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>np.clip(z, <span class="op">-</span><span class="dv">25</span>, <span class="dv">25</span>)))</span>
+<span id="cb7-174"><a href="#cb7-174"></a></span>
+<span id="cb7-175"><a href="#cb7-175"></a><span class="kw">def</span> loss_func(theta_vals):</span>
+<span id="cb7-176"><a href="#cb7-176"></a>    theta_vals <span class="op">=</span> np.atleast_1d(theta_vals)</span>
+<span id="cb7-177"><a href="#cb7-177"></a>    p <span class="op">=</span> sigmoid(np.outer(theta_vals, x_data))</span>
+<span id="cb7-178"><a href="#cb7-178"></a>    <span class="cf">return</span> <span class="op">-</span>np.mean(y_data <span class="op">*</span> np.log(p <span class="op">+</span> <span class="fl">1e-12</span>) <span class="op">+</span> (<span class="dv">1</span> <span class="op">-</span> y_data) <span class="op">*</span> np.log(<span class="dv">1</span> <span class="op">-</span> p <span class="op">+</span> <span class="fl">1e-12</span>), axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb7-179"><a href="#cb7-179"></a></span>
-<span id="cb7-180"><a href="#cb7-180"></a>In <span class="in">`scikit-learn`</span>, <span class="in">`LogisticRegression`</span> uses <span class="in">`solver="lbfgs"`</span> by default. Because L-BFGS assumes isotropic curvature, **feature standardization ($Z$-scoring) is essential**:</span>
-<span id="cb7-181"><a href="#cb7-181"></a></span>
-<span id="cb7-184"><a href="#cb7-184"></a><span class="in">```{python}</span></span>
-<span id="cb7-185"><a href="#cb7-185"></a><span class="co">#| label: sec-sklearn-pipeline</span></span>
-<span id="cb7-186"><a href="#cb7-186"></a><span class="co">#| code-fold: false</span></span>
-<span id="cb7-187"><a href="#cb7-187"></a><span class="co">#| code-summary: "Fit Production Scikit-Learn Pipeline"</span></span>
-<span id="cb7-188"><a href="#cb7-188"></a></span>
-<span id="cb7-189"><a href="#cb7-189"></a><span class="co"># Robust scikit-learn pipeline</span></span>
-<span id="cb7-190"><a href="#cb7-190"></a>pipeline <span class="op">=</span> make_pipeline(</span>
-<span id="cb7-191"><a href="#cb7-191"></a>    StandardScaler(),</span>
-<span id="cb7-192"><a href="#cb7-192"></a>    LogisticRegression(penalty<span class="op">=</span><span class="st">'l2'</span>, C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
-<span id="cb7-193"><a href="#cb7-193"></a>)</span>
-<span id="cb7-194"><a href="#cb7-194"></a></span>
-<span id="cb7-195"><a href="#cb7-195"></a>pipeline.fit(X_raw, y)</span>
-<span id="cb7-196"><a href="#cb7-196"></a></span>
-<span id="cb7-197"><a href="#cb7-197"></a>clf <span class="op">=</span> pipeline.named_steps[<span class="st">'logisticregression'</span>]</span>
-<span id="cb7-198"><a href="#cb7-198"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Intercept (theta0):         </span><span class="sc">{</span>clf<span class="sc">.</span>intercept_[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb7-199"><a href="#cb7-199"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Glucose Weight (theta1):   </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb7-200"><a href="#cb7-200"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn BMI Weight (theta2):       </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
-<span id="cb7-201"><a href="#cb7-201"></a><span class="in">```</span></span>
-<span id="cb7-202"><a href="#cb7-202"></a></span>
-<span id="cb7-203"><a href="#cb7-203"></a>---</span>
-<span id="cb7-204"><a href="#cb7-204"></a></span>
-<span id="cb7-205"><a href="#cb7-205"></a><span class="fu">### 4.2 Regularization via `C = 1 / λ` and Complete Separation</span></span>
-<span id="cb7-206"><a href="#cb7-206"></a></span>
-<span id="cb7-207"><a href="#cb7-207"></a><span class="ss">* </span>**The Complete Separation Danger**: If healthy and diabetic patients can be separated with 100% precision without overlap, standard maximum likelihood drives $<span class="sc">\|</span>\theta<span class="sc">\|</span> \to \infty$ and $\sigma(z) \to <span class="sc">\{</span>0, 1<span class="sc">\}</span>$, causing optimizer divergence.</span>
-<span id="cb7-208"><a href="#cb7-208"></a><span class="ss">* </span>**Regularization Parameter `C`**:</span>
-<span id="cb7-209"><a href="#cb7-209"></a><span class="ss">  * </span>Scikit-learn penalizes weights using $C = \frac{1}{\lambda}$.</span>
-<span id="cb7-210"><a href="#cb7-210"></a><span class="ss">  * </span>Small $C$ (e.g. $C = 0.01$): Strong regularization, prevents overfitting and tames weight explosion.</span>
-<span id="cb7-211"><a href="#cb7-211"></a><span class="ss">  * </span>Large $C$ (e.g. $C = 100$): Weak regularization, fits data aggressively.</span>
-<span id="cb7-212"><a href="#cb7-212"></a></span>
-<span id="cb7-213"><a href="#cb7-213"></a>---</span>
-<span id="cb7-214"><a href="#cb7-214"></a></span>
-<span id="cb7-215"><a href="#cb7-215"></a><span class="fu">## 5. Review &amp; Key Takeaways</span></span>
-<span id="cb7-216"><a href="#cb7-216"></a></span>
-<span id="cb7-217"><a href="#cb7-217"></a><span class="pp">|</span> Method <span class="pp">|</span> Order <span class="pp">|</span> Per-Step Complexity <span class="pp">|</span> Convergence Speed <span class="pp">|</span> Scalability in $D$ <span class="pp">|</span></span>
-<span id="cb7-218"><a href="#cb7-218"></a><span class="pp">| :---</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">| :---:</span> <span class="pp">|</span></span>
-<span id="cb7-219"><a href="#cb7-219"></a><span class="pp">|</span> **Analytical OLS** <span class="pp">|</span> Closed-Form <span class="pp">|</span> $\mathcal{O}(nD^2 + D^3)$ (one step) <span class="pp">|</span> N/A (Linear only) <span class="pp">|</span> Fails for $D &gt; 10^4$ <span class="pp">|</span></span>
-<span id="cb7-220"><a href="#cb7-220"></a><span class="pp">|</span> **Batch Gradient Descent (BGD)** <span class="pp">|</span> 1st Order <span class="pp">|</span> $\mathcal{O}(nD)$ per epoch <span class="pp">|</span> Linear (moderate) <span class="pp">|</span> Excellent <span class="pp">|</span></span>
-<span id="cb7-221"><a href="#cb7-221"></a><span class="pp">|</span> **Newton-Raphson / IRLS** <span class="pp">|</span> 2nd Order <span class="pp">|</span> $\mathcal{O}(nD^2 + D^3)$ per step <span class="pp">|</span> Quadratic (very fast: 4–8 steps) <span class="pp">|</span> Poor when $D$ is large <span class="pp">|</span></span>
-<span id="cb7-222"><a href="#cb7-222"></a><span class="pp">|</span> **Quasi-Newton (L-BFGS)** <span class="pp">|</span> 1st + Hist <span class="pp">|</span> $\mathcal{O}(m \cdot D)$ per step <span class="pp">|</span> Superlinear (fast) <span class="pp">|</span> Standard Industry Default <span class="pp">|</span></span>
+<span id="cb7-180"><a href="#cb7-180"></a><span class="kw">def</span> grad_func(theta):</span>
+<span id="cb7-181"><a href="#cb7-181"></a>    p <span class="op">=</span> sigmoid(theta <span class="op">*</span> x_data)</span>
+<span id="cb7-182"><a href="#cb7-182"></a>    <span class="cf">return</span> np.mean((p <span class="op">-</span> y_data) <span class="op">*</span> x_data)</span>
+<span id="cb7-183"><a href="#cb7-183"></a></span>
+<span id="cb7-184"><a href="#cb7-184"></a><span class="kw">def</span> hess_func(theta):</span>
+<span id="cb7-185"><a href="#cb7-185"></a>    p <span class="op">=</span> sigmoid(theta <span class="op">*</span> x_data)</span>
+<span id="cb7-186"><a href="#cb7-186"></a>    <span class="cf">return</span> np.mean(p <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p) <span class="op">*</span> (x_data <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb7-187"><a href="#cb7-187"></a></span>
+<span id="cb7-188"><a href="#cb7-188"></a><span class="co"># Grid for plotting curves and identifying the true minimum</span></span>
+<span id="cb7-189"><a href="#cb7-189"></a>theta_grid <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">1.5</span>, <span class="fl">3.5</span>, <span class="dv">400</span>)</span>
+<span id="cb7-190"><a href="#cb7-190"></a>J_grid <span class="op">=</span> loss_func(theta_grid)</span>
+<span id="cb7-191"><a href="#cb7-191"></a>th_star <span class="op">=</span> theta_grid[np.argmin(J_grid)]</span>
+<span id="cb7-192"><a href="#cb7-192"></a>J_star <span class="op">=</span> np.<span class="bu">min</span>(J_grid)</span>
+<span id="cb7-193"><a href="#cb7-193"></a></span>
+<span id="cb7-194"><a href="#cb7-194"></a><span class="co"># Iteration from theta_0 = -0.3</span></span>
+<span id="cb7-195"><a href="#cb7-195"></a>theta_0 <span class="op">=</span> <span class="op">-</span><span class="fl">0.3</span></span>
+<span id="cb7-196"><a href="#cb7-196"></a>J_0 <span class="op">=</span> loss_func(theta_0)[<span class="dv">0</span>]</span>
+<span id="cb7-197"><a href="#cb7-197"></a>dJ_0 <span class="op">=</span> grad_func(theta_0)</span>
+<span id="cb7-198"><a href="#cb7-198"></a>ddJ_0 <span class="op">=</span> hess_func(theta_0)</span>
+<span id="cb7-199"><a href="#cb7-199"></a></span>
+<span id="cb7-200"><a href="#cb7-200"></a><span class="co"># Newton step 1: optimal adaptive step alpha_0* = 1 / ddJ_0 to parabola vertex</span></span>
+<span id="cb7-201"><a href="#cb7-201"></a>theta_1 <span class="op">=</span> theta_0 <span class="op">-</span> dJ_0 <span class="op">/</span> ddJ_0</span>
+<span id="cb7-202"><a href="#cb7-202"></a>q_vertex <span class="op">=</span> J_0 <span class="op">+</span> dJ_0 <span class="op">*</span> (theta_1 <span class="op">-</span> theta_0) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> ddJ_0 <span class="op">*</span> (theta_1 <span class="op">-</span> theta_0)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb7-203"><a href="#cb7-203"></a></span>
+<span id="cb7-204"><a href="#cb7-204"></a><span class="co"># Full parabola fitted at theta_0: symmetric around vertex theta_1</span></span>
+<span id="cb7-205"><a href="#cb7-205"></a>th_p0 <span class="op">=</span> np.linspace(<span class="op">-</span><span class="fl">0.9</span>, <span class="fl">2.8</span>, <span class="dv">200</span>)</span>
+<span id="cb7-206"><a href="#cb7-206"></a>q0 <span class="op">=</span> J_0 <span class="op">+</span> dJ_0 <span class="op">*</span> (th_p0 <span class="op">-</span> theta_0) <span class="op">+</span> <span class="fl">0.5</span> <span class="op">*</span> ddJ_0 <span class="op">*</span> (th_p0 <span class="op">-</span> theta_0)<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb7-207"><a href="#cb7-207"></a></span>
+<span id="cb7-208"><a href="#cb7-208"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.6</span>))</span>
+<span id="cb7-209"><a href="#cb7-209"></a></span>
+<span id="cb7-210"><a href="#cb7-210"></a><span class="co"># Plot loss and full fitted parabola</span></span>
+<span id="cb7-211"><a href="#cb7-211"></a>ax.plot(theta_grid, J_grid, color<span class="op">=</span><span class="st">'#1f77b4'</span>, lw<span class="op">=</span><span class="fl">2.5</span>)</span>
+<span id="cb7-212"><a href="#cb7-212"></a>ax.plot(th_p0, q0, <span class="st">'--'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, lw<span class="op">=</span><span class="fl">2.2</span>)</span>
+<span id="cb7-213"><a href="#cb7-213"></a></span>
+<span id="cb7-214"><a href="#cb7-214"></a><span class="co"># The three key points: orange filled circles for theta_0 and theta_1, blue filled circle for theta*</span></span>
+<span id="cb7-215"><a href="#cb7-215"></a>ax.plot(theta_0, J_0, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-216"><a href="#cb7-216"></a>ax.plot(theta_1, q_vertex, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-217"><a href="#cb7-217"></a>ax.plot(th_star, J_star, <span class="st">'o'</span>, color<span class="op">=</span><span class="st">'#1f77b4'</span>, markersize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb7-218"><a href="#cb7-218"></a></span>
+<span id="cb7-219"><a href="#cb7-219"></a><span class="co"># Vertical dashed reference lines to x-axis</span></span>
+<span id="cb7-220"><a href="#cb7-220"></a>ax.axvline(theta_0, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb7-221"><a href="#cb7-221"></a>ax.axvline(theta_1, color<span class="op">=</span><span class="st">'#ff7f0e'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
+<span id="cb7-222"><a href="#cb7-222"></a>ax.axvline(th_star, color<span class="op">=</span><span class="st">'#1f77b4'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">1.2</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
 <span id="cb7-223"><a href="#cb7-223"></a></span>
-<span id="cb7-224"><a href="#cb7-224"></a>::: {.callout-important}</span>
-<span id="cb7-225"><a href="#cb7-225"></a><span class="fu">### Core Pedagogical Takeaways</span></span>
-<span id="cb7-226"><a href="#cb7-226"></a></span>
-<span id="cb7-227"><a href="#cb7-227"></a><span class="ss">1. </span>**Iterative Solvers are Mandatory**: Non-linear likelihood gradients cannot be inverted in closed form.</span>
-<span id="cb7-228"><a href="#cb7-228"></a><span class="ss">2. </span>**Feature Scaling is Essential**: Without $Z$-scores, gradient descent zig-zags across elongated loss contours.</span>
-<span id="cb7-229"><a href="#cb7-229"></a><span class="ss">3. </span>**L-BFGS is the Modern Workhorse**: It captures second-order curvature without the crippling $O(D^3)$ cost of full matrix inversion.</span>
-<span id="cb7-230"><a href="#cb7-230"></a><span class="ss">4. </span>**Next Lecture Preview**: In **Lecture 09: Logistic Regression: Continuation**, we expand from single binary outputs to multivariate categorical targets, one-hot encoding, parameter matrices $Z = X\Theta$, Softmax, and the direct bridge to Artificial Neural Networks.</span>
-<span id="cb7-231"><a href="#cb7-231"></a>:::</span>
+<span id="cb7-224"><a href="#cb7-224"></a><span class="co"># Custom x-tick annotations for theta_0, theta_1, theta*</span></span>
+<span id="cb7-225"><a href="#cb7-225"></a>ax.set_xticks([<span class="op">-</span><span class="fl">1.0</span>, theta_0, <span class="fl">0.5</span>, theta_1, th_star, <span class="fl">3.0</span>])</span>
+<span id="cb7-226"><a href="#cb7-226"></a>ax.set_xticklabels([<span class="st">'-1.0'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="vs">{</span><span class="kw">(</span><span class="vs">0</span><span class="kw">)</span><span class="vs">}</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'0.5'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="vs">{</span><span class="kw">(</span><span class="vs">1</span><span class="kw">)</span><span class="vs">}</span><span class="dv">$</span><span class="vs">'</span>, <span class="vs">r'</span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">^</span><span class="op">*</span><span class="dv">$</span><span class="vs">'</span>, <span class="st">'3.0'</span>], fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-227"><a href="#cb7-227"></a></span>
+<span id="cb7-228"><a href="#cb7-228"></a>ax.set_xlabel(<span class="vs">r'Parameter </span><span class="dv">$</span><span class="ch">\t</span><span class="vs">heta</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-229"><a href="#cb7-229"></a>ax.set_ylabel(<span class="vs">r'Loss </span><span class="dv">$</span><span class="vs">J</span><span class="kw">(</span><span class="ch">\t</span><span class="vs">heta</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-230"><a href="#cb7-230"></a>ax.set_title(<span class="st">"Newton's Method"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-231"><a href="#cb7-231"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb7-232"><a href="#cb7-232"></a></span>
+<span id="cb7-233"><a href="#cb7-233"></a>plt.tight_layout()</span>
+<span id="cb7-234"><a href="#cb7-234"></a>plt.show()</span>
+<span id="cb7-235"><a href="#cb7-235"></a><span class="in">```</span></span>
+<span id="cb7-236"><a href="#cb7-236"></a></span>
+<span id="cb7-237"><a href="#cb7-237"></a>Solving for the exact minimum of this fitted parabola yields the next estimate, which is hopefully improved:</span>
+<span id="cb7-238"><a href="#cb7-238"></a>$$\theta^{(t+1)} = \theta^{(t)} - \frac{J'(\theta^{(t)})}{J''(\theta^{(t)})}$$</span>
+<span id="cb7-239"><a href="#cb7-239"></a></span>
+<span id="cb7-240"><a href="#cb7-240"></a>Comparing this update to gradient descent reveals that Newton's method provides a curvature-dependent adaptive step size:</span>
+<span id="cb7-241"><a href="#cb7-241"></a>$$\alpha(t) = \frac{1}{J''(\theta^{(t)})}$$</span>
+<span id="cb7-242"><a href="#cb7-242"></a></span>
+<span id="cb7-243"><a href="#cb7-243"></a>Where the surface has steep curvature and $J''$ is large, the step size shrinks to prevent overshooting; where the surface is flat, the step size expands to accelerate convergence.</span>
+<span id="cb7-244"><a href="#cb7-244"></a></span>
+<span id="cb7-245"><a href="#cb7-245"></a>For the vertex of the fitted parabola to be a local **minimum**, the second derivative must satisfy $J''(\theta) &gt; 0$. In logistic regression, $J''(\theta) &gt; 0$ everywhere, so the objective is **strictly convex**, ensuring that minimizing the fitted parabola always moves toward the unique global minimum.</span>
+<span id="cb7-246"><a href="#cb7-246"></a></span>
+<span id="cb7-247"><a href="#cb7-247"></a>---</span>
+<span id="cb7-248"><a href="#cb7-248"></a></span>
+<span id="cb7-249"><a href="#cb7-249"></a><span class="fu">### 2.3 Newton's Method in Higher Dimensions</span></span>
+<span id="cb7-250"><a href="#cb7-250"></a></span>
+<span id="cb7-251"><a href="#cb7-251"></a>When generalizing to $D$-dimensional parameter spaces ($\theta \in \mathbb{R}^D$), the scalar second derivative $J''$ amounts to a **weighted Hessian matrix**:</span>
+<span id="cb7-252"><a href="#cb7-252"></a>$$H = \nabla^2 J(\theta) = \frac{1}{n} X^T W X$$</span>
+<span id="cb7-253"><a href="#cb7-253"></a>where $W = \text{diag}\left( \hat{y}_1(1 - \hat{y}_1), \dots, \hat{y}_n(1 - \hat{y}_n) \right)$ is a diagonal weight matrix of sample variances. Each observation is weighted by its proximity to the decision boundary: observations near $\hat{y} \approx 0.5$ have maximal variance ($W_{ii} \approx 0.25$) and exert the strongest influence on curvature.</span>
+<span id="cb7-254"><a href="#cb7-254"></a></span>
+<span id="cb7-255"><a href="#cb7-255"></a>The multivariate Newton update rule is:</span>
+<span id="cb7-256"><a href="#cb7-256"></a>$$\theta^{(t+1)} = \theta^{(t)} - H^{-1} \nabla J(\theta^{(t)})$$</span>
+<span id="cb7-257"><a href="#cb7-257"></a></span>
+<span id="cb7-258"><a href="#cb7-258"></a></span>
+<span id="cb7-259"><a href="#cb7-259"></a>Calculating and inverting the $D \times D$ Hessian matrix at each iteration is computationally heavy: $\mathcal{O}(D^3)$.</span>
+<span id="cb7-260"><a href="#cb7-260"></a></span>
+<span id="cb7-261"><a href="#cb7-261"></a>In practice, $H^{-1}$ is approximated. One standard implementation is <span class="co">[</span><span class="ot">**L-BFGS**</span><span class="co">](https://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm)</span>. (1970, 4 independent authors, 4 publications!)</span>
+<span id="cb7-262"><a href="#cb7-262"></a></span>
+<span id="cb7-263"><a href="#cb7-263"></a>---</span>
+<span id="cb7-264"><a href="#cb7-264"></a></span>
+<span id="cb7-265"><a href="#cb7-265"></a><span class="fu">## 3. Scikit-Learn in Practice</span></span>
+<span id="cb7-266"><a href="#cb7-266"></a></span>
+<span id="cb7-267"><a href="#cb7-267"></a>In <span class="in">`scikit-learn`</span>, <span class="in">`LogisticRegression`</span> uses <span class="in">`solver="lbfgs"`</span> by default. </span>
+<span id="cb7-268"><a href="#cb7-268"></a>Also notce that we can define a maximal number of iterations and a regularization parameter $C$ (see later).</span>
+<span id="cb7-269"><a href="#cb7-269"></a></span>
+<span id="cb7-270"><a href="#cb7-270"></a>As is common we should normalize/standardize all features to avoid widely differing magnitudes.</span>
+<span id="cb7-271"><a href="#cb7-271"></a></span>
+<span id="cb7-272"><a href="#cb7-272"></a></span>
+<span id="cb7-275"><a href="#cb7-275"></a><span class="in">```{python}</span></span>
+<span id="cb7-276"><a href="#cb7-276"></a><span class="co">#| label: sec-sklearn-pipeline</span></span>
+<span id="cb7-277"><a href="#cb7-277"></a><span class="co">#| code-fold: false</span></span>
+<span id="cb7-278"><a href="#cb7-278"></a><span class="co">#| code-summary: "Fit Production Scikit-Learn Pipeline"</span></span>
+<span id="cb7-279"><a href="#cb7-279"></a></span>
+<span id="cb7-280"><a href="#cb7-280"></a><span class="co"># defne model and raw data</span></span>
+<span id="cb7-281"><a href="#cb7-281"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-282"><a href="#cb7-282"></a>n <span class="op">=</span> <span class="dv">150</span></span>
+<span id="cb7-283"><a href="#cb7-283"></a>glucose <span class="op">=</span> np.random.uniform(<span class="dv">70</span>, <span class="dv">180</span>, n)</span>
+<span id="cb7-284"><a href="#cb7-284"></a>bmi <span class="op">=</span> np.random.uniform(<span class="dv">18</span>, <span class="dv">42</span>, n)</span>
+<span id="cb7-285"><a href="#cb7-285"></a>z_true <span class="op">=</span> <span class="op">-</span><span class="fl">12.0</span> <span class="op">+</span> <span class="fl">0.07</span> <span class="op">*</span> glucose <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> bmi</span>
+<span id="cb7-286"><a href="#cb7-286"></a>y <span class="op">=</span> (<span class="fl">1.0</span> <span class="op">/</span> (<span class="fl">1.0</span> <span class="op">+</span> np.exp(<span class="op">-</span>z_true)) <span class="op">&gt;</span> <span class="fl">0.5</span>).astype(<span class="bu">int</span>)</span>
+<span id="cb7-287"><a href="#cb7-287"></a>X_raw <span class="op">=</span> np.column_stack([glucose, bmi])</span>
+<span id="cb7-288"><a href="#cb7-288"></a></span>
+<span id="cb7-289"><a href="#cb7-289"></a><span class="co"># scikit-learn pipeline (incl. scaling)</span></span>
+<span id="cb7-290"><a href="#cb7-290"></a>pipeline <span class="op">=</span> make_pipeline(</span>
+<span id="cb7-291"><a href="#cb7-291"></a>    StandardScaler(),</span>
+<span id="cb7-292"><a href="#cb7-292"></a>    LogisticRegression(C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb7-293"><a href="#cb7-293"></a>)</span>
+<span id="cb7-294"><a href="#cb7-294"></a></span>
+<span id="cb7-295"><a href="#cb7-295"></a>pipeline.fit(X_raw, y)</span>
+<span id="cb7-296"><a href="#cb7-296"></a></span>
+<span id="cb7-297"><a href="#cb7-297"></a>clf <span class="op">=</span> pipeline.named_steps[<span class="st">'logisticregression'</span>]</span>
+<span id="cb7-298"><a href="#cb7-298"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Intercept (theta0):      </span><span class="sc">{</span>clf<span class="sc">.</span>intercept_[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-299"><a href="#cb7-299"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn Glucose Weight (theta1): </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-300"><a href="#cb7-300"></a><span class="bu">print</span>(<span class="ss">f"Scikit-Learn BMI Weight (theta2):     </span><span class="sc">{</span>clf<span class="sc">.</span>coef_[<span class="dv">0</span>, <span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-301"><a href="#cb7-301"></a><span class="in">```</span></span>
+<span id="cb7-302"><a href="#cb7-302"></a></span>
+<span id="cb7-303"><a href="#cb7-303"></a>---</span>
+<span id="cb7-304"><a href="#cb7-304"></a></span>
+<span id="cb7-305"><a href="#cb7-305"></a><span class="fu">## 4. Regularization and Complete Separation</span></span>
+<span id="cb7-306"><a href="#cb7-306"></a></span>
+<span id="cb7-307"><a href="#cb7-307"></a>In linear regression, regularization (Ridge or Lasso) is introduced to **prevent overfitting**.</span>
+<span id="cb7-308"><a href="#cb7-308"></a></span>
+<span id="cb7-309"><a href="#cb7-309"></a>In logistic regression, regularization serves a second purpose: **prevent solver breakdown** due to complete separation.</span>
+<span id="cb7-310"><a href="#cb7-310"></a></span>
+<span id="cb7-311"><a href="#cb7-311"></a><span class="fu">### An Example</span></span>
+<span id="cb7-312"><a href="#cb7-312"></a></span>
+<span id="cb7-313"><a href="#cb7-313"></a>Suppose the **HbA1c** (glycated hemoglobin, in %) levels are measured for all patients. The clinical guidelines are as follows: allhealthy patients have $\text{HbA1c} &lt; 6.5\%$, and all diabetic patients have $\text{HbA1c} \ge 6.5\%$. This is perfect separation.</span>
+<span id="cb7-314"><a href="#cb7-314"></a></span>
+<span id="cb7-315"><a href="#cb7-315"></a>What happens when we minimize deviance? The model seeks predicted probabilities that reach their theoretical extremes:</span>
+<span id="cb7-316"><a href="#cb7-316"></a>  $$\hat{y}_i = \sigma(x_i^T \theta) \to 1 \quad \text{for all } y_i = 1$$</span>
+<span id="cb7-317"><a href="#cb7-317"></a>  $$\hat{y}_i = \sigma(x_i^T \theta) \to 0 \quad \text{for all } y_i = 0$$</span>
+<span id="cb7-318"><a href="#cb7-318"></a></span>
+<span id="cb7-319"><a href="#cb7-319"></a>Because the sigmoid function only approaches 0 and 1 asymptotically, this will force</span>
+<span id="cb7-320"><a href="#cb7-320"></a></span>
+<span id="cb7-321"><a href="#cb7-321"></a>  $$<span class="sc">\|</span>\theta<span class="sc">\|</span> \to \infty$$</span>
+<span id="cb7-322"><a href="#cb7-322"></a></span>
+<span id="cb7-323"><a href="#cb7-323"></a>This will trigger numerical overflow ($\exp(-x_i^T \theta)$) and optimizer failure.</span>
+<span id="cb7-324"><a href="#cb7-324"></a></span>
+<span id="cb7-325"><a href="#cb7-325"></a>As before, this can be regularized by a penalty term in the loss function that will prevent large weights:</span>
+<span id="cb7-326"><a href="#cb7-326"></a></span>
+<span id="cb7-327"><a href="#cb7-327"></a>$$J_{\text{reg}}(\theta) = J(\theta) + \frac{1}{2C} <span class="sc">\|</span>\theta<span class="sc">\|</span>^2$$</span>
+<span id="cb7-328"><a href="#cb7-328"></a></span>
+<span id="cb7-329"><a href="#cb7-329"></a></span>
+<span id="cb7-330"><a href="#cb7-330"></a>In scikit-learn, <span class="in">`LogisticRegression`</span> applies an $L_2$ penalty by default with $C=1.0$</span>
+<span id="cb7-331"><a href="#cb7-331"></a></span>
+<span id="cb7-332"><a href="#cb7-332"></a></span>
+<span id="cb7-335"><a href="#cb7-335"></a><span class="in">```{python}</span></span>
+<span id="cb7-336"><a href="#cb7-336"></a><span class="co">#| label: fig-complete-separation</span></span>
+<span id="cb7-337"><a href="#cb7-337"></a><span class="co">#| fig-cap: "Complete separation on an HbA1c cohort: weak regularization ($C = 10^4$, red line) makes overly confident decisions in the separation margin where there are no data, collapsing into an abrupt step function. Because the weights are driven towards infinity ($\\|\\theta\\| \\to \\infty$), this curve may not have even converged if the iterations are interrupted (e.g., max_iter = 1000). In contrast, default regularization ($C = 1.0$, blue line) reflects higher uncertainty in the margin between perfectly separated data points, producing smoother transitions."</span></span>
+<span id="cb7-338"><a href="#cb7-338"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb7-339"><a href="#cb7-339"></a><span class="co">#| code-summary: "Complete Separation and Regularization"</span></span>
+<span id="cb7-340"><a href="#cb7-340"></a><span class="co">#| fig-width: 8.5</span></span>
+<span id="cb7-341"><a href="#cb7-341"></a><span class="co">#| fig-height: 4.4</span></span>
+<span id="cb7-342"><a href="#cb7-342"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb7-343"><a href="#cb7-343"></a><span class="co">#| out-width: "85%"</span></span>
+<span id="cb7-344"><a href="#cb7-344"></a></span>
+<span id="cb7-345"><a href="#cb7-345"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-346"><a href="#cb7-346"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb7-347"><a href="#cb7-347"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
+<span id="cb7-348"><a href="#cb7-348"></a></span>
+<span id="cb7-349"><a href="#cb7-349"></a><span class="co"># Synthetic clinical cohort perfectly separated by HbA1c (%)</span></span>
+<span id="cb7-350"><a href="#cb7-350"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb7-351"><a href="#cb7-351"></a>n_healthy, n_diabetic <span class="op">=</span> <span class="dv">30</span>, <span class="dv">30</span></span>
+<span id="cb7-352"><a href="#cb7-352"></a>hba1c_healthy <span class="op">=</span> np.random.uniform(<span class="fl">4.8</span>, <span class="fl">6.2</span>, n_healthy)</span>
+<span id="cb7-353"><a href="#cb7-353"></a>hba1c_diabetic <span class="op">=</span> np.random.uniform(<span class="fl">6.7</span>, <span class="fl">8.5</span>, n_diabetic)</span>
+<span id="cb7-354"><a href="#cb7-354"></a></span>
+<span id="cb7-355"><a href="#cb7-355"></a>X <span class="op">=</span> np.concatenate([hba1c_healthy, hba1c_diabetic]).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb7-356"><a href="#cb7-356"></a>y <span class="op">=</span> np.concatenate([np.zeros(n_healthy), np.ones(n_diabetic)])</span>
+<span id="cb7-357"><a href="#cb7-357"></a></span>
+<span id="cb7-358"><a href="#cb7-358"></a><span class="co"># Fit Logistic Regression models with varying C (L2 default)</span></span>
+<span id="cb7-359"><a href="#cb7-359"></a>clf_weak <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1e4</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">1000</span>).fit(X, y)</span>
+<span id="cb7-360"><a href="#cb7-360"></a>clf_default <span class="op">=</span> LogisticRegression(C<span class="op">=</span><span class="fl">1.0</span>, solver<span class="op">=</span><span class="st">"lbfgs"</span>, max_iter<span class="op">=</span><span class="dv">1000</span>).fit(X, y)</span>
+<span id="cb7-361"><a href="#cb7-361"></a></span>
+<span id="cb7-362"><a href="#cb7-362"></a>x_grid <span class="op">=</span> np.linspace(<span class="fl">4.5</span>, <span class="fl">8.8</span>, <span class="dv">500</span>).reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb7-363"><a href="#cb7-363"></a></span>
+<span id="cb7-364"><a href="#cb7-364"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">8.5</span>, <span class="fl">4.4</span>))</span>
+<span id="cb7-365"><a href="#cb7-365"></a></span>
+<span id="cb7-366"><a href="#cb7-366"></a><span class="co"># Plot observations (in front of curves)</span></span>
+<span id="cb7-367"><a href="#cb7-367"></a>ax.scatter(hba1c_healthy, np.zeros_like(hba1c_healthy), color<span class="op">=</span><span class="st">'#1f77b4'</span>, s<span class="op">=</span><span class="dv">45</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Healthy ($y=0$)'</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-368"><a href="#cb7-368"></a>ax.scatter(hba1c_diabetic, np.ones_like(hba1c_diabetic), color<span class="op">=</span><span class="st">'#d62728'</span>, s<span class="op">=</span><span class="dv">45</span>, alpha<span class="op">=</span><span class="fl">0.85</span>, edgecolors<span class="op">=</span><span class="st">'k'</span>, linewidths<span class="op">=</span><span class="fl">0.7</span>, label<span class="op">=</span><span class="st">'Diabetic ($y=1$)'</span>, zorder<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb7-369"><a href="#cb7-369"></a></span>
+<span id="cb7-370"><a href="#cb7-370"></a><span class="co"># Separation margin band</span></span>
+<span id="cb7-371"><a href="#cb7-371"></a>ax.axvspan(<span class="fl">6.2</span>, <span class="fl">6.7</span>, color<span class="op">=</span><span class="st">'gray'</span>, alpha<span class="op">=</span><span class="fl">0.15</span>, label<span class="op">=</span><span class="st">'Separation Margin'</span>, zorder<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-372"><a href="#cb7-372"></a></span>
+<span id="cb7-373"><a href="#cb7-373"></a><span class="co"># Sigmoid curves across regularization strengths</span></span>
+<span id="cb7-374"><a href="#cb7-374"></a>ax.plot(x_grid, clf_weak.predict_proba(x_grid)[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#e41a1c'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, linestyle<span class="op">=</span><span class="st">'-'</span>, </span>
+<span id="cb7-375"><a href="#cb7-375"></a>        label<span class="op">=</span><span class="vs">r'Weak Regularization </span><span class="kw">(</span><span class="dv">$</span><span class="vs">C = 10</span><span class="dv">^</span><span class="vs">4</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-376"><a href="#cb7-376"></a>ax.plot(x_grid, clf_default.predict_proba(x_grid)[:, <span class="dv">1</span>], color<span class="op">=</span><span class="st">'#377eb8'</span>, lw<span class="op">=</span><span class="fl">2.2</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, </span>
+<span id="cb7-377"><a href="#cb7-377"></a>        label<span class="op">=</span><span class="vs">r'Default </span><span class="kw">(</span><span class="dv">$</span><span class="vs">C = 1</span><span class="dv">.</span><span class="vs">0</span><span class="dv">$</span><span class="kw">)</span><span class="vs">'</span>, zorder<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb7-378"><a href="#cb7-378"></a></span>
+<span id="cb7-379"><a href="#cb7-379"></a>ax.set_xlabel(<span class="st">'Glycated Hemoglobin (HbA1c in %)'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-380"><a href="#cb7-380"></a>ax.set_ylabel(<span class="vs">r'Predicted Probability </span><span class="dv">$</span><span class="vs">P</span><span class="kw">(</span><span class="vs">Y = 1 </span><span class="dv">\m</span><span class="vs">id </span><span class="ch">\t</span><span class="vs">ext{HbA1c}</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb7-381"><a href="#cb7-381"></a>ax.set_title(<span class="st">"Complete Separation and the Effect of Regularization"</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb7-382"><a href="#cb7-382"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.08</span>, <span class="fl">1.08</span>)</span>
+<span id="cb7-383"><a href="#cb7-383"></a>ax.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-384"><a href="#cb7-384"></a>ax.axhline(<span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-385"><a href="#cb7-385"></a>ax.axhline(<span class="dv">1</span>, color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, lw<span class="op">=</span><span class="fl">0.8</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-386"><a href="#cb7-386"></a>ax.legend(loc<span class="op">=</span><span class="st">'lower right'</span>, frameon<span class="op">=</span><span class="va">True</span>, fontsize<span class="op">=</span><span class="fl">9.5</span>)</span>
+<span id="cb7-387"><a href="#cb7-387"></a>ax.grid(<span class="va">True</span>, linestyle<span class="op">=</span><span class="st">':'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb7-388"><a href="#cb7-388"></a></span>
+<span id="cb7-389"><a href="#cb7-389"></a>plt.tight_layout()</span>
+<span id="cb7-390"><a href="#cb7-390"></a>plt.show()</span>
+<span id="cb7-391"><a href="#cb7-391"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
